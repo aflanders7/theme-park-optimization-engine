@@ -8,6 +8,7 @@ const USER_DATA_DIR = './my-chrome-profile';
 const DINING_URL = 'https://disneyworld.disney.go.com/dine-res/availability';
 const LOGIN_URL = 'https://disneyworld.disney.go.com/login/';
 
+const token = 'eyJraWQiOiJndWVzdGNvbnRyb2xsZXItLTE2MjAxOTM1NDQiLCJhbGciOiJFUzI1NiJ9.eyJqdGkiOiJPdDZFWTdBa2hzc28xLXdLRjFVcDJ3IiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnJlZ2lzdGVyZGlzbmV5LmdvLmNvbSIsImF1ZCI6InVybjpkaXNuZXk6b25laWQ6cHJvZCIsInN1YiI6Ins3RkEwNUNCMS0yMDAzLTQwODktODQ2Mi00OEE2QkMxNDZBNUZ9IiwiaWF0IjoxNzQ2NjYxMzA3LCJuYmYiOjE3NDYyOTIzMDYsImV4cCI6MTc0Njc0NzcwNywiY2xpZW50X2lkIjoiVFBSLVdEVy1MQkpTLldFQi1QUk9EIiwibGlkIjoiYTljODlkZjUtNjg0YS00YWI1LWFlYWItYmUzM2Y3OWE0MzQyIiwiY2F0IjoiZ3Vlc3QifQ.GwrDtRk7EJuJwf2eDW6UwMGvgPxvzCtOqK161JUQut1XVJyvIqJWI1gUtFUJblXn7V9aR1Ku2WkWk3Wsrc49MA';
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -20,10 +21,43 @@ async function loadCookies(page) {
     }
 }
 
+function getCookieHeaderFromFile() {
+    const cookies = JSON.parse(fs.readFileSync(COOKIES_PATH));
+    return cookies
+        .map(cookie => `${cookie.name}=${cookie.value}`)
+        .join('; ');
+}
+
 async function saveCookies(page) {
     const cookies = await page.cookies();
     fs.writeFileSync(COOKIES_PATH, JSON.stringify(cookies, null, 2));
     console.log('Cookies saved.');
+}
+
+const fetch = require('node-fetch'); // npm install node-fetch@2
+
+async function fetchAvailabilityFromAPI() {
+    const cookieHeader = getCookieHeaderFromFile();
+    const date = '2025-05-15';
+    const url = `https://disneyworld.disney.go.com/dine-res/api/availability/3/2025-05-15/00:00:00,23:59:59`;
+
+    const response = await fetch(url, {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Cookie': cookieHeader,
+            'User-Agent': 'Mozilla/5.0', // Mimic browser User-Agent
+            'Accept': 'application/json', // Ensuring we get the correct content type
+            'Accept-Encoding': 'gzip, deflate, br', // Standard encoding
+            'Accept-Language': 'en-US,en;q=0.9', // Preferred language
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
 }
 
 async function disableDetection(page) {
@@ -56,7 +90,7 @@ async function performLogin(page) {
 
 async function loginAndScrape() {
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -74,7 +108,7 @@ async function loginAndScrape() {
 
     await page.goto(DINING_URL, { waitUntil: 'networkidle2' });
 
-    const isLoggedIn = true; // Replace with actual check later if needed
+    const isLoggedIn = false; // Replace with actual check later if needed
 
     if (!isLoggedIn) {
         await performLogin(page);
@@ -82,6 +116,8 @@ async function loginAndScrape() {
     } else {
         console.log('Already logged in.');
     }
+
+    await fetchAvailabilityFromAPI();
 
     console.log('At dining reservation page');
     await sleep(15000);
