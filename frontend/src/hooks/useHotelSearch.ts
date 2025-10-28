@@ -1,13 +1,14 @@
 // frontend/src/hooks/useHotelSearch.ts
 import { useState } from 'react';
 import { searchHotels, HotelSearchRequest, HotelSearchResponse } from '../lib/api';
+import { useSearchStore } from './useSearchStore';
 
 export function useHotelSearch() {
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<HotelSearchResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { setResults } = useSearchStore();
 
-  const search = async (searchData: any) => {
+  const search = async (searchData: any): Promise<HotelSearchResponse | null> => {
     setLoading(true);
     setError(null);
 
@@ -39,12 +40,15 @@ export function useHotelSearch() {
 
       const response = await searchHotels(request);
       setResults(response);
+      return response;
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to search hotels. Please try again.');
+      const errorMessage = err.response?.data?.detail || 'Failed to search hotels. Please try again.';
+      setError(errorMessage);
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
-  return { search, loading, results, error };
+  return { search, loading, error };
 }
