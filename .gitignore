@@ -32,3 +32,37 @@ logs/
 .vscode/
 .idea/
 Thumbs.db
+scrapers/output/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.db
+
+# Node
+node_modules/
+dist/
+build/
+.DS_Store
+
+# Environment
+.env
+.env.local
+
+# Scraped data (too large for git)
+scrapers/output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

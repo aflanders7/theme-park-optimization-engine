@@ -1,0 +1,16 @@
+{
+  "name": "scrapers",
+  "version": "1.0.0",
+  "description": "Disney World data scrapers",
+  "main": "index.js",
+  "scripts": {
+    "scrape:hotels": "node scripts/scrape_hotels.js",
+    "scrape:restaurants": "node scripts/scrape_restaurants.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^24.25.0"
+  }
+}
