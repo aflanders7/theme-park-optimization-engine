@@ -30,6 +30,8 @@ export function useHotelSearch() {
         
         transportation_prefs: searchData.transportationPrefs,
         transportation_importance: 4,
+
+        location_pref: searchData.locationPref,
         
         room_features: searchData.roomFeatures,
         features_importance: 3,

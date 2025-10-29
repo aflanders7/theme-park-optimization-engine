@@ -141,12 +141,6 @@ class HotelRecommendationEngine:
                 Room.min_price <= search.budget_per_night
             )
         
-        # Optional: filter by location preference
-        if search.location_preference:
-            query = query.filter(
-                Hotel.location.ilike(f"%{search.location_preference}%")
-            )
-        
         results = query.all()
         return [{'room': room, 'hotel': hotel} for room, hotel in results]
 
@@ -196,6 +190,7 @@ class HotelRecommendationEngine:
             "features": 0.20 * (search.features_importance / 3),
             "occupancy": 0.10,
             "category": 0.10,
+            "location": 0.10,
         }
 
         # Normalize total weights to 1.0
@@ -249,6 +244,13 @@ class HotelRecommendationEngine:
                 reasons.append(f"Includes {', '.join(matched_types)} transport options")
         else:
             scores["transportation"] = 0
+
+        # --- LOCATION SCORE ---
+        if search.location_pref and search.location_pref.lower() == hotel.location.lower():
+                scores["location"] = 100 * weights["location"]
+                reasons.append(f"Located in the {hotel.location}")
+        else:
+            scores["location"] = 0
 
         # --- 3. ROOM FEATURES SCORE ---
         if search.room_features:
@@ -318,6 +320,7 @@ class HotelRecommendationEngine:
             beds=room.beds or [],
             features=room.features or [],
             transportation=hotel.transportation or [],
+            location=hotel.location or "",
             match_score=round(scored_room['score'], 1),
             score_breakdown=scored_room['breakdown'],
             why_recommended=scored_room['reasons']

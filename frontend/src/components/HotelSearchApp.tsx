@@ -17,11 +17,12 @@ export default function HotelSearchApp() {
     infants: 0,
     totalBudget: 5000,
     transportationPrefs: [],
+    locationPref: '',
     roomFeatures: [],
     preferBudget: true,
     poolImportance: 3,
   });
-  const { search, loading, results, error } = useHotelSearch();
+  const { search, loading, error } = useHotelSearch();
 
   const handleSearch = async () => {
     await search(searchData);

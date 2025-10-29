@@ -15,6 +15,7 @@ interface SearchState {
     infants: number;
     totalBudget: number;
     transportationPrefs: string[];
+    locationPref: string;
     roomFeatures: string[];
     preferBudget: boolean;
     poolImportance: number;
@@ -37,6 +38,7 @@ const initialSearchData = {
   infants: 0,
   totalBudget: 5000,
   transportationPrefs: [],
+  locationPref: '',
   roomFeatures: [],
   preferBudget: true,
   poolImportance: 3,

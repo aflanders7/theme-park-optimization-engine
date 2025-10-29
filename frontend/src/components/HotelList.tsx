@@ -15,6 +15,7 @@ interface Hotel {
   beds: Array<{ count: number; type: string }>;
   features: string[];
   transportation: string[];
+  location: string;
   match_score: number;
   score_breakdown: Record<string, number>;
   why_recommended: string[];

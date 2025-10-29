@@ -59,12 +59,13 @@ async def search_hotels(
 @router.get("/options")
 async def get_search_options():
     """Get available search options (transportation types, features, etc.)"""
-    from app.schemas.hotel_search import TransportationType, RoomFeature
+    from app.schemas.hotel_search import TransportationType, RoomFeature, LocationType
     
     return {
         "transportation_types": [t.value for t in TransportationType],
         "room_features": [f.value for f in RoomFeature],
-        "date_flexibility_options": ["exact", "flexible_days", "flexible_month"]
+        "date_flexibility_options": ["exact", "flexible_days", "flexible_month"],
+        "location_types": [l.value for l in LocationType],
     }
 
 

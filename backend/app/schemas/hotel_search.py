@@ -12,6 +12,12 @@ class TransportationType(str, Enum):
     BOAT = "Boat"
     WALKING = "Walking"
 
+class LocationType(str, Enum):
+    MAGIC_KINGDOM = "Magic Kingdom Resort Area"
+    EPCOT = "Epcot Resort Area"
+    ANIMAL_KINGDOM = "Animal Kingdom Resort Area"
+    DISNEY_SPRINGS = "Disney Springs Resort Area"
+
 
 class RoomFeature(str, Enum):
     BALCONY = "Balcony"
@@ -57,7 +63,8 @@ class HotelSearchRequest(BaseModel):
     
     prefer_budget: bool = True  # Optimize for lowest price vs luxury
     pool_importance: int = Field(3, ge=1, le=5)
-    location_preference: Optional[str] = None  # "Magic Kingdom Area", etc.
+
+    location_pref: Optional[str] = None  # "Magic Kingdom Area", etc.
     
     @validator("num_nights", always=True)
     def calculate_num_nights(cls, v, values):
@@ -96,6 +103,7 @@ class RoomRecommendation(BaseModel):
     room_id: str
     room_name: str
     room_description: str
+    location: str
     
     avg_price_per_night: float
     total_price: float

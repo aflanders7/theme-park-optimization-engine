@@ -22,6 +22,8 @@ export interface HotelSearchRequest {
   
   total_budget: number;
   budget_per_night?: number;
+
+  location_pref?: string;
   
   transportation_prefs?: string[];
   transportation_importance?: number;
@@ -31,7 +33,6 @@ export interface HotelSearchRequest {
   
   prefer_budget?: boolean;
   pool_importance?: number;
-  location_preference?: string;
 }
 
 export interface RoomRecommendation {
@@ -49,7 +50,8 @@ export interface RoomRecommendation {
   beds: Array<{ count: number; type: string }>;
   features: string[];
   transportation: string[];
-  
+  location: string;
+
   match_score: number;
   score_breakdown: Record<string, number>;
   why_recommended: string[];

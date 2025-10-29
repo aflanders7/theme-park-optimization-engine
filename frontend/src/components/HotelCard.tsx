@@ -1,5 +1,5 @@
 // frontend/src/components/results/HotelCard.tsx
-import { Star, Bus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, Bus, ChevronDown, ChevronUp, MapPin } from 'lucide-react';
 
 interface Hotel {
   hotel_id: string;
@@ -14,6 +14,7 @@ interface Hotel {
   beds: Array<{ count: number; type: string }>;
   features: string[];
   transportation: string[];
+  location: string,
   match_score: number;
   score_breakdown: Record<string, number>;
   why_recommended: string[];
@@ -72,6 +73,7 @@ export default function HotelCard({ hotel, rank, isExpanded, onToggle }: HotelCa
         <div className="grid grid-cols-2 gap-4 mb-4">
           <TransportationTags transportation={hotel.transportation} />
           <FeatureTags features={hotel.features} />
+          <LocationTag location={hotel.location} />
         </div>
 
         {/* Expand/Collapse Button */}
@@ -150,6 +152,20 @@ function TransportationTags({ transportation }: { transportation: string[] }) {
             {t}
           </span>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function LocationTag({ location }: { location: string }) {
+  return (
+    <div>
+      <p className="text-sm font-medium text-gray-700 mb-2">Location</p>
+      <div className="flex flex-wrap gap-2">
+        <span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-medium flex items-center gap-1">
+          <MapPin className="w-3 h-3" />
+          {location}
+        </span>
       </div>
     </div>
   );
