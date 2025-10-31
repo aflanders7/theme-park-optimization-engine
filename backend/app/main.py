@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
-from app.api import hotel_search
+from app.api import hotel_search, park_recommendations
 
 # Create tables on startup
 Base.metadata.create_all(bind=engine)
@@ -24,6 +24,8 @@ app.add_middleware(
 
 # Include routers
 app.include_router(hotel_search.router)
+# In main.py - NO prefix here if it's already in the router
+app.include_router(park_recommendations.router)
 
 @app.get("/")
 def root():

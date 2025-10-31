@@ -6,10 +6,52 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from app.database import engine, SessionLocal, Base
 from app.models.hotel import Hotel, Room, RoomPricing
+from app.models.crowd import CrowdCalendar
 
 # Paths to your scraped data
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "scrapers" / "output"
+
+def load_crowd_calendar(db: Session):
+    """Load Disney crowd calendar from JSON"""
+    print("Loading Disney crowd calendar...")
+    file_path = DATA_DIR / "disney_crowd_2025.json"
+    
+    if not file_path.exists():
+        print(f"⚠️  File not found: {file_path}")
+        return
+    
+    with open(file_path) as f:
+        data = json.load(f)
+    
+    loaded_count = 0
+    
+    for row in data:
+        # Check if record already exists for same park + date
+        existing = db.query(CrowdCalendar).filter(
+            CrowdCalendar.park == row["park"],
+            CrowdCalendar.date == row["date"]
+        ).first()
+        
+        if existing:
+            # Update if needed
+            existing.crowd = row["crowd"]
+        else:
+            record = CrowdCalendar(
+                park=row["park"],
+                date=row["date"],
+                crowd=row["crowd"]
+            )
+            db.add(record)
+        loaded_count += 1
+
+        # Optional batch commit for large datasets
+        if loaded_count % 500 == 0:
+            db.commit()
+    
+    db.commit()
+    print(f"✅ Loaded {loaded_count} crowd records")
+
 
 def parse_date(date_str):
     """Convert '2025-01-Jan 1' → datetime.date(2025, 1, 1)"""
@@ -173,17 +215,18 @@ def main():
     
     try:
         # Load data in order (hotels → rooms → pricing)
-        load_hotels(db)
-        load_rooms(db)
-        load_pricing(db)
+        #load_hotels(db)
+        #load_rooms(db)
+        #load_pricing(db)
+        load_crowd_calendar(db)
         
         # Print summary
         print("\n" + "=" * 60)
         print("DATABASE SUMMARY")
         print("=" * 60)
-        print(f"Hotels:        {db.query(Hotel).count()}")
-        print(f"Rooms:         {db.query(Room).count()}")
-        print(f"Pricing rows:  {db.query(RoomPricing).count()}")
+        #print(f"Hotels:        {db.query(Hotel).count()}")
+        #print(f"Rooms:         {db.query(Room).count()}")
+        #print(f"Pricing rows:  {db.query(RoomPricing).count()}")
         print("\n✅ All data loaded successfully!")
         
     except Exception as e:

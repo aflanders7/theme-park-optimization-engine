@@ -86,4 +86,50 @@ export const getHotelDetails = async (hotelId: string) => {
   return response.data;
 };
 
+// Park Recommendation Types
+export interface ParkRecommendationRequest {
+  start_date: string;
+  end_date: string;
+  adults: number;
+  children: number;
+  child_ages: number[];
+  infants: number;
+  thrill_level: 'low' | 'moderate' | 'high';
+  park_preferences: string[];
+  must_visit_parks?: string[];
+  avoid_parks?: string[];
+  max_park_days?: number;
+}
+
+export interface DailyParkPlan {
+  date: string;
+  park: string;
+  park_display_name: string;
+  crowd_level: number;
+  reasons: string[];
+  tips: string[];
+  recommended_arrival_time: string;
+  estimated_wait_times: string;
+}
+
+export interface ParkRecommendationResponse {
+  daily_plans: DailyParkPlan[];
+  rest_days: string[];
+  summary: {
+    total_days: number;
+    park_days: number;
+    rest_days: number;
+    parks_visited: Record<string, number>;
+    average_crowd_level: number;
+    busiest_day: string;
+    quietest_day: string;
+  };
+  optimization_notes: string[];
+}
+
+export const recommendParks = async (request: ParkRecommendationRequest): Promise<ParkRecommendationResponse> => {
+  const response = await api.post('/parks/recommend', request);
+  return response.data;
+};
+
 export default api;

@@ -40,7 +40,7 @@ export default function AdvancedOptions({
                                         updateSearchData('transportationPrefs', prefs);
                                     }}
                                     className={`px-4 py-2 rounded-xl font-medium transition-all ${searchData.transportationPrefs.includes(transport)
-                                            ? 'bg-blue-600 text-white'
+                                            ? 'bg-blue-600 text-black'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
@@ -63,7 +63,7 @@ export default function AdvancedOptions({
                                         updateSearchData('locationPref', newPref);
                                     }}
                                     className={`px-4 py-2 rounded-xl font-medium transition-all ${searchData.locationPref === location
-                                            ? 'bg-blue-600 text-white'
+                                            ? 'bg-blue-600 text-black'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
@@ -88,7 +88,7 @@ export default function AdvancedOptions({
                                         updateSearchData('roomFeatures', feats);
                                     }}
                                     className={`px-4 py-2 rounded-xl font-medium transition-all ${searchData.roomFeatures.includes(feature)
-                                            ? 'bg-purple-600 text-white'
+                                            ? 'bg-purple-600 text-black'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >

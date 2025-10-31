@@ -1,7 +1,7 @@
 // frontend/src/components/search/PartySection.tsx
 import { Users } from 'lucide-react';
 import Section from './shared/Section';
-import NumberInput from './NumberInput';
+import NumberInput from './shared/NumberInput';
 
 interface Props {
   searchData: any;

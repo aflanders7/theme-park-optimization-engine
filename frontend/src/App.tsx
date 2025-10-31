@@ -5,6 +5,9 @@ import ResultsPage from './pages/ResultsPage';
 import LoadingPage from './pages/LoadingPage';
 import HomePage from './pages/HomePage';
 import Layout from './components/Layout';
+import ParkSearchPage from './pages/ParkSearchPage';
+import ParkLoadingPage from './pages/ParkLoadingPage';
+import ParkResultsPage from './pages/ParkResultsPage';
 
 function App() {
   return (
@@ -14,6 +17,9 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="results" element={<ResultsPage />} />
+          <Route path="parks" element={<ParkSearchPage />} />
+          <Route path="park-loading" element={<ParkLoadingPage />} />
+          <Route path="park-results" element={<ParkResultsPage />} />
         </Route>
         <Route path="loading" element={<LoadingPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
