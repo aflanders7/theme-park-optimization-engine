@@ -1,7 +1,6 @@
 // frontend/src/pages/ResultsPage.tsx
 import { useNavigate } from 'react-router-dom';
 import { useSearchStore } from '../hooks/useSearchStore';
-import BudgetSummary from '../components/BudgetSummary';
 import HotelList from '../components/HotelList';
 
 export default function ResultsPage() {
@@ -28,7 +27,6 @@ export default function ResultsPage() {
           <p className="text-gray-600">Found {results.total_results} hotels matching your preferences</p>
         </div>
 
-        <BudgetSummary summary={results.budget_summary} />
         <HotelList hotels={results.recommendations} />
       </div>
     </div>

@@ -20,7 +20,6 @@ export default function HotelSearchApp() {
     locationPref: '',
     roomFeatures: [],
     preferBudget: true,
-    poolImportance: 3,
   });
   const { search, loading, error } = useHotelSearch();
 
@@ -346,34 +345,6 @@ function ResultsView({ results, onBack }) {
           </button>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Your Perfect Hotels</h1>
           <p className="text-gray-600">Found {results.total_results} hotels matching your preferences</p>
-        </div>
-
-        {/* Budget Summary */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-bold mb-4">Budget Summary</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Your Budget</p>
-              <p className="text-2xl font-bold text-gray-800">${results.budget_summary.your_budget.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Recommended</p>
-              <p className="text-2xl font-bold text-blue-600">${results.budget_summary.recommended_budget.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Cheapest Option</p>
-              <p className="text-2xl font-bold text-green-600">${results.budget_summary.cheapest_option.toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Most Expensive</p>
-              <p className="text-2xl font-bold text-purple-600">${results.budget_summary.most_expensive.toLocaleString()}</p>
-            </div>
-          </div>
-          {results.budget_summary.under_budget && (
-            <div className="mt-4 bg-green-50 border border-green-200 rounded-xl p-4">
-              <p className="text-green-800 font-medium">✓ You're under budget! You have room for extras.</p>
-            </div>
-          )}
         </div>
 
         {/* Recommendations */}

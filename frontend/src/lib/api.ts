@@ -32,7 +32,6 @@ export interface HotelSearchRequest {
   features_importance?: number;
   
   prefer_budget?: boolean;
-  pool_importance?: number;
 }
 
 export interface RoomRecommendation {
@@ -61,13 +60,6 @@ export interface HotelSearchResponse {
   total_results: number;
   recommendations: RoomRecommendation[];
   alternatives: RoomRecommendation[];
-  budget_summary: {
-    recommended_budget: number;
-    cheapest_option: number;
-    most_expensive: number;
-    your_budget: number;
-    under_budget: boolean;
-  };
 }
 
 export const searchHotels = async (request: HotelSearchRequest): Promise<HotelSearchResponse> => {

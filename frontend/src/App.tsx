@@ -8,10 +8,12 @@ import Layout from './components/Layout';
 import ParkSearchPage from './pages/ParkSearchPage';
 import ParkLoadingPage from './pages/ParkLoadingPage';
 import ParkResultsPage from './pages/ParkResultsPage';
+import Footer from './components/Footer';
 
 function App() {
   return (
     <Router>
+      <main>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
@@ -24,6 +26,8 @@ function App() {
         <Route path="loading" element={<LoadingPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </main>
+      <Footer />
     </Router>
   );
 }

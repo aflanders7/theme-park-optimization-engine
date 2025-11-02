@@ -52,15 +52,15 @@ export default function HotelCard({ hotel, rank, isExpanded, onToggle }: HotelCa
               </span>
             </div>
           </div>
-          <div className="text-right">
+{/*           <div className="text-right">
             <div className="text-3xl font-bold text-gray-800">
               ${hotel.avg_price_per_night.toFixed(0)}
             </div>
             <div className="text-sm text-gray-600">per night</div>
             <div className="text-lg font-semibold text-blue-600 mt-1">
               ${hotel.total_price.toFixed(0)} total
-            </div>
-          </div>
+            </div> 
+          </div>*/}
         </div>
 
         {/* Match Score */}

@@ -46,10 +46,13 @@ export default function ParkConstraints({ searchData, updateSearchData, showAdva
                 {parks.map(park => (
                   <button
                     key={park.value}
-                    onClick={() => togglePark('mustVisitParks', park.value)}
+                    onClick={() => {
+                      if (searchData.avoidParks.includes(park.value)) togglePark('avoidParks', park.value);
+                      togglePark('mustVisitParks', park.value)
+                    }}
                     className={`px-4 py-2 rounded-xl font-medium transition-all ${
                       searchData.mustVisitParks.includes(park.value)
-                        ? 'bg-green-600 text-black shadow-lg'
+                        ? 'bg-green-300 text-black shadow-lg'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -71,10 +74,13 @@ export default function ParkConstraints({ searchData, updateSearchData, showAdva
                 {parks.map(park => (
                   <button
                     key={park.value}
-                    onClick={() => togglePark('avoidParks', park.value)}
+                    onClick={() => {
+                      if (searchData.mustVisitParks.includes(park.value)) togglePark('mustVisitParks', park.value)
+                      togglePark('avoidParks', park.value)
+                    }}
                     className={`px-4 py-2 rounded-xl font-medium transition-all ${
                       searchData.avoidParks.includes(park.value)
-                        ? 'bg-red-600 text-black shadow-lg'
+                        ? 'bg-red-300 text-black shadow-lg'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >

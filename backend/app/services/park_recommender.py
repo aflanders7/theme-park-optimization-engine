@@ -20,41 +20,41 @@ class ParkRecommendationEngine:
     PARK_ATTRIBUTES = {
         "magic_kingdom": {
             "display_name": "Magic Kingdom",
-            "thrill_score": 7,  # 0-10, higher = more thrills
-            "food_score": 6,
+            "thrill_score": 6,  # 0-10, higher = more thrills
+            "food_score": 7,
             "kid_friendly_score": 10,
             "toddler_score": 10,
-            "cultural_score": 5,
-            "nature_score": 3,
+            "cultural_score": 3,
+            "nature_score": 4,
             "tags": ["classic_disney", "thrills", "family"],
         },
         "epcot": {
             "display_name": "Epcot",
-            "thrill_score": 6,
+            "thrill_score": 7,
             "food_score": 10,
-            "kid_friendly_score": 7,
+            "kid_friendly_score": 6,
             "toddler_score": 6,
             "cultural_score": 10,
-            "nature_score": 4,
+            "nature_score": 6,
             "tags": ["food_drinks", "cultural", "adults"],
         },
         "hollywood_studios": {
             "display_name": "Hollywood Studios",
             "thrill_score": 9,
-            "food_score": 7,
+            "food_score": 5,
             "kid_friendly_score": 8,
-            "toddler_score": 7,
-            "cultural_score": 6,
+            "toddler_score": 3,
+            "cultural_score": 5,
             "nature_score": 3,
             "tags": ["thrills", "shows", "teens"],
         },
         "animal_kingdom": {
             "display_name": "Animal Kingdom",
             "thrill_score": 4,
-            "food_score": 4,
+            "food_score": 3,
             "kid_friendly_score": 9,
             "toddler_score": 7,
-            "cultural_score": 7,
+            "cultural_score": 8,
             "nature_score": 10,
             "tags": ["animals_nature", "family", "adventure"],
         },
@@ -145,16 +145,11 @@ class ParkRecommendationEngine:
             return min(request.max_park_days, total_days)
         
         # Default heuristics based on trip length
-        if total_days <= 2:
+        if total_days <= 3:
             return total_days
-        elif total_days == 3:
-            return 2  # 2 park days, 1 rest
-        elif total_days == 4:
-            return 3  # 3 park days, 1 rest
         elif total_days <= 6:
             return total_days - 1  # Leave one rest day
         else:
-            # For longer trips, do 4-5 park days with rest days interspersed
             return min(5, total_days - 2)
     
     def _score_parks_by_date(

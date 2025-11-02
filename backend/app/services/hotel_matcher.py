@@ -183,7 +183,7 @@ class HotelRecommendationEngine:
         scores = {}
         reasons = []
         
-        # Weights dynamically based on declared importance (pool/features/transportation)
+        # Weights dynamically based on declared importance (features/transportation)
         weights = {
             "price": 0.30,
             "transportation": 0.20 * (search.transportation_importance / 3),
@@ -213,18 +213,6 @@ class HotelRecommendationEngine:
             spread = 0.5  # tweak if needed
             price_score = max(0.0, 1.0 - abs(price_ratio - target_ratio) / spread)
             price_score = price_score ** 1.3  # slight curvature to emphasize "close to ideal" range
-
-            # 3️⃣ Explain result
-            if price_ratio <= 0.6:
-                reasons.append(f"Much cheaper than expected (${int(avg_price)}/night)")
-            elif price_ratio <= 0.8:
-                reasons.append(f"Below budget (${int(avg_price)}/night)")
-            elif price_ratio <= 1.1:
-                reasons.append(f"Near your budget (${int(avg_price)}/night)")
-            elif price_ratio <= 1.3:
-                reasons.append(f"Slightly over budget (${int(avg_price)}/night)")
-            else:
-                reasons.append(f"Well above budget (${int(avg_price)}/night)")
 
             # 4️⃣ Scale to 0–30
             scores["price"] = round(price_score * 30, 2)

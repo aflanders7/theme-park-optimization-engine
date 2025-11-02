@@ -34,7 +34,6 @@ def test_basic_search():
         
         prefer_budget=True,
         transportation_importance=3,
-        pool_importance=4
     )
     
     # Get recommendations
@@ -135,7 +134,6 @@ def test_luxury_search():
         features_importance=4,
         
         prefer_budget=False,  # Want luxury
-        pool_importance=5
     )
     
     results = engine.find_best_hotels(search)

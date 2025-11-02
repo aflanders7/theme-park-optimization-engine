@@ -37,7 +37,6 @@ export function useHotelSearch() {
         features_importance: 3,
         
         prefer_budget: searchData.preferBudget,
-        pool_importance: searchData.poolImportance,
       };
 
       const response = await searchHotels(request);

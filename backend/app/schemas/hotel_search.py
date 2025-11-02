@@ -62,7 +62,6 @@ class HotelSearchRequest(BaseModel):
     features_importance: int = Field(3, ge=1, le=5)
     
     prefer_budget: bool = True  # Optimize for lowest price vs luxury
-    pool_importance: int = Field(3, ge=1, le=5)
 
     location_pref: Optional[str] = None  # "Magic Kingdom Area", etc.
     
@@ -123,4 +122,3 @@ class HotelSearchResponse(BaseModel):
     total_results: int
     recommendations: List[RoomRecommendation]
     alternatives: List[RoomRecommendation]
-    budget_summary: dict

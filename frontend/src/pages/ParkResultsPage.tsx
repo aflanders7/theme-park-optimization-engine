@@ -16,13 +16,13 @@ export default function ParkResultsPage() {
 
   const getCrowdColor = (level: number) => {
     if (level <= 3) return 'bg-green-100 text-green-800 border-green-300';
-    if (level <= 6) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+    if (level < 7) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
     return 'bg-red-100 text-red-800 border-red-300';
   };
 
   const getCrowdLabel = (level: number) => {
     if (level <= 3) return 'Low Crowds';
-    if (level <= 6) return 'Moderate Crowds';
+    if (level < 7) return 'Moderate Crowds';
     return 'High Crowds';
   };
 
@@ -157,7 +157,7 @@ export default function ParkResultsPage() {
                     {/* Crowd Level */}
                     <div className="flex items-center gap-4">
                       <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold ${getCrowdColor(plan.crowd_level)}`}>
-                        {plan.crowd_level <= 6 ? (
+                        {plan.crowd_level < 7 ? (
                           <TrendingDown className="w-5 h-5" />
                         ) : (
                           <TrendingUp className="w-5 h-5" />

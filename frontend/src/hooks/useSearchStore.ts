@@ -18,7 +18,6 @@ interface SearchState {
     locationPref: string;
     roomFeatures: string[];
     preferBudget: boolean;
-    poolImportance: number;
   };
   results: any | null;
   updateSearchData: (field: string, value: any) => void;
@@ -41,7 +40,6 @@ const initialSearchData = {
   locationPref: '',
   roomFeatures: [],
   preferBudget: true,
-  poolImportance: 3,
 };
 
 export const useSearchStore = create<SearchState>()(

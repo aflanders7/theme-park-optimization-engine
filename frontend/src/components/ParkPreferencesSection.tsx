@@ -13,6 +13,7 @@ export default function ParkPreferencesSection({ searchData, updateSearchData }:
       ? searchData.parkPreferences.filter((p: string) => p !== pref)
       : [...searchData.parkPreferences, pref];
     updateSearchData('parkPreferences', prefs);
+    console.log(searchData);
   };
 
   return (
@@ -56,17 +57,17 @@ export default function ParkPreferencesSection({ searchData, updateSearchData }:
           {[
             { value: 'thrills', label: '🎢 Thrill Rides', color: 'purple' },
             { value: 'food_drinks', label: '🍽️ Food & Drinks', color: 'orange' },
-            //{ value: 'animals_nature', label: '🦁 Animals & Nature', color: 'green' },
+            { value: 'animals_nature', label: '🦁 Animals & Nature', color: 'green' },
             { value: 'classic_disney', label: '🏰 Classic Disney', color: 'blue' },
-            { value: 'cultural', label: '🌍 Cultural', color: 'indigo' }
+            { value: 'cultural', label: '🌍 Culture', color: 'indigo' }
           ].map(pref => (
             <button
               key={pref.value}
               onClick={() => togglePreference(pref.value)}
-              className={`px-4 py-2 rounded-xl font-medium transition-all ${
+              className={`p-4 border-2 rounded-xl text-center transition-all ${
                 searchData.parkPreferences.includes(pref.value)
-                  ? `bg-${pref.color}-600 text-black shadow-lg`
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'border-purple-600 bg-purple-50'
+                  : 'border-gray-200 hover:border-gray-300'
               }`}
             >
               {pref.label}

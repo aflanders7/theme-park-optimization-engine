@@ -35,24 +35,10 @@ async def search_hotels(
     top_picks = recommendations[:3]
     alternatives = recommendations[3:10]
     
-    # Calculate budget summary
-    if top_picks:
-        avg_price = sum(r.total_price for r in top_picks) / len(top_picks)
-        budget_summary = {
-            "recommended_budget": round(avg_price, 2),
-            "cheapest_option": round(min(r.total_price for r in recommendations), 2),
-            "most_expensive": round(max(r.total_price for r in recommendations), 2),
-            "your_budget": round(search_request.total_budget, 2),
-            "under_budget": avg_price < search_request.total_budget
-        }
-    else:
-        budget_summary = {}
-    
     return HotelSearchResponse(
         total_results=len(recommendations),
         recommendations=top_picks,
         alternatives=alternatives,
-        budget_summary=budget_summary
     )
 
 
