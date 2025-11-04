@@ -16,7 +16,7 @@ export default function BudgetSection({ searchData, updateSearchData, totalPeopl
         <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total hotel budget</p>
+              <p className="text-sm text-gray-600 mb-1">Hotel Budget</p>
               <p className="text-2xl font-bold text-gray-800">
                 Under ${searchData.totalBudget.toLocaleString()}
               </p>
@@ -32,7 +32,7 @@ export default function BudgetSection({ searchData, updateSearchData, totalPeopl
         <div>
           <input
             type="range"
-            min="2000"
+            min="1000"
             max="15000"
             step="1000"
             value={searchData.totalBudget}
@@ -40,12 +40,12 @@ export default function BudgetSection({ searchData, updateSearchData, totalPeopl
             className="w-full h-3 bg-gradient-to-r from-blue-200 to-purple-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
-            <span>$2,000</span>
+            <span>$1,000</span>
             <span>$15,000</span>
           </div>
           <br></br>
           <p className="text-sm text-gray-600 italic text-center">
-          Resort recommendations are based on typical pricing ranges and do not reflect real-time pricing or availability.
+          Resort recommendations are based on typical pricing trends and do not reflect real-time pricing or availability.
         </p>
         </div>
       </div>

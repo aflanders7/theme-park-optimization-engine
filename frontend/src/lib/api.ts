@@ -18,6 +18,7 @@ export interface HotelSearchRequest {
   
   adults: number;
   children: number;
+  child_ages: number[];
   infants: number;
   
   total_budget: number;
@@ -59,7 +60,6 @@ export interface RoomRecommendation {
 export interface HotelSearchResponse {
   total_results: number;
   recommendations: RoomRecommendation[];
-  alternatives: RoomRecommendation[];
 }
 
 export const searchHotels = async (request: HotelSearchRequest): Promise<HotelSearchResponse> => {

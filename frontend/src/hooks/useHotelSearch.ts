@@ -24,6 +24,7 @@ export function useHotelSearch() {
         
         adults: searchData.adults,
         children: searchData.children,
+        child_ages: searchData.childAges,
         infants: searchData.infants,
         
         total_budget: searchData.totalBudget,

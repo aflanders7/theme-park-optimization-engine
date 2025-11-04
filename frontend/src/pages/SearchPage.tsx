@@ -5,9 +5,9 @@ import { Sparkles, Search } from 'lucide-react';
 import { useSearchStore } from '../hooks/useSearchStore';
 import { useHotelSearch } from '../hooks/useHotelSearch';
 import DateSection from '../components/DateSection';
-import PartySection from '../components/PartySection';
 import BudgetSection from '../components/BudgetSection';
 import AdvancedOptions from '../components/AdvancedOptions';
+import ParkPartySection from '../components/ParkPartySection';
 
 export default function SearchPage() {
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ export default function SearchPage() {
         <div className="bg-white rounded-3xl shadow-xl p-8 space-y-8">
           <DateSection searchData={searchData} updateSearchData={updateSearchData} />
           
-          <PartySection 
+          <ParkPartySection
             searchData={searchData} 
             updateSearchData={updateSearchData}
             totalPeople={totalPeople}

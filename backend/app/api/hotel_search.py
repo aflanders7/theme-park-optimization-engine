@@ -31,14 +31,9 @@ async def search_hotels(
             detail="No hotels found matching your criteria. Try adjusting your budget or dates."
         )
     
-    # Split into top recommendations and alternatives
-    top_picks = recommendations[:3]
-    alternatives = recommendations[3:10]
-    
     return HotelSearchResponse(
         total_results=len(recommendations),
-        recommendations=top_picks,
-        alternatives=alternatives,
+        recommendations=recommendations,
     )
 
 

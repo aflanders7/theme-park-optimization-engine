@@ -18,39 +18,52 @@ class HotelRecommendationEngine:
     def find_best_hotels(self, search: HotelSearchRequest) -> List[RoomRecommendation]:
         """Main recommendation logic with multi-factor scoring"""
         
-        # 1. Generate date ranges to check
-        date_ranges = self._generate_date_ranges(search)
-        
-        # 2. Find all potentially suitable rooms
         candidate_rooms = self._get_candidate_rooms(search)
         
         if not candidate_rooms:
             return []
         
-        # 3. Calculate pricing for each room across date ranges
         scored_rooms = []
 
         for room_data in candidate_rooms:
             room, hotel = room_data['room'], room_data['hotel']
-            
-            # Find best pricing across date ranges
-            best_dates, avg_price = self._find_best_pricing(
-                room.room_id, room.hotel_id, date_ranges, search.num_nights
-            )
-            
-            if not best_dates or avg_price is None:
+
+            if search.date_type == "exact":
+                avg_price = self._find_best_pricing(
+                    room.room_id,
+                    room.hotel_id,
+                    search.check_in_date,
+                    search.check_out_date,
+                    search.num_nights
+                )
+
+            elif search.date_type == "flexible_days":
+                avg_price = self._estimate_monthly_pricing(
+                    room.room_id,
+                    room.hotel_id,
+                    search.flexible_year,
+                    search.flexible_month
+                )
+
+            else:
+                raise ValueError(f"Unknown date_type: {search.date_type}")
+
+            if avg_price is None:
                 continue
-            
+
             total_price = avg_price * search.num_nights
             
             # Check if within budget
             if search.budget_per_night and avg_price > search.budget_per_night:
                 continue
             
-            # 4. Score this room
             score, breakdown, reasons = self._calculate_match_score(
                 room, hotel, avg_price, search
             )
+
+            # Weight price slightly less since it’s approximate
+            if getattr(search, "date_type", None) == "flexible_days":
+                breakdown["price"] *= 0.7
             
             scored_rooms.append({
                 'room': room,
@@ -59,73 +72,43 @@ class HotelRecommendationEngine:
                 'total_price': total_price,
                 'score': score,
                 'breakdown': breakdown,
-                'reasons': reasons,
-                'best_dates': best_dates
+                'reasons': reasons
             })
 
-        # 5. Sort by score
+        # Sort by score
         scored_rooms.sort(key=lambda x: x['score'], reverse=True)
 
-        # 6. Convert to response format
-        recommendations = [
-            self._format_recommendation(r, search.num_nights) 
-            for r in scored_rooms[:10]
-        ]
-        
-        return recommendations
-    
-    def _generate_date_ranges(self, search: HotelSearchRequest) -> List[Tuple[date, date]]:
-        """Generate all possible date ranges to check based on flexibility"""
-        
-        if search.date_type == "exact" and search.check_in and search.check_out:
-            return [(search.check_in, search.check_out)]
-        
-        elif search.date_type == "flexible_days" and search.flexible_month:
-            year = search.flexible_year or datetime.now().year
-            month = search.flexible_month
-            nights = search.num_nights
+        recommendations = []
+        scored_rooms_length = len(scored_rooms)
 
-            days_in_month = calendar.monthrange(year, month)[1]
-            
-            ranges = []
-            start_date = date(year, month, 1)
-            
-            for day_offset in range(days_in_month):
-                check_in = start_date + timedelta(days=day_offset)
-                check_out = check_in + timedelta(days=nights)
-                
-                if check_in.month == month:
-                    ranges.append((check_in, check_out))
-            
-            return ranges
-        
-        elif search.date_type == "flexible_month":
-            year = search.flexible_year or datetime.now().year
-            month = search.flexible_month or datetime.now().month
-            nights = search.num_nights
-            
-            sample_starts = [1, 5, 10, 15, 20, 25]
-            ranges = []
-            
-            for day in sample_starts:
-                try:
-                    check_in = date(year, month, day)
-                    check_out = check_in + timedelta(days=nights)
-                    ranges.append((check_in, check_out))
-                except ValueError:
-                    continue
-            
-            return ranges
-        
-        else:
-            print(f"⚠️ Unknown date_type: {search.date_type}")
-            return []
+        for r in scored_rooms:
+            # Stop once we have 5 recommendations total
+            if len(recommendations) >= 5:
+                break
+
+            hotel_id = r['hotel'].id
+            occupancy = r['room'].occupancy
+
+            # Check if this hotel is already in the list with the same occupancy
+            same_hotel_same_occ = any(
+                rec.hotel_id == hotel_id and rec.occupancy == occupancy
+                for rec in recommendations
+            )
+
+            # Only add if we don’t already have this exact combo
+            if not same_hotel_same_occ or scored_rooms_length <= 5:
+                recommendations.append(self._format_recommendation(r, search.num_nights))
+
+        return recommendations
+
     
-# backend/app/services/hotel_matcher.py
 
     def _get_candidate_rooms(self, search: HotelSearchRequest) -> List[Dict]:
         """Query database for rooms that meet multiple criteria"""
         
+        if search.infants >= 1:
+            search.infants -= 1
+
         total_guests = search.adults + search.children + search.infants
         
         # Start base query
@@ -146,34 +129,44 @@ class HotelRecommendationEngine:
 
     
     def _find_best_pricing(
-        self, room_id: str, hotel_id: str, date_ranges: List[Tuple[date, date]], nights: int
-    ) -> Tuple[Optional[Tuple[date, date]], Optional[float]]:
+        self, room_id: str, hotel_id: str, check_in: date, check_out: date, nights: int
+    ) -> Optional[float]:
         """Find the date range with best average pricing for this room"""
         
-        best_dates = None
-        best_avg_price = None
-
-        for check_in, check_out in date_ranges:
-            prices = self.db.query(RoomPricing.price).filter(
+        prices = self.db.query(RoomPricing.price).filter(
                 and_(
                     RoomPricing.room_id == room_id,
                     RoomPricing.hotel_id == hotel_id,
                     RoomPricing.date >= check_in,
                     RoomPricing.date < check_out
-                )
-            ).all()
+                )).all()
             
-            if len(prices) < nights:
-                print("ERROR: prices < nights")
-                continue
+        if len(prices) < nights or not prices:
+            print("ERROR: prices < nights or no prices")
+            return None
+
             
-            avg_price = sum(p[0] for p in prices) / len(prices)
+        avg_price = sum(p[0] for p in prices) / len(prices)
             
-            if best_avg_price is None or avg_price < best_avg_price:
-                best_avg_price = avg_price
-                best_dates = (check_in, check_out)
-        
-        return best_dates, best_avg_price
+        return avg_price
+    
+
+    def _estimate_monthly_pricing(
+    self, room_id: str, hotel_id: str, year: int, month: int
+    ) -> Optional[float]:
+        """Estimate an average monthly price for flexible date searches."""
+        avg_price = (
+            self.db.query(func.avg(RoomPricing.price))
+            .filter(
+                RoomPricing.room_id == room_id,
+                RoomPricing.hotel_id == hotel_id,
+                func.extract('year', RoomPricing.date) == year,
+                func.extract('month', RoomPricing.date) == month,
+            )
+            .scalar()
+        )
+        return avg_price or None
+
     
     def _calculate_match_score(
         self, room: Room, hotel: Hotel, avg_price: float, search: HotelSearchRequest

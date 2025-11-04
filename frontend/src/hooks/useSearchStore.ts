@@ -12,6 +12,7 @@ interface SearchState {
     numNights: number;
     adults: number;
     children: number;
+    childAges: number[];
     infants: number;
     totalBudget: number;
     transportationPrefs: string[];
@@ -34,6 +35,7 @@ const initialSearchData = {
   numNights: 5,
   adults: 2,
   children: 0,
+  childAges: [],
   infants: 0,
   totalBudget: 5000,
   transportationPrefs: [],

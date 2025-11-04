@@ -22,6 +22,8 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
     updateSearchData('childAges', newAges);
   };
 
+  console.log(searchData);
+
   return (
     <Section icon={<Users className="w-6 h-6" />} title="Your Party">
       <div className="grid grid-cols-3 gap-4">
@@ -59,7 +61,7 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
                   type="number"
                   min="3"
                   max="17"
-                  value={searchData.childAges[i] || ''}
+                  value={searchData.childAges[i] || []}
                   onChange={(e) => handleChildAgeChange(i, parseInt(e.target.value) || 8)}
                   placeholder="Age"
                   className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"

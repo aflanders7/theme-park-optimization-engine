@@ -63,9 +63,6 @@ export default function HotelCard({ hotel, rank, isExpanded, onToggle }: HotelCa
           </div>*/}
         </div>
 
-        {/* Match Score */}
-        <MatchScore score={hotel.match_score} />
-
         {/* Why Recommended */}
         <WhyRecommended reasons={hotel.why_recommended} />
 
@@ -104,23 +101,6 @@ export default function HotelCard({ hotel, rank, isExpanded, onToggle }: HotelCa
 }
 
 // Sub-components for better organization
-
-function MatchScore({ score }: { score: number }) {
-  return (
-    <div className="mb-4">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-700">Match Score</span>
-        <span className="text-lg font-bold text-purple-600">{score.toFixed(1)}/100</span>
-      </div>
-      <div className="w-full bg-gray-200 rounded-full h-3">
-        <div
-          className="bg-gradient-to-r from-blue-600 to-purple-600 h-3 rounded-full transition-all duration-500"
-          style={{ width: `${score}%` }}
-        />
-      </div>
-    </div>
-  );
-}
 
 function WhyRecommended({ reasons }: { reasons: string[] }) {
   return (
@@ -176,7 +156,7 @@ function FeatureTags({ features }: { features: string[] }) {
     <div>
       <p className="text-sm font-medium text-gray-700 mb-2">Room Features</p>
       <div className="flex flex-wrap gap-2">
-        {features.slice(0, 3).map((f, i) => (
+        {features.slice(0, 4).map((f, i) => (
           <span
             key={i}
             className="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium"
@@ -184,9 +164,9 @@ function FeatureTags({ features }: { features: string[] }) {
             {f}
           </span>
         ))}
-        {features.length > 3 && (
+        {features.length > 4 && (
           <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium">
-            +{features.length - 3} more
+            +{features.length - 4} more
           </span>
         )}
       </div>
@@ -209,7 +189,7 @@ function ExpandedDetails({ hotel }: { hotel: Hotel }) {
         <div className="space-y-1">
           {hotel.beds.map((bed, i) => (
             <p key={i} className="text-gray-700">
-              {bed.count}x {bed.type}
+              {bed.count} {bed.type}
             </p>
           ))}
         </div>

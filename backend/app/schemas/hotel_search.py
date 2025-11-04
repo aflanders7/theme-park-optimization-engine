@@ -121,4 +121,3 @@ class RoomRecommendation(BaseModel):
 class HotelSearchResponse(BaseModel):
     total_results: int
     recommendations: List[RoomRecommendation]
-    alternatives: List[RoomRecommendation]
