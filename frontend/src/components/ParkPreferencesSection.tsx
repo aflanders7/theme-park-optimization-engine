@@ -13,7 +13,6 @@ export default function ParkPreferencesSection({ searchData, updateSearchData }:
       ? searchData.parkPreferences.filter((p: string) => p !== pref)
       : [...searchData.parkPreferences, pref];
     updateSearchData('parkPreferences', prefs);
-    console.log(searchData);
   };
 
   return (

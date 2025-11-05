@@ -38,9 +38,9 @@ export default function DateSection({ searchData, updateSearchData }: Props) {
 
     return (
         <Section icon={<Calendar className="w-6 h-6" />} title="When are you going?">
-            <div className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div>
-                    <label className="block text-sm font-medium mb-2">Month & Year</label>
+                    <label className="block text-sm font-medium mb-2">Month</label>
                     <select
                         value={`${searchData.flexibleYear}-${searchData.flexibleMonth}`}
                         onChange={(e) => {

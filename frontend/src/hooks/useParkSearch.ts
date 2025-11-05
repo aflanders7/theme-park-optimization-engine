@@ -16,6 +16,7 @@ export function useParkSearch() {
       const request: ParkRecommendationRequest = {
         start_date: searchData.startDate,
         end_date: searchData.endDate,
+        park_days: searchData.parkDays,
         adults: searchData.adults,
         children: searchData.children,
         child_ages: searchData.childAges,

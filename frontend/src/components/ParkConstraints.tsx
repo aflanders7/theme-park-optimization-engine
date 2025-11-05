@@ -60,9 +60,6 @@ export default function ParkConstraints({ searchData, updateSearchData, showAdva
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-600 mt-2">
-                Parks you definitely want to visit
-              </p>
             </div>
 
             {/* Avoid Parks */}
@@ -88,9 +85,6 @@ export default function ParkConstraints({ searchData, updateSearchData, showAdva
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-600 mt-2">
-                Parks you'd prefer not to visit
-              </p>
             </div>
           </Section>
         </div>

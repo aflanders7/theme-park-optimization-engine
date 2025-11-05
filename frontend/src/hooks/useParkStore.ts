@@ -6,6 +6,7 @@ interface ParkSearchState {
   parkSearchData: {
     startDate: string;
     endDate: string;
+    parkDays: number;
     adults: number;
     children: number;
     childAges: number[];
@@ -24,6 +25,7 @@ interface ParkSearchState {
 const initialParkSearchData = {
   startDate: '',
   endDate: '',
+  parkDays: 1,
   adults: 2,
   children: 0,
   childAges: [],

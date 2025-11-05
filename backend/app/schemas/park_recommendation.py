@@ -30,6 +30,7 @@ class ParkRecommendationRequest(BaseModel):
     # Dates
     start_date: date
     end_date: date
+    park_days: int = Field(ge=1)
     
     # Party info
     adults: int = Field(ge=1)
@@ -68,7 +69,6 @@ class DailyParkPlan(BaseModel):
     crowd_level: float
     reasons: List[str]
     tips: List[str]
-    recommended_arrival_time: str
     estimated_wait_times: str
 
 

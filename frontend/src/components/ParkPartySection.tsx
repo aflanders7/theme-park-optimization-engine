@@ -22,10 +22,8 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
     updateSearchData('childAges', newAges);
   };
 
-  console.log(searchData);
-
   return (
-    <Section icon={<Users className="w-6 h-6" />} title="Your Party">
+    <Section icon={<Users className="w-6 h-6" />} title="Who's coming?">
       <div className="grid grid-cols-3 gap-4">
         <NumberInput
           label="Adults (18+)"

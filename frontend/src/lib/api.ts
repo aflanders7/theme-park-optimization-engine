@@ -64,7 +64,6 @@ export interface HotelSearchResponse {
 
 export const searchHotels = async (request: HotelSearchRequest): Promise<HotelSearchResponse> => {
   const response = await api.post('/hotels/search', request);
-  console.log(response);
   return response.data;
 };
 
@@ -82,6 +81,7 @@ export const getHotelDetails = async (hotelId: string) => {
 export interface ParkRecommendationRequest {
   start_date: string;
   end_date: string;
+  park_days: number;
   adults: number;
   children: number;
   child_ages: number[];
@@ -100,7 +100,6 @@ export interface DailyParkPlan {
   crowd_level: number;
   reasons: string[];
   tips: string[];
-  recommended_arrival_time: string;
   estimated_wait_times: string;
 }
 

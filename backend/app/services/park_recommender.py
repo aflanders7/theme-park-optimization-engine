@@ -70,6 +70,9 @@ class ParkRecommendationEngine:
         
         # 1. Get all available dates
         all_dates = self._get_date_range(request.start_date, request.end_date)
+        print(request.start_date)
+        print(request.end_date)
+        print(all_dates)
         
         # 2. Load crowd data for date range
         crowd_data = self._load_crowd_data(request.start_date, request.end_date)
@@ -78,7 +81,8 @@ class ParkRecommendationEngine:
             raise ValueError("No crowd data available for selected dates")
         
         # 3. Determine optimal number of park days
-        num_park_days = self._calculate_park_days(request, len(all_dates))
+        num_park_days = request.park_days #self._calculate_park_days(request, len(all_dates))
+        print(num_park_days)
         
         # 4. Score each park for each day
         park_scores = self._score_parks_by_date(
@@ -112,7 +116,7 @@ class ParkRecommendationEngine:
         """Generate list of all dates in range"""
         dates = []
         current = start
-        while current < end:
+        while current <= end:
             dates.append(current)
             current += timedelta(days=1)
         return dates
@@ -170,6 +174,7 @@ class ParkRecommendationEngine:
         for date_val in dates:
             # Get crowd levels for this date
             day_crowds = crowd_data[crowd_data['date'] == date_val]
+            print(date_val)
             
             for park in self.PARK_ATTRIBUTES.keys():
                 # Skip if user wants to avoid this park
@@ -344,9 +349,6 @@ class ParkRecommendationEngine:
             # Generate tips
             tips = self._generate_tips(park, crowd_level, request)
             
-            # Arrival time recommendation
-            arrival_time = self._recommend_arrival_time(crowd_level)
-            
             # Wait time estimate
             wait_times = self._estimate_wait_times(crowd_level)
             
@@ -357,7 +359,6 @@ class ParkRecommendationEngine:
                 crowd_level=round(crowd_level, 1),
                 reasons=reasons,
                 tips=tips,
-                recommended_arrival_time=arrival_time,
                 estimated_wait_times=wait_times
             )
             
@@ -438,18 +439,6 @@ class ParkRecommendationEngine:
             tips.append("Flight of Passage has longest wait - ride first or use Lightning Lane")
         
         return tips[:4]  # Top 4 tips
-    
-    def _recommend_arrival_time(self, crowd_level: float) -> str:
-        """Recommend park arrival time based on crowds"""
-        
-        if crowd_level <= 3:
-            return "9:00 AM (normal opening)"
-        elif crowd_level <= 5:
-            return "8:30 AM (30 min before opening)"
-        elif crowd_level <= 7:
-            return "8:00 AM (1 hour before opening for rope drop)"
-        else:
-            return "7:30 AM (arrive early for best experience)"
     
     def _estimate_wait_times(self, crowd_level: float) -> str:
         """Estimate typical wait times"""

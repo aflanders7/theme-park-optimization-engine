@@ -37,8 +37,16 @@ export default function ParkResultsPage() {
   };
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    if (!dateStr) return "";
+    // Parse manually as local date (no timezone conversion)
+    const [year, month, day] = dateStr.split("-").map(Number);
+    const date = new Date(year, month - 1, day); // <-- this keeps it local!
+
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    });
   };
 
   return (
@@ -115,20 +123,18 @@ export default function ParkResultsPage() {
 
           {daily_plans.map((plan, idx) => {
             const isRestDay = rest_days.includes(plan.date);
-            
+
             return (
               <div
                 key={idx}
-                className={`bg-white rounded-2xl shadow-lg overflow-hidden ${
-                  isRestDay ? 'border-4 border-orange-300' : ''
-                }`}
+                className={`bg-white rounded-2xl shadow-lg overflow-hidden ${isRestDay ? 'border-4 border-orange-300' : ''
+                  }`}
               >
                 {/* Day Header */}
-                <div className={`p-6 ${
-                  isRestDay 
-                    ? 'bg-gradient-to-r from-orange-100 to-yellow-100' 
+                <div className={`p-6 ${isRestDay
+                    ? 'bg-gradient-to-r from-orange-100 to-yellow-100'
                     : 'bg-gradient-to-r from-purple-600 to-pink-600'
-                }`}>
+                  }`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className={`text-sm font-medium ${isRestDay ? 'text-orange-700' : 'text-white/80'}`}>
@@ -163,10 +169,6 @@ export default function ParkResultsPage() {
                           <TrendingUp className="w-5 h-5" />
                         )}
                         {getCrowdLabel(plan.crowd_level)} ({plan.crowd_level}/10)
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <Clock className="w-5 h-5" />
-                        <span className="font-medium">Arrive by {plan.recommended_arrival_time}</span>
                       </div>
                     </div>
 
