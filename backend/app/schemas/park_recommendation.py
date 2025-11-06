@@ -55,7 +55,7 @@ class ParkRecommendationRequest(BaseModel):
     
     @property
     def num_nights(self):
-        return (self.end_date - self.start_date).days
+        return (self.end_date - self.start_date).days + 1
     
     @property
     def total_people(self):
@@ -69,7 +69,6 @@ class DailyParkPlan(BaseModel):
     crowd_level: float
     reasons: List[str]
     tips: List[str]
-    estimated_wait_times: str
 
 
 class ParkRecommendationResponse(BaseModel):

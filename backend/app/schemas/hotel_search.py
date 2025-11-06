@@ -74,7 +74,7 @@ class HotelSearchRequest(BaseModel):
         if date_type == "exact":
             if not (check_in and check_out):
                 raise ValueError("Both check_in and check_out required for exact date searches")
-            v = (check_out - check_in).days
+            v = (check_out - check_in).days + 1
             if v <= 0:
                 raise ValueError("check_out must be after check_in")
 

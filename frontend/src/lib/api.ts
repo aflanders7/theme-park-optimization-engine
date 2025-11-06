@@ -100,7 +100,6 @@ export interface DailyParkPlan {
   crowd_level: number;
   reasons: string[];
   tips: string[];
-  estimated_wait_times: string;
 }
 
 export interface ParkRecommendationResponse {

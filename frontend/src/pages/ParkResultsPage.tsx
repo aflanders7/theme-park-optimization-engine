@@ -175,7 +175,6 @@ export default function ParkResultsPage() {
                     {/* Wait Times */}
                     <div className="bg-blue-50 rounded-xl p-4">
                       <p className="font-medium text-blue-900 mb-1">Expected Wait Times</p>
-                      <p className="text-blue-800">{plan.estimated_wait_times}</p>
                     </div>
 
                     {/* Reasons */}
