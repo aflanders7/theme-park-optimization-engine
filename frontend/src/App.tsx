@@ -8,6 +8,7 @@ import Layout from './components/Layout';
 import ParkSearchPage from './pages/ParkSearchPage';
 import ParkLoadingPage from './pages/ParkLoadingPage';
 import ParkResultsPage from './pages/ParkResultsPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import Footer from './components/Footer';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
           <Route path="parks" element={<ParkSearchPage />} />
           <Route path="park-loading" element={<ParkLoadingPage />} />
           <Route path="park-results" element={<ParkResultsPage />} />
+          <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
         </Route>
         <Route path="loading" element={<LoadingPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

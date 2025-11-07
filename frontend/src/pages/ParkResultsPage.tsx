@@ -14,6 +14,24 @@ export default function ParkResultsPage() {
 
   const { daily_plans, rest_days, summary, optimization_notes } = parkResults;
 
+  // Merge park days and rest days into a single sorted schedule
+  const allDays = [
+    ...daily_plans.map(plan => ({
+      date: plan.date,
+      isRestDay: false,
+      ...plan
+    })),
+    ...rest_days.map(date => ({
+      date,
+      isRestDay: true,
+      park: '',
+      park_display_name: '',
+      crowd_level: 0,
+      reasons: [],
+      tips: []
+    }))
+  ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
   const getCrowdColor = (level: number) => {
     if (level <= 3) return 'bg-green-100 text-green-800 border-green-300';
     if (level < 7) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
@@ -40,7 +58,7 @@ export default function ParkResultsPage() {
     if (!dateStr) return "";
     // Parse manually as local date (no timezone conversion)
     const [year, month, day] = dateStr.split("-").map(Number);
-    const date = new Date(year, month - 1, day); // <-- this keeps it local!
+    const date = new Date(year, month - 1, day);
 
     return date.toLocaleDateString("en-US", {
       weekday: "long",
@@ -114,15 +132,15 @@ export default function ParkResultsPage() {
           </div>
         )}
 
-        {/* Daily Plans */}
+        {/* Daily Plans - Now includes rest days */}
         <div className="space-y-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
             <Calendar className="w-7 h-7 text-purple-600" />
             Your Day-by-Day Schedule
           </h2>
 
-          {daily_plans.map((plan, idx) => {
-            const isRestDay = rest_days.includes(plan.date);
+          {allDays.map((day, idx) => {
+            const isRestDay = day.isRestDay;
 
             return (
               <div
@@ -141,7 +159,7 @@ export default function ParkResultsPage() {
                         Day {idx + 1}
                       </p>
                       <h3 className={`text-2xl font-bold ${isRestDay ? 'text-orange-900' : 'text-white'}`}>
-                        {formatDate(plan.date)}
+                        {formatDate(day.date)}
                       </h3>
                     </div>
                     {isRestDay ? (
@@ -151,8 +169,8 @@ export default function ParkResultsPage() {
                       </div>
                     ) : (
                       <div className="text-right">
-                        <p className="text-4xl mb-1">{getParkEmoji(plan.park)}</p>
-                        <p className="text-white font-bold text-lg">{plan.park_display_name}</p>
+                        <p className="text-4xl mb-1">{getParkEmoji(day.park)}</p>
+                        <p className="text-white font-bold text-lg">{day.park_display_name}</p>
                       </div>
                     )}
                   </div>
@@ -162,19 +180,14 @@ export default function ParkResultsPage() {
                   <div className="p-6 space-y-6">
                     {/* Crowd Level */}
                     <div className="flex items-center gap-4">
-                      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold ${getCrowdColor(plan.crowd_level)}`}>
-                        {plan.crowd_level < 7 ? (
+                      <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold ${getCrowdColor(day.crowd_level)}`}>
+                        {day.crowd_level < 7 ? (
                           <TrendingDown className="w-5 h-5" />
                         ) : (
                           <TrendingUp className="w-5 h-5" />
                         )}
-                        {getCrowdLabel(plan.crowd_level)} ({plan.crowd_level}/10)
+                        {getCrowdLabel(day.crowd_level)} ({day.crowd_level}/10)
                       </div>
-                    </div>
-
-                    {/* Wait Times */}
-                    <div className="bg-blue-50 rounded-xl p-4">
-                      <p className="font-medium text-blue-900 mb-1">Expected Wait Times</p>
                     </div>
 
                     {/* Reasons */}
@@ -184,7 +197,7 @@ export default function ParkResultsPage() {
                         Why This Park Today?
                       </h4>
                       <ul className="space-y-2">
-                        {plan.reasons.map((reason, i) => (
+                        {day.reasons.map((reason, i) => (
                           <li key={i} className="flex items-start gap-3 text-gray-700">
                             <span className="text-purple-600 font-bold mt-1">✓</span>
                             <span>{reason}</span>
@@ -194,14 +207,14 @@ export default function ParkResultsPage() {
                     </div>
 
                     {/* Tips */}
-                    {plan.tips.length > 0 && (
+                    {day.tips.length > 0 && (
                       <div>
                         <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
                           <Lightbulb className="w-5 h-5 text-yellow-600" />
                           Tips for Today
                         </h4>
                         <ul className="space-y-2">
-                          {plan.tips.map((tip, i) => (
+                          {day.tips.map((tip, i) => (
                             <li key={i} className="flex items-start gap-3 text-gray-700">
                               <span className="text-yellow-600 font-bold mt-1">💡</span>
                               <span>{tip}</span>
@@ -237,10 +250,8 @@ export default function ParkResultsPage() {
             {Object.entries(summary.parks_visited).map(([park, count]) => (
               <div key={park} className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 text-center">
                 <div className="text-4xl mb-2">{getParkEmoji(park)}</div>
-                <p className="font-bold text-gray-800">
-                  {park.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                </p>
-                <p className="text-purple-600 font-bold"> {count} {count === 1 ? 'day' : 'days'}</p>
+                <p className="font-bold text-gray-800">{park}</p>
+                <p className="text-purple-600 font-bold">{count} {count === 1 ? 'day' : 'days'}</p>
               </div>
             ))}
           </div>

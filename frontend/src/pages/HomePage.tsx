@@ -1,5 +1,6 @@
 // frontend/src/pages/HomePage.tsx
 import { Link } from 'react-router-dom';
+import BrevoForm from '../components/BrevoForm';
 import { Search, DollarSign, Clock, Sparkles, Star, TrendingUp, Award } from 'lucide-react';
 
 export default function HomePage() {
@@ -34,6 +35,7 @@ export default function HomePage() {
               Start Planning Your Trip
             </Link>
 
+
             <p className="text-white/80 text-sm mt-4">
               Takes less than 2 minutes • No account required
             </p>
@@ -44,6 +46,9 @@ export default function HomePage() {
         <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
       </section>
+
+                  {/* Brevo Form embedded */}
+      <BrevoForm />
 
       {/* Features Section */}
       <section className="py-20 px-4">
