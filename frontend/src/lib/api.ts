@@ -67,16 +67,6 @@ export const searchHotels = async (request: HotelSearchRequest): Promise<HotelSe
   return response.data;
 };
 
-export const getSearchOptions = async () => {
-  const response = await api.get('/hotels/options');
-  return response.data;
-};
-
-export const getHotelDetails = async (hotelId: string) => {
-  const response = await api.get(`/hotels/${hotelId}`);
-  return response.data;
-};
-
 // Park Recommendation Types
 export interface ParkRecommendationRequest {
   start_date: string;

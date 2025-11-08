@@ -2,10 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.park_recommendation import (
-    ParkRecommendationRequest,
-    ParkRecommendationResponse
-)
+from app.schemas.park_recommendation import ParkRecommendationRequest, ParkRecommendationResponse
 from app.services.park_recommender import ParkRecommendationEngine
 
 router = APIRouter(prefix="/api/parks", tags=["parks"])
@@ -37,36 +34,3 @@ async def recommend_parks(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate recommendations: {str(e)}")
-
-
-@router.get("/crowd-levels")
-async def get_crowd_levels(
-    start_date: str,
-    end_date: str,
-    db: Session = Depends(get_db)
-):
-    """Get crowd levels for all parks in date range"""
-    from datetime import datetime
-    from app.models.crowd import CrowdCalendar
-    from sqlalchemy import and_
-    
-    start = datetime.strptime(start_date, "%Y-%m-%d").date()
-    end = datetime.strptime(end_date, "%Y-%m-%d").date()
-    
-    crowds = db.query(CrowdCalendar).filter(
-        and_(
-            CrowdCalendar.date >= start,
-            CrowdCalendar.date <= end
-        )
-    ).all()
-    
-    return {
-        "crowds": [
-            {
-                "park": c.park,
-                "date": c.date,
-                "crowd_level": c.crowd
-            }
-            for c in crowds
-        ]
-    }
