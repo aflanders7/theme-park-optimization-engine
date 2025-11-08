@@ -15,23 +15,23 @@ export interface HotelSearchRequest {
   flexible_month?: number;
   flexible_year?: number;
   num_nights?: number;
-  
+
   adults: number;
   children: number;
   child_ages: number[];
   infants: number;
-  
+
   total_budget: number;
   budget_per_night?: number;
 
   location_pref?: string;
-  
+
   transportation_prefs?: string[];
   transportation_importance?: number;
-  
+
   room_features?: string[];
   features_importance?: number;
-  
+
   prefer_budget?: boolean;
 }
 
@@ -42,10 +42,10 @@ export interface RoomRecommendation {
   room_id: string;
   room_name: string;
   room_description: string;
-  
+
   avg_price_per_night: number;
   total_price: number;
-  
+
   occupancy: number;
   beds: Array<{ count: number; type: string }>;
   features: string[];
@@ -63,9 +63,19 @@ export interface HotelSearchResponse {
 }
 
 export const searchHotels = async (request: HotelSearchRequest): Promise<HotelSearchResponse> => {
-  const response = await api.post('/hotels/search', request);
-  return response.data;
-};
+  try {
+    const response = await api.post('/hotels/search', request);
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 429) {
+      alert("Too many requests. Please wait a moment and try again.");
+    } else {
+      alert("An error occurred while generating park recommendations.");
+      console.error(error);
+    }
+    throw error;
+  };
+}
 
 // Park Recommendation Types
 export interface ParkRecommendationRequest {
@@ -108,8 +118,18 @@ export interface ParkRecommendationResponse {
 }
 
 export const recommendParks = async (request: ParkRecommendationRequest): Promise<ParkRecommendationResponse> => {
-  const response = await api.post('/parks/recommend', request);
-  return response.data;
-};
+  try {
+    const response = await api.post('/parks/recommend', request);
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 429) {
+      alert("Too many requests. Please wait a moment and try again.");
+    } else {
+      alert("An error occurred while generating park recommendations.");
+      console.error(error);
+    }
+    throw error;
+  };
+}
 
 export default api;

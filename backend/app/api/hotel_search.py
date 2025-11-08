@@ -1,17 +1,22 @@
 # backend/app/api/hotel_search.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.hotel_search import HotelSearchRequest, HotelSearchResponse
 from app.services.hotel_matcher import HotelRecommendationEngine
+from app.core.app import limiter, app
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 
 router = APIRouter(prefix="/api/hotels", tags=["hotels"])
-
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @router.post("/search", response_model=HotelSearchResponse)
+@limiter.limit("2/minute")
 async def search_hotels(
+    request: Request,
     search_request: HotelSearchRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """
     Find best hotel rooms based on detailed preferences

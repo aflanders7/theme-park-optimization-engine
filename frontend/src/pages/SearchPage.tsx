@@ -17,8 +17,13 @@ export default function SearchPage() {
 
   const handleSearch = async () => {
     navigate('/loading');
-    await search(searchData);
-    navigate('/results');
+    const result = await search(searchData);
+
+    if (result) {
+      navigate('/results');
+    } else{
+      navigate("/search")
+    }
   };
 
   const totalPeople = searchData.adults + searchData.children + searchData.infants;

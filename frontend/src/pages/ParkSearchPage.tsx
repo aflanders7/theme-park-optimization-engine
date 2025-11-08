@@ -17,8 +17,13 @@ export default function ParkSearchPage() {
 
   const handleSearch = async () => {
     navigate('/park-loading');
-    await search(parkSearchData);
-    navigate('/park-results');
+    const result = await search(parkSearchData);
+
+    if (result) {
+      navigate('/park-results');
+    } else{
+      navigate("/parks")
+    }
   };
 
   const totalPeople = parkSearchData.adults + parkSearchData.children + parkSearchData.infants;
