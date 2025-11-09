@@ -23,30 +23,19 @@ class HotelRecommendationEngine:
         if not candidate_rooms:
             return []
         
+        if search.date_type == "exact":
+            price_map = self._batch_fetch_exact_pricing(candidate_rooms, search)
+        elif search.date_type == "flexible_days":
+            price_map = self._batch_fetch_monthly_pricing(candidate_rooms, search)
+        else:
+            raise ValueError(f"Unknown date_type: {search.date_type}")
+        
         scored_rooms = []
 
         for room_data in candidate_rooms:
             room, hotel = room_data['room'], room_data['hotel']
-
-            if search.date_type == "exact":
-                avg_price = self._find_best_pricing(
-                    room.room_id,
-                    room.hotel_id,
-                    search.check_in_date,
-                    search.check_out_date,
-                    search.num_nights
-                )
-
-            elif search.date_type == "flexible_days":
-                avg_price = self._estimate_monthly_pricing(
-                    room.room_id,
-                    room.hotel_id,
-                    search.flexible_year,
-                    search.flexible_month
-                )
-
-            else:
-                raise ValueError(f"Unknown date_type: {search.date_type}")
+            key = (room.room_id, room.hotel_id)
+            avg_price = price_map.get(key)
 
             if avg_price is None:
                 continue
@@ -77,9 +66,7 @@ class HotelRecommendationEngine:
 
         # Sort by score
         scored_rooms.sort(key=lambda x: x['score'], reverse=True)
-
         recommendations = []
-        scored_rooms_length = len(scored_rooms)
 
         for r in scored_rooms:
             # Stop once we have 5 recommendations total
@@ -96,76 +83,78 @@ class HotelRecommendationEngine:
             )
 
             # Only add if we don’t already have this exact combo
-            if not same_hotel_same_occ or scored_rooms_length <= 5:
+            if not same_hotel_same_occ or len(scored_rooms) <= 5:
                 recommendations.append(self._format_recommendation(r, search.num_nights))
 
         return recommendations
-
-    
+  
 
     def _get_candidate_rooms(self, search: HotelSearchRequest) -> List[Dict]:
         """Query database for rooms that meet multiple criteria"""
-        
         if search.infants >= 1:
             search.infants -= 1
 
         total_guests = search.adults + search.children + search.infants
         
-        # Start base query
         query = self.db.query(Room, Hotel).join(
             Hotel, Room.hotel_id == Hotel.id
         ).filter(
-            Room.occupancy >= total_guests  # occupancy filter
+            Room.occupancy >= total_guests  
         )
         
-        # Filter by min_price if budget_per_night is provided
         if search.budget_per_night:
-            query = query.filter(
-                Room.min_price <= search.budget_per_night
-            )
+            query = query.filter(Room.min_price <= search.budget_per_night)
         
         results = query.all()
         return [{'room': room, 'hotel': hotel} for room, hotel in results]
 
     
-    def _find_best_pricing(
-        self, room_id: str, hotel_id: str, check_in: date, check_out: date, nights: int
-    ) -> Optional[float]:
-        """Find the date range with best average pricing for this room"""
-        
-        prices = self.db.query(RoomPricing.price).filter(
-                and_(
-                    RoomPricing.room_id == room_id,
-                    RoomPricing.hotel_id == hotel_id,
-                    RoomPricing.date >= check_in,
-                    RoomPricing.date < check_out
-                )).all()
-            
-        if len(prices) < nights or not prices:
-            print("ERROR: prices < nights or no prices")
-            return None
+    def _batch_fetch_exact_pricing(self, candidate_rooms, search: HotelSearchRequest) -> Dict[Tuple[str, str], float]:
+        """Fetch all exact-date average prices in one query."""
+        room_ids = [r["room"].room_id for r in candidate_rooms]
+        hotel_ids = [r["hotel"].id for r in candidate_rooms]
 
-            
-        avg_price = sum(p[0] for p in prices) / len(prices)
-            
-        return avg_price
+        results = (
+            self.db.query(
+                RoomPricing.room_id,
+                RoomPricing.hotel_id,
+                func.avg(RoomPricing.price).label("avg_price"),
+            )
+            .filter(
+                RoomPricing.room_id.in_(room_ids),
+                RoomPricing.hotel_id.in_(hotel_ids),
+                RoomPricing.date >= search.check_in_date,
+                RoomPricing.date < search.check_out_date,
+            )
+            .group_by(RoomPricing.room_id, RoomPricing.hotel_id)
+            .all()
+        )
+
+        return {(r.room_id, r.hotel_id): float(r.avg_price) for r in results}
     
 
-    def _estimate_monthly_pricing(
-    self, room_id: str, hotel_id: str, year: int, month: int
-    ) -> Optional[float]:
-        """Estimate an average monthly price for flexible date searches."""
-        avg_price = (
-            self.db.query(func.avg(RoomPricing.price))
-            .filter(
-                RoomPricing.room_id == room_id,
-                RoomPricing.hotel_id == hotel_id,
-                func.extract('year', RoomPricing.date) == year,
-                func.extract('month', RoomPricing.date) == month,
+    def _batch_fetch_monthly_pricing(self, candidate_rooms, search: HotelSearchRequest) -> Dict[Tuple[str, str], float]:
+        """Fetch all average monthly prices in one query."""
+        room_ids = [r["room"].room_id for r in candidate_rooms]
+        hotel_ids = [r["hotel"].id for r in candidate_rooms]
+
+        results = (
+            self.db.query(
+                RoomPricing.room_id,
+                RoomPricing.hotel_id,
+                func.avg(RoomPricing.price).label("avg_price"),
             )
-            .scalar()
+            .filter(
+                RoomPricing.room_id.in_(room_ids),
+                RoomPricing.hotel_id.in_(hotel_ids),
+                func.extract("year", RoomPricing.date) == search.flexible_year,
+                func.extract("month", RoomPricing.date) == search.flexible_month,
+            )
+            .group_by(RoomPricing.room_id, RoomPricing.hotel_id)
+            .all()
         )
-        return avg_price or None
+
+        return {(r.room_id, r.hotel_id): float(r.avg_price) for r in results}
 
     
     def _calculate_match_score(

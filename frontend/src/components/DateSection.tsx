@@ -56,19 +56,18 @@ export default function DateSection({ searchData, updateSearchData }: Props) {
                             </option>
                         ))}
                     </select>
-
-                    {/* Nights */}
-                    <div>
-                        <label className="block text-sm font-medium mb-2">Nights</label>
-                        <input
-                            type="number"
-                            min="1"
-                            max="14"
-                            value={searchData.numNights || 5}
-                            onChange={(e) => updateSearchData('numNights', parseInt(e.target.value))}
-                            className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
-                        />
-                    </div>
+                </div>
+                {/* Nights */}
+                <div>
+                    <label className="block text-sm font-medium mb-2">Nights</label>
+                    <input
+                        type="number"
+                        min="1"
+                        max="14"
+                        value={searchData.numNights || 5}
+                        onChange={(e) => updateSearchData('numNights', parseInt(e.target.value))}
+                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                    />
                 </div>
             </div>
         </Section>
