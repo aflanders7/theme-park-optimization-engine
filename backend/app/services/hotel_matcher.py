@@ -1,9 +1,5 @@
 # backend/app/services/hotel_matcher.py
-import pandas as pd
-import numpy as np
-import calendar
-from datetime import datetime, timedelta, date
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func, or_, String
 
@@ -37,14 +33,11 @@ class HotelRecommendationEngine:
             key = (room.room_id, room.hotel_id)
             avg_price = price_map.get(key)
 
+            # Room got filtered out already
             if avg_price is None:
                 continue
 
             total_price = avg_price * search.num_nights
-            
-            # Check if within budget
-            if search.budget_per_night and avg_price > search.budget_per_night:
-                continue
             
             score, breakdown, reasons = self._calculate_match_score(
                 room, hotel, avg_price, search
@@ -67,6 +60,8 @@ class HotelRecommendationEngine:
         # Sort by score
         scored_rooms.sort(key=lambda x: x['score'], reverse=True)
         recommendations = []
+
+        #different_hotels = len({room['hotel'].id for room in scored_rooms})
 
         for r in scored_rooms:
             # Stop once we have 5 recommendations total
@@ -127,6 +122,7 @@ class HotelRecommendationEngine:
                 RoomPricing.date < search.check_out_date,
             )
             .group_by(RoomPricing.room_id, RoomPricing.hotel_id)
+            .having(func.avg(RoomPricing.price) <= search.budget_per_night)
             .all()
         )
 
@@ -151,6 +147,7 @@ class HotelRecommendationEngine:
                 func.extract("month", RoomPricing.date) == search.flexible_month,
             )
             .group_by(RoomPricing.room_id, RoomPricing.hotel_id)
+            .having(func.avg(RoomPricing.price) <= search.budget_per_night)
             .all()
         )
 
