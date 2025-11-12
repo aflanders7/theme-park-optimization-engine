@@ -4,18 +4,18 @@ import { Mail, Sparkles } from "lucide-react";
 
 const BrevoForm: React.FC = () => {
     return (
-        <section className="py-20 px-4 bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50">
+        <section className="py-20 px-4 bg-white">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full mb-4 shadow-lg">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--blue)] rounded-full mb-4 shadow-lg">
                         <Mail className="w-8 h-8 text-white" />
                     </div>
                     <h2 className="text-4xl font-bold text-gray-800 mb-4">
-                        Get Disney Hotel Tips & Updates
+                        Get Disney Travel Tips & Updates
                     </h2>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                        Join our community and receive helpful hotel suggestions, travel tips, and exclusive insights delivered to your inbox.
+                        Join our community and receive resort recommendations, travel tips, and feature updates — straight to your inbox.
                     </p>
                 </div>
 

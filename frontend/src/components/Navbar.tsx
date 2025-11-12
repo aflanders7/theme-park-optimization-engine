@@ -12,7 +12,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-white shadow-md sticky top-0 z-50 border-b-2 border-orange-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -20,14 +20,14 @@ export default function Navbar() {
             to="/"
             className="flex items-center gap-3 group"
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 bg-[var(--blue)] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Disney Planner
+              <h1 className="text-2xl font-bold text-[var(--charcoal)]">
+                Disney Suggestions
               </h1>
-              <p className="text-xs text-gray-600">Find Your Perfect Hotel</p>
+              <p className="text-xs text-gray-600">Hotels & Parks</p>
             </div>
           </Link>
 
@@ -45,22 +45,21 @@ export default function Navbar() {
               icon={<Search className="w-5 h-5" />}
               active={isActive('/search')}
             >
-              Find Hotels
+              Hotels
             </NavLink>
-
             <NavLink
               to="/parks"
               icon={<Calendar className="w-5 h-5" />}
               active={isActive('/parks')}
             >
-              Plan Parks
+              Parks
             </NavLink>
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-[var(--snow)] transition-colors"
           >
             {mobileMenuOpen ? (
               <X className="w-6 h-6 text-gray-600" />
@@ -72,7 +71,7 @@ export default function Navbar() {
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
+          <div className="md:hidden py-4 border-t-2 border-[var(--charcoal)]">
             <div className="flex flex-col gap-2">
               <MobileNavLink
                 to="/"
@@ -88,7 +87,15 @@ export default function Navbar() {
                 active={isActive('/search')}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Find Hotels
+                Hotels
+              </MobileNavLink>
+              <MobileNavLink
+                to="/parks"
+                icon={<Calendar className="w-5 h-5" />}
+                active={isActive('/parks')}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Parks
               </MobileNavLink>
             </div>
           </div>
@@ -109,9 +116,10 @@ function NavLink({ to, icon, active, children }: NavLinkProps) {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all ${active
-          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-          : 'text-gray-700 hover:bg-gray-100'
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all ${
+        active
+          ? 'bg-[var(--pink)] text-white shadow-lg'
+          : 'hover:bg-[var(--snow)]'
         }`}
     >
       {icon}
@@ -129,9 +137,10 @@ function MobileNavLink({ to, icon, active, children, onClick }: MobileNavLinkPro
     <Link
       to={to}
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${active
-          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-          : 'text-gray-700 hover:bg-gray-100'
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all ${
+        active
+          ? 'bg-[var(--pink)] text-white shadow-lg'
+          : 'hover:bg-[var(--snow)]'
         }`}
     >
       {icon}

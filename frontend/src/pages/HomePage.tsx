@@ -7,33 +7,43 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-pink-500 to-yellow-400 text-white py-20 px-4">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[var(--snow)] via-[var(--pink)] to-[var(--snow)] text-white py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full">
               <Sparkles className="w-5 h-5" />
-              <span className="font-medium">Smart Hotel Suggestions</span>
+              <span className="font-medium">Unofficial Recommendation Tool</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              Discover Your Ideal
+              Find Your Perfect
               <br />
-              <span className="bg-gradient-to-r from-yellow-200 to-white bg-clip-text text-transparent">
-                Disney Hotel
+              <span className="bg-gradient-to-r from-yellow-100 to-white bg-clip-text text-transparent">
+                Disney Stay & Experience
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto">
-              Answer a few questions and get personalized hotel suggestions based on your preferences and travel details.
+              Get personalized suggestions for the perfect resort and park visit — all based on your travel style.
             </p>
             
-            <Link
-              to="/search"
-              className="inline-flex items-center gap-3 bg-white text-orange-600 px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200"
-            >
-              <Search className="w-6 h-6" />
-              Get Hotel Suggestions
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link
+                to="/search"
+                className="inline-flex items-center gap-3 bg-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200"
+              >
+                <Hotel className="w-6 h-6" />
+                Get Hotel Suggestions
+              </Link>
+
+              <Link
+                to="/parks"
+                className="inline-flex items-center gap-3 bg-white px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200"
+              >
+                <Sparkles className="w-6 h-6" />
+                Get Park Suggestions
+              </Link>
+            </div>
 
             <p className="text-white/80 text-sm mt-4">
               Takes less than 2 minutes • No account required
@@ -42,8 +52,8 @@ export default function HomePage() {
         </div>
 
         {/* Decorative Elements */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-yellow-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-50 h-50 bg-yellow-200/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-56 h-56 bg-yellow-400/20 rounded-full blur-3xl"></div>
       </section>
 
       {/* Brevo Form embedded */}
@@ -54,11 +64,69 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-800 mb-4">
-              How It Works
+              Two Helpful Tools
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Our suggestion engine helps you find hotels that match your needs
+              Get suggestions for your Disney resort stay and park visits
             </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            {/* Hotel Suggestions */}
+            <div className="bg-gradient-to-br from-orange-50 to-pink-50 rounded-3xl p-8 border-2 border-orange-200">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full mb-4 shadow-lg">
+                  <Hotel className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">Hotel Suggestions</h3>
+                <p className="text-gray-600">Find your perfect Disney resort</p>
+              </div>
+              
+              <div className="space-y-4">
+                <FeatureItem text="Personalized hotel matches" />
+                <FeatureItem text="All resort categories" />
+                <FeatureItem text="Detailed amenities & location info" />
+                <FeatureItem text="Transportation details" />
+              </div>
+
+              <Link
+                to="/search"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all"
+              >
+                <Hotel className="w-5 h-5" />
+                Find Hotels
+              </Link>
+            </div>
+
+            {/* Park Day Planner */}
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl p-8 border-2 border-purple-200">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full mb-4 shadow-lg">
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">Park Visit Suggestions</h3>
+                <p className="text-gray-600">See which parks to visit when</p>
+              </div>
+              
+              <div className="space-y-4">
+                <FeatureItem text="Suggestions based on crowd forecasts" />
+                <FeatureItem text="Tailored to your party & preferences" />
+                <FeatureItem text="Rest day suggestions included" />
+                <FeatureItem text="Daily tips & suggested arrival times" />
+              </div>
+
+              <Link
+                to="/parks"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all"
+              >
+                <Sparkles className="w-5 h-5" />
+                Get Park Suggestions
+              </Link>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">How Our Tools Work</h3>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -71,13 +139,13 @@ export default function HomePage() {
             <StepCard
               icon={<Sparkles className="w-12 h-12" />}
               title="Get Suggestions"
-              description="Our algorithm analyzes your inputs and suggests hotels that fit your criteria."
+              description="Our algorithms analyze your inputs and provide personalized suggestions."
               step="2"
             />
             <StepCard
-              icon={<Hotel className="w-12 h-12" />}
+              icon={<Star className="w-12 h-12" />}
               title="Review & Explore"
-              description="Browse detailed information about each suggested hotel and their features."
+              description="Browse detailed information to help inform your decisions."
               step="3"
             />
           </div>
@@ -212,18 +280,27 @@ export default function HomePage() {
       <section className="py-20 px-4 bg-gradient-to-br from-orange-500 via-pink-500 to-yellow-400">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Find Your Hotel?
+            Ready to Get Suggestions?
           </h2>
           <p className="text-xl text-white/90 mb-8">
-            Get personalized hotel suggestions in just a few minutes
+            Find hotel options and see which parks to visit when
           </p>
-          <Link
-            to="/search"
-            className="inline-flex items-center gap-3 bg-white text-orange-600 px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200"
-          >
-            <Search className="w-6 h-6" />
-            Start Now
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/search"
+              className="inline-flex items-center gap-3 bg-white text-orange-600 px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200"
+            >
+              <Hotel className="w-6 h-6" />
+              Find Hotels
+            </Link>
+            <Link
+              to="/parks"
+              className="inline-flex items-center gap-3 bg-white text-purple-600 px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200"
+            >
+              <Sparkles className="w-6 h-6" />
+              Get Park Suggestions
+            </Link>
+          </div>
         </div>
       </section>
     </div>
@@ -289,6 +366,21 @@ function InfoCard({ icon, title, items }: InfoCardProps) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+interface FeatureItemProps {
+  text: string;
+}
+
+function FeatureItem({ text }: FeatureItemProps) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex-shrink-0 w-6 h-6 bg-white rounded-full flex items-center justify-center">
+        <span className="text-orange-600 font-bold text-sm">✓</span>
+      </div>
+      <span className="text-gray-700">{text}</span>
     </div>
   );
 }
