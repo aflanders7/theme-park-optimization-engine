@@ -1,6 +1,6 @@
 // frontend/src/components/layout/Navbar.tsx
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, Search, Home, Menu, X, Calendar } from 'lucide-react';
+import { Sparkles, Search, Home, Menu, X, Calendar, Rat } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
@@ -20,14 +20,14 @@ export default function Navbar() {
             to="/"
             className="flex items-center gap-3 group"
           >
-            <div className="w-12 h-12 bg-[var(--blue)] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-              <Sparkles className="w-7 h-7 text-white" />
+            <div className="w-12 h-12 bg-[var(--sunset)] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+              <Rat className="w-7 h-7 text-[var(--charcoal)]" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-[var(--charcoal)]">
-                Disney Suggestions
+                Mouse Days
               </h1>
-              <p className="text-xs text-gray-600">Hotels & Parks</p>
+              <p className="text-xs text-gray-600">Hotel & Park Recommendations</p>
             </div>
           </Link>
 
@@ -118,7 +118,7 @@ function NavLink({ to, icon, active, children }: NavLinkProps) {
       to={to}
       className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all ${
         active
-          ? 'bg-[var(--pink)] text-white shadow-lg'
+          ? 'bg-[var(--sunset)] text-white shadow-lg'
           : 'hover:bg-[var(--snow)]'
         }`}
     >
@@ -139,7 +139,7 @@ function MobileNavLink({ to, icon, active, children, onClick }: MobileNavLinkPro
       onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all ${
         active
-          ? 'bg-[var(--pink)] text-white shadow-lg'
+          ? 'bg-[var(--pale)] text-white shadow-lg'
           : 'hover:bg-[var(--snow)]'
         }`}
     >

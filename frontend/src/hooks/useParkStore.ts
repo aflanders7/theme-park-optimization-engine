@@ -6,6 +6,8 @@ interface ParkSearchState {
   parkSearchData: {
     startDate: string;
     endDate: string;
+    parkOnArrival: boolean;
+    parkOnDeparture: boolean;
     parkDays: number;
     adults: number;
     children: number;
@@ -25,6 +27,8 @@ interface ParkSearchState {
 const initialParkSearchData = {
   startDate: '',
   endDate: '',
+  parkOnArrival: false,
+  parkOnDeparture: false,
   parkDays: 1,
   adults: 2,
   children: 0,

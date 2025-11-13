@@ -21,6 +21,8 @@
   --snow: #efefefff;
   --rose: #E0728Dff;
   --pink: #E89FBAff;
+  --sunset: #FFE0B2ff;
+  --pale: #FFF3E0ff;
 }
 
 a {
@@ -57,7 +59,7 @@ button.default-btn {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #ef9ddb;
+  border-color: var(--pale);
 }
 button.default-btn:focus,
 button:focus-visible {
@@ -70,9 +72,6 @@ button:focus-visible {
     background-color: #ffffff;
   }
   a:hover {
-    color: #ee0000;
-  }
-  button {
-    /*background-color: #f9f9f9;*/
+    color: var(--blue)
   }
 }

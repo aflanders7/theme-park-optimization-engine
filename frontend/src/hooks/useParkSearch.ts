@@ -17,6 +17,8 @@ export function useParkSearch() {
         start_date: searchData.startDate,
         end_date: searchData.endDate,
         park_days: searchData.parkDays,
+        park_on_arrival: searchData.parkOnArrival,
+        park_on_departure: searchData.parkOnDeparture,
         adults: searchData.adults,
         children: searchData.children,
         child_ages: searchData.childAges,

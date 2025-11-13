@@ -81,6 +81,8 @@ export const searchHotels = async (request: HotelSearchRequest): Promise<HotelSe
 export interface ParkRecommendationRequest {
   start_date: string;
   end_date: string;
+  park_on_arrival: boolean;
+  park_on_departure: boolean;
   park_days: number;
   adults: number;
   children: number;

@@ -209,9 +209,9 @@ class ParkRecommendationEngine:
             pref_weight = 25 / len(request.park_preferences)  # Distribute points
             
             for pref in request.park_preferences:
-                if pref == ParkPreference.THRILLS and park_attrs["thrill_score"] >= 7:
+                if pref == ParkPreference.THRILLS and park_attrs["thrill_score"]:
                     pref_score += pref_weight * (park_attrs["thrill_score"] / 10)
-                elif pref == ParkPreference.FOOD_DRINKS and park_attrs["food_score"] >= 7:
+                elif pref == ParkPreference.FOOD_DRINKS and park_attrs["food_score"]:
                     pref_score += pref_weight * (park_attrs["food_score"] / 10)
                 elif pref == ParkPreference.ANIMALS_NATURE and park == "animal_kingdom":
                     pref_score += pref_weight
@@ -295,6 +295,51 @@ class ParkRecommendationEngine:
         # Normalize to 0-25 range
         return min(25, age_score * 2.5)
     
+    def _pick_best_park_for_date(
+        self,
+        date: date,
+        park_candidates: dict,
+        park_scores: pd.DataFrame,
+        park_visit_count: dict,
+        repeat_priority: dict,
+        last_park: str = None,
+        avoid_last: bool = True
+    ) -> str:
+        """
+        Pick the best park for a given date considering:
+        - Park scores for the date
+        - Repeat penalty / priority
+        - Avoid back-to-back visits
+        - Balance visit counts
+        """
+        candidates = []
+        print("here1")
+        print(park_candidates)
+        for park, dates in park_candidates.items():
+            if date in dates:
+                visits = park_visit_count.get(park, 0)
+                # Calculate adjusted score
+                score = park_scores[(park_scores['park'] == park) & (park_scores['date'] == date)]['score'].values[0]
+                adjusted_score = score - visits * 15 + (repeat_priority.get(park, 1) * 5 if visits > 0 else 0)
+                candidates.append((adjusted_score, park))
+        print("here2")
+        # Sort candidates by adjusted score descending
+        candidates.sort(key=lambda x: x[0], reverse=True)
+
+        for _, park in candidates:
+            if avoid_last and park == last_park:
+                continue
+            min_visits = min(park_visit_count.values(), default=0)
+            if park_visit_count.get(park, 0) > min_visits + 1:
+                continue
+            return park
+        print("here3")
+        # fallback: allow last_park if no other option
+        if candidates:
+            return candidates[0][1]
+        print("here4")
+        return None
+
     def _optimize_schedule(
         self,
         park_scores: pd.DataFrame,
@@ -302,213 +347,172 @@ class ParkRecommendationEngine:
         request: ParkRecommendationRequest,
         all_dates: List[date]
     ) -> List[Tuple[date, str]]:
-        """Optimize park schedule with strong variety preference and strategic repeats"""
-        
-        # Park repeat priority (higher = better for repeats)
-        REPEAT_PRIORITY = {
-            "magic_kingdom": 4,  # Best for repeats
-            "epcot": 3,
-            "hollywood_studios": 2,
-            "animal_kingdom": 1  # Least ideal for repeats
-        }
-        
+        """Optimized park schedule with greedy approach, variety, balanced visits, and best dates."""
+
+        REPEAT_PRIORITY = self._get_repeat_priority(request)
+
         schedule = []
         used_dates = set()
         park_visit_count = {}
         last_park = None
-        
-        # Get available parks (not in avoid list)
+
         available_parks = [p for p in self.PARK_ATTRIBUTES.keys() if p not in request.avoid_parks]
-        
-        # Calculate preferred rest day positions (middle/end of trip, not first/last, spread out)
+        print("here1")
+        # Compute rest days
         rest_day_count = len(all_dates) - num_park_days
         preferred_rest_positions = self._calculate_preferred_rest_positions(
-            len(all_dates), rest_day_count
+            len(all_dates), rest_day_count, request.park_on_arrival, request.park_on_departure
         )
-        
-        # Reserve preferred rest day dates
-        reserved_rest_dates = set()
-        if rest_day_count > 0:
-            # Sort dates and pick preferred positions for rest days
-            sorted_dates = sorted(all_dates)
-            for pos in preferred_rest_positions:
-                if pos < len(sorted_dates):
-                    reserved_rest_dates.add(sorted_dates[pos])
-        
-        # First, handle must-visit parks (but avoid reserved rest dates when possible)
-        if request.must_visit_parks:
-            for park in request.must_visit_parks:
-                park_options = park_scores[
-                    (park_scores['park'] == park) & 
-                    (~park_scores['date'].isin(used_dates))
-                ].copy()
-                
-                # Prefer non-rest dates
-                non_rest_options = park_options[~park_options['date'].isin(reserved_rest_dates)]
-                if not non_rest_options.empty:
-                    park_options = non_rest_options
-                
-                park_options = park_options.sort_values('score', ascending=False)
-                
-                if not park_options.empty:
-                    best_date = park_options.iloc[0]['date']
-                    schedule.append((best_date, park))
-                    used_dates.add(best_date)
-                    # Remove from reserved rest dates if we had to use it
-                    reserved_rest_dates.discard(best_date)
-                    park_visit_count[park] = park_visit_count.get(park, 0) + 1
-        
-        # Strategy: First ensure variety (visit each park once)
-        remaining_days = num_park_days - len(schedule)
-        
-        # Phase 1: Visit each available park once
+        reserved_rest_dates = set(sorted(all_dates)[pos] for pos in preferred_rest_positions)
+        print("here2")
+        # Precompute park candidates: for each park, sorted dates by score
+        park_candidates = {}
         for park in available_parks:
-            if remaining_days <= 0:
-                break
-            
-            # Skip if already visited via must-visit
+            candidates = park_scores[
+                (park_scores['park'] == park) & (~park_scores['date'].isin(reserved_rest_dates))
+            ].sort_values('score', ascending=False)['date'].tolist()
+            park_candidates[park] = candidates
+        print(park_candidates)
+        print("here3")
+        # Phase 0: assign must-visit parks first
+        for park in getattr(request, "must_visit_parks", []):
+            candidates = park_candidates.get(park, [])
+            for date in candidates:
+                if date not in used_dates:
+                    schedule.append((date, park))
+                    used_dates.add(date)
+                    park_visit_count[park] = park_visit_count.get(park, 0) + 1
+                    last_park = park
+                    break
+        print("here4")
+        # Phase 1: assign each park at least once
+        for park in available_parks:
             if park_visit_count.get(park, 0) > 0:
                 continue
-            
-            # Find best date for this park (avoid reserved rest dates)
-            park_options = park_scores[
-                (park_scores['park'] == park) & 
-                (~park_scores['date'].isin(used_dates)) &
-                (park_scores['park'] != last_park)  # Avoid back-to-back
-            ].copy()
-            
-            # Prefer non-rest dates
-            non_rest_options = park_options[~park_options['date'].isin(reserved_rest_dates)]
-            if not non_rest_options.empty:
-                park_options = non_rest_options
-            
-            park_options = park_options.sort_values('score', ascending=False)
-            
-            if not park_options.empty:
-                best_date = park_options.iloc[0]['date']
-                schedule.append((best_date, park))
-                used_dates.add(best_date)
-                reserved_rest_dates.discard(best_date)
-                last_park = park
+            candidates = park_candidates.get(park, [])
+            for date in candidates:
+                if date not in used_dates:
+                    if last_park == park:
+                        continue
+                    schedule.append((date, park))
+                    used_dates.add(date)
+                    park_visit_count[park] = park_visit_count.get(park, 0) + 1
+                    last_park = park
+                    break
+        print("here5")
+        # Phase 2: fill remaining park days
+        unscheduled_dates = [d for d in all_dates if d not in used_dates and d not in reserved_rest_dates]
+        print("here6")
+        print(park_candidates)
+        for date in unscheduled_dates:
+            park = self._pick_best_park_for_date(date, park_candidates, park_scores, park_visit_count, REPEAT_PRIORITY, last_park)
+            print(park)
+            if park:
+                schedule.append((date, park))
+                used_dates.add(date)
                 park_visit_count[park] = park_visit_count.get(park, 0) + 1
-                remaining_days -= 1
-        
-        # Phase 2: If we still have days left, add strategic repeats
-        while remaining_days > 0:
-            available = park_scores[
-                (~park_scores['date'].isin(used_dates)) &
-                (park_scores['park'] != last_park)  # Avoid back-to-back
-            ].copy()
-            
-            if available.empty:
-                break
-            
-            # Prefer non-rest dates
-            non_rest_available = available[~available['date'].isin(reserved_rest_dates)]
-            if not non_rest_available.empty:
-                available = non_rest_available
-            
-            # Calculate adjusted score with heavy variety penalty and repeat priority
-            def calculate_adjusted_score(row):
-                base_score = row['score']
-                park = row['park']
-                visits = park_visit_count.get(park, 0)
-                
-                # Heavy penalty for parks already visited (promotes variety)
-                variety_penalty = visits * 15
-                
-                # If we must repeat, use repeat priority
-                repeat_bonus = REPEAT_PRIORITY.get(park, 1) * 5 if visits > 0 else 0
-                
-                return base_score - variety_penalty + repeat_bonus
-            
-            available['adjusted_score'] = available.apply(calculate_adjusted_score, axis=1)
-            available = available.sort_values('adjusted_score', ascending=False)
-            
-            best = available.iloc[0]
-            schedule.append((best['date'], best['park']))
-            used_dates.add(best['date'])
-            reserved_rest_dates.discard(best['date'])
-            last_park = best['park']
-            park_visit_count[best['park']] = park_visit_count.get(best['park'], 0) + 1
-            remaining_days -= 1
-        
-        # Phase 3: Try to balance repeat visits if multiple parks need repeats
-        # If we have 6+ days and uneven distribution, consider rebalancing
-        if num_park_days >= 6:
-            max_visits = max(park_visit_count.values()) if park_visit_count else 0
-            min_visits = min(park_visit_count.values()) if park_visit_count else 0
-            
-            # If distribution is very uneven (difference > 2), try to rebalance
-            if max_visits - min_visits > 2:
-                schedule = self._rebalance_schedule(schedule, park_scores, park_visit_count, REPEAT_PRIORITY)
-        
-        # Sort by date
+                last_park = park
+        print("here7")
+        # Optional balancing if any park exceeds others by more than 1
+        max_visits = max(park_visit_count.values(), default=0)
+        min_visits = min(park_visit_count.values(), default=0)
+        if max_visits - min_visits > 1:
+            schedule = self._rebalance_schedule(schedule, park_scores, park_visit_count, REPEAT_PRIORITY)
+        print("here8")
         schedule.sort(key=lambda x: x[0])
-        
         return schedule
+
     
-    def _calculate_preferred_rest_positions(self, total_days: int, rest_day_count: int) -> List[int]:
+    def _get_repeat_priority(self, request) -> dict:
         """
-        Calculate optimal positions for rest days in trip
-        - Avoid first and last day when possible
-        - Space out rest days evenly
-        - Prefer middle/later part of trip
+        Calculate dynamic repeat priority for parks based on user preferences and must-visit parks.
+        Higher score = better candidate for repeats.
         """
-        if rest_day_count == 0:
+        REPEAT_PRIORITY = {}
+        pref_weight = 2  # Tweakable weight for preference influence
+        base_repeat_score = 1  
+
+        for park, park_attrs in self.PARK_ATTRIBUTES.items():
+            score = base_repeat_score
+
+            # Must-visit parks get a strong boost
+            if park in getattr(request, "must_visit_parks", []):
+                score += 10
+
+            # Preferences influence repeat priority
+            for pref in getattr(request, "park_preferences", []):
+                if pref == ParkPreference.THRILLS:
+                    score += pref_weight * (park_attrs["thrill_score"] / 10)
+                elif pref == ParkPreference.FOOD_DRINKS:
+                    score += pref_weight * (park_attrs["food_score"] / 10)
+                elif pref == ParkPreference.ANIMALS_NATURE and park == "animal_kingdom":
+                    score += pref_weight
+                elif pref == ParkPreference.CLASSIC_DISNEY and park == "magic_kingdom":
+                    score += pref_weight
+                elif pref == ParkPreference.CULTURAL and park == "epcot":
+                    score += pref_weight
+
+            REPEAT_PRIORITY[park] = score
+
+        return REPEAT_PRIORITY
+
+
+    def _calculate_preferred_rest_positions(
+        self,
+        total_days: int,
+        rest_day_count: int,
+        park_on_arrival: bool,
+        park_on_departure: bool
+    ) -> List[int]:
+        """
+        Calculate optimal positions for rest days in trip.
+
+        Rules:
+        - Days where park is not desired are automatically rest days
+        - Remaining rest days are spaced evenly
+        - Avoid clustering rest days
+        """
+        if rest_day_count <= 0:
             return []
-        
+
         if rest_day_count >= total_days:
             return list(range(total_days))
-        
+
         preferred_positions = []
-        
-        # If only one rest day, place it around 60% through the trip (not first or last)
-        if rest_day_count == 1:
-            if total_days <= 3:
-                # For very short trips, put it in the middle
-                preferred_positions.append(total_days // 2)
-            else:
-                # Place around 60% through (e.g., day 4 of 6-day trip)
-                preferred_positions.append(max(1, min(total_days - 2, int(total_days * 0.6))))
-        
-        # If two rest days, space them out in middle/later sections
-        elif rest_day_count == 2:
-            if total_days <= 4:
-                # Short trip - middle positions
-                preferred_positions = [1, 2]
-            else:
-                # Place at ~40% and ~70% through trip
-                pos1 = max(1, min(total_days - 3, int(total_days * 0.4)))
-                pos2 = max(pos1 + 2, min(total_days - 2, int(total_days * 0.7)))
-                preferred_positions = [pos1, pos2]
-        
-        # Three or more rest days - distribute through middle/end, avoid clustering
-        else:
-            # Avoid first and last day
-            available_positions = list(range(1, total_days - 1))
-            
-            if rest_day_count >= len(available_positions):
-                # Need to use almost all days as rest
-                preferred_positions = available_positions
-            else:
-                # Distribute evenly through available positions
-                # Slightly favor later positions
-                step = len(available_positions) / rest_day_count
-                for i in range(rest_day_count):
-                    pos = int(1 + (i * step) + (step * 0.3))  # Bias toward later
-                    pos = min(pos, total_days - 2)
-                    
-                    # Ensure no adjacent rest days
-                    while pos in preferred_positions or (pos - 1) in preferred_positions:
-                        pos += 1
-                        if pos >= total_days - 1:
-                            pos = total_days - 2
-                            break
-                    
-                    preferred_positions.append(pos)
-        
-        return sorted(set(preferred_positions))
+
+        # Force first/last day as rest if park is not desired
+        if not park_on_arrival:
+            preferred_positions.append(0)
+        if not park_on_departure and (total_days - 1) not in preferred_positions:
+            preferred_positions.append(total_days - 1)
+
+        remaining_rest_count = rest_day_count - len(preferred_positions)
+        if remaining_rest_count <= 0:
+            return sorted(preferred_positions)
+
+        # Build candidate positions excluding already assigned rest days
+        available_positions = [i for i in range(total_days) if i not in preferred_positions]
+
+        # Evenly space remaining rest days
+        step = len(available_positions) / (remaining_rest_count + 1)
+
+        for i in range(remaining_rest_count):
+            pos_index = int((i + 1) * step) - 1
+            pos_index = max(0, min(pos_index, len(available_positions) - 1))
+            pos = available_positions[pos_index]
+
+            # Avoid clustering: move forward if adjacent to existing rest day
+            while any(abs(pos - r) <= 1 for r in preferred_positions):
+                pos_index += 1
+                if pos_index >= len(available_positions):
+                    pos = available_positions[-1]
+                    break
+                pos = available_positions[pos_index]
+
+            preferred_positions.append(pos)
+
+        return sorted(preferred_positions)
+
     
     def _rebalance_schedule(
         self,
@@ -517,51 +521,62 @@ class ParkRecommendationEngine:
         park_visit_count: Dict[str, int],
         repeat_priority: Dict[str, int]
     ) -> List[Tuple[date, str]]:
-        """Attempt to rebalance park visits for better distribution"""
-        
-        # Find parks with most and least visits
+        """
+        Rebalance park visits to reduce over-representation while:
+        - Considering park_scores
+        - Avoiding back-to-back visits
+        - Respecting repeat priority
+        """
+        # Compute max/min visits
         max_visits = max(park_visit_count.values())
         min_visits = min(park_visit_count.values())
         
         if max_visits - min_visits <= 1:
             return schedule  # Already balanced
-        
-        # Find parks that are over-represented
+
         over_visited = [p for p, count in park_visit_count.items() if count == max_visits]
         under_visited = [p for p, count in park_visit_count.items() if count == min_visits]
-        
-        # Only rebalance if we're not favoring high-priority repeat parks
+
         for over_park in over_visited:
             for under_park in under_visited:
-                # Don't swap if over_park is Magic Kingdom or Epcot and has good reason to be visited more
+                # Skip high-priority repeat parks if they’re allowed extra visits
                 if repeat_priority.get(over_park, 0) >= 3 and max_visits <= min_visits + 1:
                     continue
-                
-                # Try to find a swap opportunity
+
+                # Look for swap opportunities
                 for i, (date_val, park) in enumerate(schedule):
-                    if park == over_park:
-                        # Check if under_park has decent score on this date
-                        alternative = park_scores[
-                            (park_scores['date'] == date_val) & 
-                            (park_scores['park'] == under_park)
-                        ]
-                        
-                        if not alternative.empty:
-                            original_score = park_scores[
-                                (park_scores['date'] == date_val) & 
-                                (park_scores['park'] == over_park)
-                            ]['score'].values[0]
-                            
-                            alt_score = alternative['score'].values[0]
-                            
-                            # Swap if alternative is within 20 points (reasonable trade-off)
-                            if alt_score >= original_score - 20:
-                                schedule[i] = (date_val, under_park)
-                                park_visit_count[over_park] -= 1
-                                park_visit_count[under_park] += 1
-                                return schedule  # Make one swap at a time
-        
+                    if park != over_park:
+                        continue
+
+                    # Avoid creating back-to-back visits
+                    prev_park = schedule[i-1][1] if i > 0 else None
+                    next_park = schedule[i+1][1] if i < len(schedule)-1 else None
+                    if under_park in (prev_park, next_park):
+                        continue
+
+                    # Check if under_park is feasible for this date
+                    alt_score_row = park_scores[
+                        (park_scores['date'] == date_val) & 
+                        (park_scores['park'] == under_park)
+                    ]
+                    if alt_score_row.empty:
+                        continue
+
+                    original_score = park_scores[
+                        (park_scores['date'] == date_val) & 
+                        (park_scores['park'] == over_park)
+                    ]['score'].values[0]
+                    alt_score = alt_score_row['score'].values[0]
+
+                    # Swap if reasonable (within 20 points)
+                    if alt_score >= original_score - 20:
+                        schedule[i] = (date_val, under_park)
+                        park_visit_count[over_park] -= 1
+                        park_visit_count[under_park] += 1
+                        return schedule  # Apply one swap at a time
+
         return schedule
+
     
     def _build_daily_plans(
         self,

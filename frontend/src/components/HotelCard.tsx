@@ -196,14 +196,14 @@ function ExpandedDetails({ hotel }: { hotel: Hotel }) {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3">
+      {/*<div className="flex gap-3">
         <button className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
-          Select This Hotel
+          //Select This Hotel
         </button>
         <button className="flex-1 border-2 border-blue-600 text-blue-600 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors">
           View Full Details
         </button>
-      </div>
+      </div>*/}
     </div>
   );
 }

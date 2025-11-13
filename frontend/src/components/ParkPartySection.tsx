@@ -49,7 +49,7 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
       {searchData.children > 0 && (
         <div className="mt-4 bg-purple-50 rounded-xl p-4">
           <p className="text-sm font-medium text-gray-700 mb-3">
-            Children's ages (helps us recommend the best parks):
+            Children's ages:
           </p>
           <div className="grid grid-cols-4 gap-3">
             {Array.from({ length: searchData.children }).map((_, i) => (

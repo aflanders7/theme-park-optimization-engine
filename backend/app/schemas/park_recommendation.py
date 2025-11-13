@@ -31,6 +31,8 @@ class ParkRecommendationRequest(BaseModel):
     start_date: date
     end_date: date
     park_days: int = Field(ge=1)
+    park_on_arrival: bool = False
+    park_on_departure: bool = False
     
     # Party info
     adults: int = Field(ge=1)

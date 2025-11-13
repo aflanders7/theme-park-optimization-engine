@@ -35,7 +35,7 @@ export default function SearchPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-8 h-8 text-purple-600" />
-            <h1 className="text-4xl font-bold text-gray-800">Find Your Perfect Disney Hotel</h1>
+            <h1 className="text-4xl font-bold text-gray-800">Discover Your Perfect Disney Hotel</h1>
           </div>
           <p className="text-gray-600">Answer a few questions and we'll recommend the best hotels for you</p>
         </div>

@@ -8,6 +8,8 @@ interface Props {
     startDate: string;
     endDate: string;
     parkDays: number;
+    parkOnDeparture: boolean,
+    parkOnArrival: boolean
   };
   updateSearchData: (field: string, value: any) => void;
 }
@@ -20,13 +22,18 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
 
   const tripLength =
     start && end
-      ? Math.max( 1,  Math.min(12, Math.floor(
-            (Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()) -
-              Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) /
-            (1000 * 60 * 60 * 24)) + 1
-        )) : 1;
+      ? Math.max(1, Math.min(12, Math.floor(
+        (Date.UTC(end.getFullYear(), end.getMonth(), end.getDate()) -
+          Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())) /
+        (1000 * 60 * 60 * 24)) + 1
+      )) : 1;
 
-  const maxParkDays = Math.min(tripLength, 12);
+  let maxParkDays = Math.min(tripLength, 12);
+  if (!searchData.parkOnArrival) maxParkDays -= 1;
+  if (!searchData.parkOnDeparture) maxParkDays -= 1;
+  maxParkDays = Math.max(1, maxParkDays);
+  
+  if (tripLength == 1 && searchData.parkOnArrival == false) updateSearchData("parkOnArrival", true);
 
   if (searchData.parkDays > maxParkDays) {
     updateSearchData("parkDays", maxParkDays);
@@ -44,6 +51,16 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
             min={today}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none"
           />
+          <label className="flex items-center mt-2 text-sm">
+            <input
+              type="checkbox"
+              checked={searchData.parkOnArrival || false}
+              onChange={(e) => updateSearchData('parkOnArrival', e.target.checked)}
+              className="mr-2 accent-purple-500"
+              disabled={tripLength === 1 && searchData.parkOnArrival}
+            />
+            Allow park on arrival day
+          </label>
         </div>
         <div>
           <label className="block text-sm font-medium mb-2">Departure Day</label>
@@ -54,6 +71,15 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
             min={searchData.startDate || today}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none"
           />
+          <label className="flex items-center mt-2 text-sm">
+            <input
+              type="checkbox"
+              checked={searchData.parkOnDeparture || false}
+              onChange={(e) => updateSearchData('parkOnDeparture', e.target.checked)}
+              className="mr-2 accent-purple-500"
+            />
+            Allow park on departure day
+          </label>
         </div>
         <div>
           <label className="block text-sm font-medium mb-2">Park Days</label>

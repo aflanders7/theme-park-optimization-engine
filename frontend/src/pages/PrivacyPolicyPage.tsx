@@ -2,7 +2,7 @@
 import { Mail, Globe } from 'lucide-react';
 
 export default function PrivacyPolicyPage() {
-  const lastUpdated = "November 6, 2024"; // Update this date
+  const lastUpdated = "November 6, 2025"; // Update this date
   const websiteName = "Disney Vacation Planner"; // Update with your site name
   const contactEmail = "privacy@yourdomain.com"; // Update with your email
   const websiteUrl = "https://yourdomain.com"; // Update with your URL
@@ -188,10 +188,10 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">8. Children's Privacy</h2>
             <p className="text-gray-700 leading-relaxed">
-              Our service is designed for use by adults. While we may collect information such as 
-    children's ages to help tailor recommendations, we do not knowingly collect personal 
-    information directly from children under 13. If you believe we have inadvertently collected 
-    such information, please contact us immediately.
+              Our service is intended for use by adults. While we may temporarily collect limited information such as the ages 
+              of guests to generate recommendations, we do not knowingly collect or store personal information from children 
+              under 13. If you are a parent or guardian and believe that we may have inadvertently collected such information, 
+              please contact us immediately and we will promptly delete it.
             </p>
           </section>
 

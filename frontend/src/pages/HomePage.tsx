@@ -1,7 +1,7 @@
 // frontend/src/pages/HomePage.tsx
 import { Link } from 'react-router-dom';
 import BrevoForm from '../components/BrevoForm';
-import { Search, Sparkles, Star, Hotel, Users, MapPin, Bus } from 'lucide-react';
+import { Search, Sparkles, Star, Hotel, Users, MapPin, Bus, Calendar } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -16,7 +16,7 @@ export default function HomePage() {
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              Find Your Perfect
+              Discover Your Perfect
               <br />
               <span className="bg-gradient-to-r from-yellow-100 to-white bg-clip-text text-transparent">
                 Disney Stay & Experience
@@ -60,22 +60,22 @@ export default function HomePage() {
       <BrevoForm />
 
       {/* How It Works Section */}
-      <section className="py-20 px-4 bg-white">
+      <section className="py-4 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-800 mb-4">
               Two Helpful Tools
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-[var(--charcoal)] max-w-2xl mx-auto">
               Get suggestions for your Disney resort stay and park visits
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-16">
             {/* Hotel Suggestions */}
-            <div className="bg-gradient-to-br from-orange-50 to-pink-50 rounded-3xl p-8 border-2 border-orange-200">
+            <div className="bg-gradient-to-br from-[var(--pale)] to-[var(--pink)] rounded-3xl p-8 border-2 border-[var(--charcoal)]">
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full mb-4 shadow-lg">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[var(--rose)] to-[var(--pink)] rounded-full mb-4 shadow-lg">
                   <Hotel className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">Hotel Suggestions</h3>
@@ -84,40 +84,38 @@ export default function HomePage() {
               
               <div className="space-y-4">
                 <FeatureItem text="Personalized hotel matches" />
-                <FeatureItem text="All resort categories" />
                 <FeatureItem text="Detailed amenities & location info" />
                 <FeatureItem text="Transportation details" />
               </div>
 
               <Link
                 to="/search"
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-white text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all"
               >
                 <Hotel className="w-5 h-5" />
-                Find Hotels
+                Get Hotel Suggestions
               </Link>
             </div>
 
             {/* Park Day Planner */}
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-3xl p-8 border-2 border-purple-200">
+            <div className="bg-gradient-to-br from-white to-[var(--sunset)] rounded-3xl p-8 border-2 border-[var(--charcoal)]">
               <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full mb-4 shadow-lg">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[var(--sunset)] to-[var(--rose)] rounded-full mb-4 shadow-lg">
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">Park Visit Suggestions</h3>
-                <p className="text-gray-600">See which parks to visit when</p>
+                <p className="text-gray-600">See which parks to visit and when</p>
               </div>
               
               <div className="space-y-4">
                 <FeatureItem text="Suggestions based on crowd forecasts" />
                 <FeatureItem text="Tailored to your party & preferences" />
                 <FeatureItem text="Rest day suggestions included" />
-                <FeatureItem text="Daily tips & suggested arrival times" />
               </div>
 
               <Link
                 to="/parks"
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-white text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all"
               >
                 <Sparkles className="w-5 h-5" />
                 Get Park Suggestions
@@ -153,12 +151,12 @@ export default function HomePage() {
       </section>
 
       {/* Why Use This Tool Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-orange-50 to-yellow-50">
+      <section className="py-20 px-4 bg-[var(--pale)]">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-4xl font-bold text-gray-800 mb-6">
-                Why Use Our Suggestion Tool?
+                Why Use Our Suggestion Tools?
               </h2>
               <div className="space-y-6">
                 <Benefit
@@ -174,33 +172,33 @@ export default function HomePage() {
                 <Benefit
                   icon={<Sparkles className="w-6 h-6" />}
                   title="Helpful Context"
-                  description="See why each hotel is suggested with details about amenities, location, and transportation."
+                  description="See why each hotel is suggested with details about features, location, and transportation."
                 />
                 <Benefit
-                  icon={<Hotel className="w-6 h-6" />}
-                  title="All Resort Categories"
-                  description="Explore options across value, moderate, and deluxe resort categories."
+                  icon={<Calendar className="w-6 h-6" />}
+                  title="Optimized Park Days"
+                  description="Find the best days to visit each park for your dates."
                 />
               </div>
             </div>
 
             <div className="relative">
-              <div className="bg-gradient-to-br from-orange-100 to-pink-100 rounded-3xl p-8 shadow-2xl">
+              <div className="bg-gradient-to-br from-[var(--sunset)] to-[var(--pink)] rounded-3xl p-8 shadow-2xl">
                 <div className="bg-white rounded-2xl p-6 shadow-lg">
                   {/* Sample Hotel Card */}
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <div className="inline-block px-3 py-1 bg-gradient-to-r from-orange-500 to-pink-500 text-white rounded-full text-sm font-bold mb-2">
+                      <div className="inline-block px-3 py-1 bg-gradient-to-r from-[var(--pink)] to-[var(--rose)] text-white rounded-full text-sm font-bold mb-2">
                         1
                       </div>
-                      <h4 className="font-bold text-gray-800 text-lg">Disney's All-Star Movies Resort</h4>
-                      <p className="text-sm text-gray-600">Standard Room</p>
+                      <h4 className="font-bold text-gray-800 text-lg">Disney's Pop Century Resort</h4>
+                      <p className="text-sm text-gray-600">Preferred Pool View</p>
                     </div>
                   </div>
                   
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                      <span className="px-3 py-1 bg-[var(--pale)] text-orange-700 rounded-full text-sm font-medium">
                         Value
                       </span>
                       <span className="flex items-center gap-1 text-sm text-gray-600">
@@ -210,11 +208,11 @@ export default function HomePage() {
                     </div>
 
                     <div className="border-t pt-3">
-                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Why we suggest this:</p>
+                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Why we recommend this:</p>
                       <ul className="space-y-1 text-sm text-gray-700">
                         <li className="flex items-start gap-2">
                           <span className="text-orange-500 mt-1">✓</span>
-                          <span>Perfect fit for 4 guests</span>
+                          <span>Perfect fit for 3 guests</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="text-orange-500 mt-1">✓</span>
@@ -229,8 +227,12 @@ export default function HomePage() {
                         <span>Bus</span>
                       </div>
                       <div className="flex items-center gap-1 text-gray-600">
+                        <Bus className="w-4 h-4" />
+                        <span>Skyliner</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-gray-600">
                         <MapPin className="w-4 h-4" />
-                        <span className="text-xs">Animal Kingdom Area</span>
+                        <span className="text-xs">Wide World of Sports Resort Area</span>
                       </div>
                     </div>
                   </div>
@@ -244,40 +246,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* What You'll Get Section */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">
-              What You'll Get
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Each hotel suggestion includes helpful information to guide your decision
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <InfoCard
-              icon={<Hotel className="w-8 h-8" />}
-              title="Hotel Details"
-              items={["Room type", "Resort category", "Guest capacity", "Amenities"]}
-            />
-            <InfoCard
-              icon={<MapPin className="w-8 h-8" />}
-              title="Location Info"
-              items={["Resort area", "Park proximity", "Transportation options", "Walking distance"]}
-            />
-            <InfoCard
-              icon={<Sparkles className="w-8 h-8" />}
-              title="Match Reasoning"
-              items={["Why it fits your group", "Key features", "Best suited for", "Considerations"]}
-            />
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-orange-500 via-pink-500 to-yellow-400">
+      <section className="py-20 px-4 bg-gradient-to-br from-[var(--snow)] via-[var(--pink)] to-[var(--snow)] ">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Ready to Get Suggestions?
@@ -291,7 +261,7 @@ export default function HomePage() {
               className="inline-flex items-center gap-3 bg-white text-orange-600 px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200"
             >
               <Hotel className="w-6 h-6" />
-              Find Hotels
+              Get Hotel Suggestions
             </Link>
             <Link
               to="/parks"
@@ -316,11 +286,11 @@ interface StepCardProps {
 
 function StepCard({ icon, title, description, step }: StepCardProps) {
   return (
-    <div className="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border-2 border-orange-100">
-      <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-orange-500 to-pink-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+    <div className="relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow border-2 border-[var(--sunset)]">
+      <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-[var(--sunset)] to-[var(--rose)] rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
         {step}
       </div>
-      <div className="text-orange-600 mb-4">{icon}</div>
+      <div className="text-[var(--rose)] mb-4">{icon}</div>
       <h3 className="text-xl font-bold text-gray-800 mb-3">{title}</h3>
       <p className="text-gray-600">{description}</p>
     </div>
@@ -336,36 +306,13 @@ interface BenefitProps {
 function Benefit({ icon, title, description }: BenefitProps) {
   return (
     <div className="flex gap-4">
-      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-orange-100 to-yellow-100 rounded-xl flex items-center justify-center text-orange-600">
+      <div className="flex-shrink-0 w-12 h-12 bg-[var(--pink)] rounded-xl flex items-center justify-center text-white">
         {icon}
       </div>
       <div>
         <h4 className="font-bold text-gray-800 mb-1">{title}</h4>
         <p className="text-gray-600">{description}</p>
       </div>
-    </div>
-  );
-}
-
-interface InfoCardProps {
-  icon: React.ReactNode;
-  title: string;
-  items: string[];
-}
-
-function InfoCard({ icon, title, items }: InfoCardProps) {
-  return (
-    <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-6 border-2 border-orange-100">
-      <div className="text-orange-600 mb-4">{icon}</div>
-      <h3 className="text-xl font-bold text-gray-800 mb-4">{title}</h3>
-      <ul className="space-y-2">
-        {items.map((item, idx) => (
-          <li key={idx} className="flex items-center gap-2 text-gray-700">
-            <span className="w-1.5 h-1.5 bg-orange-500 rounded-full"></span>
-            <span>{item}</span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
