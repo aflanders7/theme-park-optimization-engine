@@ -6,7 +6,6 @@ const outputPath = path.join(__dirname, '..', 'output', 'hotel_room_prices.json'
 const hotelUrls = [
   { name: "bay-lake-tower", url: "https://c.touringplans.com/walt-disney-world/hotels/bay-lake-tower-at-disneys-contemporary-resort/rates/2025", type: "resort" },
   { name: "animal-kingdom-lodge", url: "https://c.touringplans.com/walt-disney-world/hotels/disneys-animal-kingdom-lodge/rates/2025", type: "resort" },
-  { name: "Wilderness Lodge", url: "https://touringplans.com/walt-disney-world/hotels/disneys-wilderness-lodge/rates/2025", type: "resort" },
   { name: "boulder-ridge-villas", url: "https://touringplans.com/walt-disney-world/hotels/disneys-wilderness-lodge-villas/rates/2025", type: "villas" },
   { name: "cabins-fort-wilderness-dvc", url: "https://touringplans.com/walt-disney-world/hotels/fort-wilderness-resort-cabins/rates/2025", type: "cabins" },
   { name: "campsites-fort-wilderness", url: "https://touringplans.com/walt-disney-world/hotels/fort-wilderness-campsites/rates/2025", type: "campsites" },

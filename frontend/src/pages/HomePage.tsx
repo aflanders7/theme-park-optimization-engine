@@ -143,7 +143,7 @@ export default function HomePage() {
             <StepCard
               icon={<Star className="w-12 h-12" />}
               title="Review & Explore"
-              description="Browse detailed information to help inform your decisions."
+              description="Browse recommendations to help inform your decisions."
               step="3"
             />
           </div>
@@ -253,7 +253,7 @@ export default function HomePage() {
             Ready to Get Suggestions?
           </h2>
           <p className="text-xl text-white/90 mb-8">
-            Find hotel options and see which parks to visit when
+            Find hotel options and determine which parks to visit
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
