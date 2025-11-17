@@ -3,7 +3,7 @@ const fs = require('fs'); // ← import fs
 const path = require('path');
 const outputPath = path.join(__dirname, '..', 'output', 'hotel_room_prices.json');
 
-const hotelUrls = [
+const hotelUrls2 = [
   { name: "bay-lake-tower", url: "https://c.touringplans.com/walt-disney-world/hotels/bay-lake-tower-at-disneys-contemporary-resort/rates/2025", type: "resort" },
   { name: "animal-kingdom-lodge", url: "https://c.touringplans.com/walt-disney-world/hotels/disneys-animal-kingdom-lodge/rates/2025", type: "resort" },
   { name: "boulder-ridge-villas", url: "https://touringplans.com/walt-disney-world/hotels/disneys-wilderness-lodge-villas/rates/2025", type: "villas" },
@@ -39,9 +39,13 @@ const hotelUrls = [
 ];
 
 
-const hotelUrls2 = [
-  { name: "bay-lake-tower", url: "https://c.touringplans.com/walt-disney-world/hotels/bay-lake-tower-at-disneys-contemporary-resort/rates/2025", type: "resort" },
-  { name: "animal-kingdom-lodge", url: "https://c.touringplans.com/walt-disney-world/hotels/disneys-animal-kingdom-lodge/rates/2025", type: "resort" },
+const hotelUrls = [
+  { name: "all-star-movies", url: "https://touringplans.com/walt-disney-world/hotels/disneys-all-star-movies-resort/rates/2025", type: "resort" },
+  { name: "all-star-music", url: "https://touringplans.com/walt-disney-world/hotels/disneys-all-star-music-resort/rates/2025", type: "resort" },
+  { name: "all-star-sports", url: "https://touringplans.com/walt-disney-world/hotels/disneys-all-star-sports-resort/rates/2025", type: "resort" },
+  { name: "pop-century", url: "https://touringplans.com/walt-disney-world/hotels/disneys-pop-century-resort/rates/2025", type: "resort" },
+  { name: "caribbean-beach", url: "https://touringplans.com/walt-disney-world/hotels/disneys-caribbean-beach-resort/rates/2025", type: "resort" },
+  { name: "contemporary-resort", url: "https://touringplans.com/walt-disney-world/hotels/disneys-contemporary-resort/rates/2025", type: "resort" },
 ];
 
 (async () => {

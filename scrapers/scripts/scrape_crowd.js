@@ -10,7 +10,7 @@ const parks = {
 };
 
 // Set the output path
-const outputPath = path.join(__dirname, '..', 'output', 'disney_crowd_2025.json');
+const outputPath = path.join(__dirname, '..', 'output', 'disney_crowd_2022.json');
 
 (async () => {
   const browser = await puppeteer.launch({ headless: false });
@@ -25,8 +25,8 @@ const outputPath = path.join(__dirname, '..', 'output', 'disney_crowd_2025.json'
   for (const [parkName, parkId] of Object.entries(parks)) {
     for (let month = 1; month <= 12; month++) {
       const monthStr = month.toString().padStart(2, '0');
-      const url = `https://queue-times.com/en-US/parks/${parkId}/calendar/2025/${monthStr}`;
-      console.log(`Scraping ${parkName} ${monthStr}/2025...`);
+      const url = `https://queue-times.com/en-US/parks/${parkId}/calendar/2022/${monthStr}`;
+      console.log(`Scraping ${parkName} ${monthStr}/2022...`);
 
       await page.goto(url, { waitUntil: 'networkidle0', timeout: 0 });
       await page.waitForSelector('a.tile', { timeout: 30000 });

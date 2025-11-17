@@ -137,30 +137,23 @@ def load_rooms(db: Session):
 
 
 def load_pricing(db: Session):
-    """Load pricing from hotel_room_prices.json"""
-    print("Loading pricing data...")
+    """Load pricing from hotel_room_prices.json without deleting existing data."""
+    print("Loading pricing data (non-destructive)...")
     
-    with open(DATA_DIR / "hotel_room_prices.json") as f:
+    with open(DATA_DIR / "hotel_room_prices_2026_flat.json") as f:
         pricing_data = json.load(f)
-    
-    # Clear existing pricing
-    db.query(RoomPricing).delete()
-    db.commit()
     
     loaded_count = 0
     skipped_count = 0
     
-    # Build a room lookup: {hotel_id: {room_name: room_id}}
+    # Build a room lookup {hotel_id: {room_name: room_id}}
     room_lookup = {}
     rooms = db.query(Room).all()
     for room in rooms:
-        if room.hotel_id not in room_lookup:
-            room_lookup[room.hotel_id] = {}
-        room_lookup[room.hotel_id][room.room_name] = room.id
+        room_lookup.setdefault(room.hotel_id, {})[room.room_name] = room.id
     
-    # Process pricing data
+    # Process pricing
     for hotel_id, dates_dict in pricing_data.items():
-        # Check if hotel exists
         hotel = db.query(Hotel).filter(Hotel.id == hotel_id).first()
         if not hotel:
             print(f"⚠️  Skipping pricing - hotel not found: {hotel_id}")
@@ -173,30 +166,32 @@ def load_pricing(db: Session):
                 continue
             
             for room_name, price in rooms_prices.items():
-                # Find corresponding room_id
                 room_id = room_lookup.get(hotel_id, {}).get(room_name)
                 
                 if not room_id:
-                    # Room not in database, skip
+                    print(f"⚠️  Skipping pricing - room not found: {room_id}")
                     continue
                 
-                pricing = RoomPricing(
-                    hotel_id=hotel_id,
-                    room_id=room_id,
-                    room_name=room_name,
-                    date=date,
-                    price=float(price)
-                )
-                db.add(pricing)
-                loaded_count += 1
+                else:
+                    # Insert new row
+                    pricing = RoomPricing(
+                        hotel_id=hotel_id,
+                        room_id=room_id,
+                        room_name=room_name,
+                        date=date,
+                        price=float(price)
+                    )
+                    db.add(pricing)
+                    loaded_count += 1
                 
-                # Commit in batches for performance
-                if loaded_count % 1000 == 0:
+                if (loaded_count) % 1000 == 0:
                     db.commit()
-                    print(f"  Processed {loaded_count} pricing records...")
+                    print(f"  Processed {loaded_count} insert...")
     
     db.commit()
-    print(f"✅ Loaded {loaded_count} pricing records")
+    print(f"✅ Pricing load complete")
+    print(f"  ➕ Inserted: {loaded_count}")
+    print(f"  ⚠️  Skipped:  {skipped_count}")
 
 
 def main():
@@ -217,8 +212,8 @@ def main():
         # Load data in order (hotels → rooms → pricing)
         #load_hotels(db)
         #load_rooms(db)
-        #load_pricing(db)
-        load_crowd_calendar(db)
+        load_pricing(db)
+        #load_crowd_calendar(db)
         
         # Print summary
         print("\n" + "=" * 60)

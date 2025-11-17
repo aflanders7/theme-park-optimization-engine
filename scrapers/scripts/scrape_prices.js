@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs'); // ← import fs
 const path = require('path');
-const outputPath = path.join(__dirname, '..', 'output', 'hotel_room_prices_2026.json');
+const outputPath = path.join(__dirname, '..', 'output', 'hotel_rewrite.json');
 
-const hotelUrls = [
+const hotelUrls2 = [
   { name: "bay-lake-tower", url: "https://www.mousesavers.com/2026-bay-lake-tower-room-rates-season-dates/", type: "resort" },
   { name: "animal-kingdom-lodge", url: "https://www.mousesavers.com/2026-animal-kingdom-lodge-room-rates-season-dates/", type: "resort" },
   { name: "wilderness-lodge", url: "https://www.mousesavers.com/2026-wilderness-lodge-room-rates-season-dates/", type: "resort" },
@@ -38,10 +38,13 @@ const hotelUrls = [
   { name: "yacht-club", url: "https://www.mousesavers.com/2026-yacht-club-room-rates-season-dates/", type: "resort" }
 ];
 
-const hotelUrls2 = [
-  { name: "bay-lake-tower", url: "https://www.mousesavers.com/2026-bay-lake-tower-room-rates-season-dates/", type: "resort" },
-  { name: "animal-kingdom-lodge", url: "https://www.mousesavers.com/2026-animal-kingdom-lodge-room-rates-season-dates/", type: "resort" },
-{ name: "coronado-springs", url: "https://www.mousesavers.com/2026-coronado-springs-room-rates-season-dates/", type: "resort" },
+const hotelUrls = [
+    { name: "all-star-movies", url: "https://www.mousesavers.com/2026-all-star-movies-room-rates-season-dates/", type: "resort" },
+  { name: "all-star-music", url: "https://www.mousesavers.com/2026-all-star-music-room-rates-season-dates/", type: "resort" },
+  { name: "all-star-sports", url: "https://www.mousesavers.com/2026-all-star-sports-room-rates-season-dates/", type: "resort" },
+    { name: "pop-century", url: "https://www.mousesavers.com/2026-pop-century-room-rates-season-dates/", type: "resort" },
+      { name: "caribbean-beach", url: "https://www.mousesavers.com/2026-caribbean-beach-room-rates-season-dates/", type: "resort" },
+  { name: "contemporary-resort", url: "https://www.mousesavers.com/2026-contemporary-room-rates-season-dates/", type: "resort" },
 ];
 
 
