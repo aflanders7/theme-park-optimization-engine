@@ -18,7 +18,7 @@ export default function AdvancedOptions({
         <div>
             <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                className="flex items-center gap-2 text-[var(--blue)] hover:text-[var(--rose)] font-medium"
             >
                 {showAdvanced ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                 Advanced Preferences
@@ -40,7 +40,7 @@ export default function AdvancedOptions({
                                         updateSearchData('transportationPrefs', prefs);
                                     }}
                                     className={`px-4 py-2 rounded-xl font-medium transition-all ${searchData.transportationPrefs.includes(transport)
-                                            ? 'bg-blue-300 text-black'
+                                            ? 'bg-[var(--lpink)] text-black'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
@@ -63,7 +63,7 @@ export default function AdvancedOptions({
                                         updateSearchData('locationPref', newPref);
                                     }}
                                     className={`px-4 py-2 rounded-xl font-medium transition-all ${searchData.locationPref === location
-                                            ? 'bg-purple-300 text-black'
+                                            ? 'bg-[var(--sunset)] text-black'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
@@ -88,7 +88,7 @@ export default function AdvancedOptions({
                                         updateSearchData('roomFeatures', feats);
                                     }}
                                     className={`px-4 py-2 rounded-xl font-medium transition-all ${searchData.roomFeatures.includes(feature)
-                                            ? 'bg-blue-300 text-black'
+                                            ? 'bg-[var(--pink)] text-black'
                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                         }`}
                                 >
@@ -109,7 +109,7 @@ export default function AdvancedOptions({
                                     onChange={() => updateSearchData('preferBudget', true)}
                                     className="sr-only"
                                 />
-                                <div className={`p-4 border-2 rounded-xl text-center ${searchData.preferBudget ? 'border-blue-600 bg-blue-50' : 'border-gray-200'
+                                <div className={`p-4 border-2 rounded-xl text-center ${searchData.preferBudget ? 'border-[var(--blue)] bg-blue-50' : 'border-gray-200'
                                     }`}>
                                     <p className="font-bold">Budget-Friendly</p>
                                     {/* <p className="text-sm text-gray-600">Best Value</p> */}
@@ -122,7 +122,7 @@ export default function AdvancedOptions({
                                     onChange={() => updateSearchData('preferBudget', false)}
                                     className="sr-only"
                                 />
-                                <div className={`p-4 border-2 rounded-xl text-center ${!searchData.preferBudget ? 'border-purple-600 bg-purple-50' : 'border-gray-200'
+                                <div className={`p-4 border-2 rounded-xl text-center ${!searchData.preferBudget ? 'border-[var(--sunset)] bg-[var(--pale)]' : 'border-gray-200'
                                     }`}>
                                     <p className="font-bold">Luxury</p>
                                     {/* <p className="text-sm text-gray-600">What I Can Afford IDK</p> */}

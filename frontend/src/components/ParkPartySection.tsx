@@ -23,7 +23,7 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
   };
 
   return (
-    <Section icon={<Users className="w-6 h-6" />} title="Who's coming?">
+    <Section icon={<Users className="w-6 h-6 text-[var(--blue)]" />} title="Who's coming?">
       <div className="grid grid-cols-3 gap-4">
         <NumberInput
           label="Adults (18+)"
@@ -47,7 +47,7 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
 
       {/* Child Ages */}
       {searchData.children > 0 && (
-        <div className="mt-4 bg-purple-50 rounded-xl p-4">
+        <div className="mt-4 rounded-xl p-4 border-2 border-[var(--blue)] bg-blue-50">
           <p className="text-sm font-medium text-gray-700 mb-3">
             Children's ages:
           </p>
@@ -62,7 +62,7 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
                   value={searchData.childAges[i] || []}
                   onChange={(e) => handleChildAgeChange(i, parseInt(e.target.value) || 8)}
                   placeholder="Age"
-                  className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                  className="w-full px-3 py-2 border-2 border-[var(--blue)] bg-white rounded-lg"
                 />
               </div>
             ))}
@@ -70,7 +70,7 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
         </div>
       )}
 
-      <div className="mt-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-4">
+      <div className="mt-4 bg-[var(--lpink)] rounded-xl p-4">
         <p className="text-center text-lg font-semibold text-gray-800">
           Total: {totalPeople} {totalPeople === 1 ? 'person' : 'people'}
         </p>

@@ -32,7 +32,7 @@ class ParkRecommendationEngine:
             "nature_score": 4,
             "walking_intensity": 8,  # Higher = more walking
             "shade_availability": 6,  # Important for hot days with babies
-            "tags": ["classic_disney", "thrills", "family", "characters"],
+            "tags": ["themes", "thrills", "family", "characters"],
         },
         "epcot": {
             "display_name": "Epcot",
@@ -215,7 +215,7 @@ class ParkRecommendationEngine:
                     pref_score += pref_weight * (park_attrs["food_score"] / 10)
                 elif pref == ParkPreference.ANIMALS_NATURE and park == "animal_kingdom":
                     pref_score += pref_weight
-                elif pref == ParkPreference.CLASSIC_DISNEY and park == "magic_kingdom":
+                elif pref == ParkPreference.THEMES and park == "magic_kingdom":
                     pref_score += pref_weight
                 elif pref == ParkPreference.CULTURAL and park == "epcot":
                     pref_score += pref_weight
@@ -447,7 +447,7 @@ class ParkRecommendationEngine:
                     score += pref_weight * (park_attrs["food_score"] / 10)
                 elif pref == ParkPreference.ANIMALS_NATURE and park == "animal_kingdom":
                     score += pref_weight
-                elif pref == ParkPreference.CLASSIC_DISNEY and park == "magic_kingdom":
+                elif pref == ParkPreference.THEMES and park == "magic_kingdom":
                     score += pref_weight
                 elif pref == ParkPreference.CULTURAL and park == "epcot":
                     score += pref_weight
@@ -639,7 +639,7 @@ class ParkRecommendationEngine:
                 reasons.append("Great thrill rides for adventure seekers")
             elif pref == ParkPreference.ANIMALS_NATURE and park == "animal_kingdom":
                 reasons.append("Amazing animal experiences and Pandora - World of Avatar")
-            elif pref == ParkPreference.CLASSIC_DISNEY and park == "magic_kingdom":
+            elif pref == ParkPreference.THEMES and park == "magic_kingdom":
                 reasons.append("The classic Disney experience with iconic attractions")
             elif pref == ParkPreference.CULTURAL and park == "epcot":
                 reasons.append("Rich cultural experiences across World Showcase")

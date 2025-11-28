@@ -11,7 +11,7 @@ interface Props {
 
 export default function PartySection({ searchData, updateSearchData, totalPeople }: Props) {
   return (
-    <Section icon={<Users className="w-6 h-6" />} title="Who's coming?">
+    <Section icon={<Users className="w-6 h-6 text-[var(--blue)]" />} title="Who's coming?">
       <div className="grid grid-cols-3 gap-4">
         <NumberInput
           label="Adults (18+)"

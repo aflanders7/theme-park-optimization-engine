@@ -15,7 +15,7 @@ DATA_DIR = BASE_DIR / "scrapers" / "output"
 def load_crowd_calendar(db: Session):
     """Load Disney crowd calendar from JSON"""
     print("Loading Disney crowd calendar...")
-    file_path = DATA_DIR / "disney_crowd_2025.json"
+    file_path = DATA_DIR / "disney_crowd_2026.json"
     
     if not file_path.exists():
         print(f"⚠️  File not found: {file_path}")
@@ -27,22 +27,12 @@ def load_crowd_calendar(db: Session):
     loaded_count = 0
     
     for row in data:
-        # Check if record already exists for same park + date
-        existing = db.query(CrowdCalendar).filter(
-            CrowdCalendar.park == row["park"],
-            CrowdCalendar.date == row["date"]
-        ).first()
-        
-        if existing:
-            # Update if needed
-            existing.crowd = row["crowd"]
-        else:
-            record = CrowdCalendar(
+        record = CrowdCalendar(
                 park=row["park"],
                 date=row["date"],
                 crowd=row["crowd"]
-            )
-            db.add(record)
+        )
+        db.add(record)
         loaded_count += 1
 
         # Optional batch commit for large datasets
@@ -212,8 +202,8 @@ def main():
         # Load data in order (hotels → rooms → pricing)
         #load_hotels(db)
         #load_rooms(db)
-        load_pricing(db)
-        #load_crowd_calendar(db)
+        #load_pricing(db)
+        load_crowd_calendar(db)
         
         # Print summary
         print("\n" + "=" * 60)

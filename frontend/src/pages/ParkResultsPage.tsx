@@ -68,19 +68,19 @@ export default function ParkResultsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 py-8 px-4">
+    <div className="min-h-screen py-8 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <button
             onClick={() => navigate('/parks')}
-            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-4"
+            className="inline-flex items-center gap-2 bg-white text-[var(--rose)] hover:bg-[var(--sunset)] hover:text-black font-medium mb-4 border rounded-lg px-3 py-2 transition-colors mb-4"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Search
           </button>
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Sparkles className="w-10 h-10 text-purple-600" />
+            <Sparkles className="w-10 h-10 text-[var(--rose)]" />
             <h1 className="text-4xl font-bold text-gray-800">Your Perfect Park Plan</h1>
           </div>
           <p className="text-gray-600 text-lg">

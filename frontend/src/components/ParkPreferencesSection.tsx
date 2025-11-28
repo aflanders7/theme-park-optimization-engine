@@ -16,7 +16,7 @@ export default function ParkPreferencesSection({ searchData, updateSearchData }:
   };
 
   return (
-    <Section icon={<Zap className="w-6 h-6" />} title="Your Preferences">
+    <Section icon={<Zap className="w-6 h-6 text-[var(--blue)]" />} title="Your Preferences">
       {/* Thrill Level */}
       <div className="mb-6">
         <label className="block font-medium mb-3">Thrill Level</label>
@@ -35,7 +35,7 @@ export default function ParkPreferencesSection({ searchData, updateSearchData }:
               />
               <div className={`p-4 border-2 rounded-xl text-center transition-all ${
                 searchData.thrillLevel === option.value
-                  ? 'border-purple-600 bg-purple-50'
+                  ? 'border-[var(--blue)] bg-blue-50'
                   : 'border-gray-200 hover:border-gray-300'
               }`}>
                 <div className="text-2xl mb-1">{option.emoji}</div>
@@ -57,7 +57,7 @@ export default function ParkPreferencesSection({ searchData, updateSearchData }:
             { value: 'thrills', label: '🎢 Thrill Rides', color: 'purple' },
             { value: 'food_drinks', label: '🍽️ Food & Drinks', color: 'orange' },
             { value: 'animals_nature', label: '🦁 Animals & Nature', color: 'green' },
-            { value: 'classic_disney', label: '🏰 Classic Disney', color: 'blue' },
+            { value: 'themes', label: '🏰 Immersive Theming', color: 'blue' },
             { value: 'cultural', label: '🌍 Culture', color: 'indigo' }
           ].map(pref => (
             <button
@@ -65,8 +65,8 @@ export default function ParkPreferencesSection({ searchData, updateSearchData }:
               onClick={() => togglePreference(pref.value)}
               className={`p-4 border-2 rounded-xl text-center transition-all ${
                 searchData.parkPreferences.includes(pref.value)
-                  ? 'border-purple-600 bg-purple-50'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-[var(--pink)] bg-pink-50'
+                  : 'border-gray-200 hover:!border-gray-300'
               }`}
             >
               {pref.label}

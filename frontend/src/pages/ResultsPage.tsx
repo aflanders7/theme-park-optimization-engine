@@ -13,13 +13,13 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="py-8 px-4">
+    <div className="py-8 px-4 bg-[var(--lpink)] ">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => navigate('/search')}
-            className="text-blue-600 hover:text-blue-700 font-medium mb-4"
+            className="bg-white text-[var(--rose)] hover:bg-[var(--sunset)] hover:text-black font-medium mb-4 border rounded-lg px-3 py-2 transition-colors"
           >
             ← Back to Search
           </button>

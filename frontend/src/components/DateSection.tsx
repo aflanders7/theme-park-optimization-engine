@@ -31,13 +31,14 @@ export default function DateSection({ searchData, updateSearchData }: Props) {
     const monthYearOptions: MonthYearOption[] = [];
     for (let y = currentYear; y <= currentYear + 1; y++) {
         for (let m = 1; m <= 12; m++) {
-            if (y === currentYear && m < currentMonth) continue; // skip past months
+            if (y === currentYear && m <= currentMonth) continue; // skip past months
+            if (y === currentYear + 1 && m === 12) continue; // skip dec 2026 for now
             monthYearOptions.push({ month: m, year: y });
         }
     }
 
     return (
-        <Section icon={<Calendar className="w-6 h-6" />} title="When are you going?">
+        <Section icon={<Calendar className="w-6 h-6 text-[var(--blue)]" />} title="When are you going?">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div>
                     <label className="block text-sm font-medium mb-2">Month</label>

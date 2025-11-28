@@ -10,20 +10,20 @@ interface Props {
 
 export default function BudgetSection({ searchData, updateSearchData, totalPeople }: Props) {
   return (
-    <Section icon={<DollarSign className="w-6 h-6" />} title="What's your budget?">
+    <Section icon={<DollarSign className="w-6 h-6 text-[var(--blue)]" />} title="What's your budget?">
       <div className="space-y-4">
                 {/* Selected Budget Display */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+        <div className=" rounded-xl p-4 border-2 border-[var(--blue)]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 mb-1">Hotel Budget</p>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-2xl font-bold text-[var(--charcoal)]">
                 Under ${searchData.totalBudget.toLocaleString()}
               </p>
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-600 mb-1">Estimated per person</p>
-              <p className="text-xl font-bold text-purple-600">
+              <p className="text-xl font-bold text-[var(--rose)]">
                 ~${Math.round(searchData.totalBudget / totalPeople).toLocaleString()}
               </p>
             </div>
@@ -37,7 +37,7 @@ export default function BudgetSection({ searchData, updateSearchData, totalPeopl
             step="1000"
             value={searchData.totalBudget}
             onChange={(e) => updateSearchData('totalBudget', parseInt(e.target.value))}
-            className="w-full h-3 bg-gradient-to-r from-blue-200 to-purple-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            className="w-full h-3 bg-gradient-to-r from-[var(--pale)] to-[var(--rose)] rounded-lg appearance-none cursor-pointer accent-[var(--blue)]"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>$1,000</span>

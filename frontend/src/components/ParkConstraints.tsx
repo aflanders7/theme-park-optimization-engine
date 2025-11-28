@@ -28,7 +28,7 @@ export default function ParkConstraints({ searchData, updateSearchData, showAdva
     <div>
       <button
         onClick={() => setShowAdvanced(!showAdvanced)}
-        className="flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium"
+        className="flex items-center gap-2 text-[var(--blue)] hover:text-[var(--rose)] font-medium"
       >
         {showAdvanced ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
         Park Preferences (Optional)
@@ -36,7 +36,7 @@ export default function ParkConstraints({ searchData, updateSearchData, showAdva
 
       {showAdvanced && (
         <div className="mt-6 space-y-6 pt-6 border-t border-gray-200">
-          <Section icon={<MapPin className="w-6 h-6" />} title="">
+          <Section icon={<MapPin className="w-6 h-6 text-[var(--blue)]" />} title="">
             {/* Must Visit Parks */}
             <div className="mb-6">
               <label className="block font-medium mb-3">

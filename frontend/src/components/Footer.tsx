@@ -1,6 +1,6 @@
 import { Sparkles, Rat } from "lucide-react";
 import React from 'react';
-import { Link } from 'react-router-dom'; // if you're using React Router
+import { Link } from 'react-router-dom'; 
 
 const Footer = () => {
     const year = new Date().getFullYear();
@@ -14,23 +14,23 @@ const Footer = () => {
                 </div>
 
                 <p className="text-gray-400 mb-4">
-                    Unofficial Disney vacation planning tool
+                    Unofficial theme park recommendations
                 </p>
-                <p className="text-sm text-gray-500 mb-4">
+                <p className="text-sm text-gray-400 mb-4">
                     Not affiliated with The Walt Disney Company
                 </p>
 
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-2 text-sm text-gray-400 mb-4">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-2 text-sm text-white mb-4">
                     <Link
                         to="/privacy-policy"
-                        className="hover:text-white transition-colors"
+                        className="!text-gray-200 hover:text-white transition-colors"
                     >
                         Privacy Policy
                     </Link>
                 </div>
 
                 <p className="text-gray-400">
-                    &copy; {year} Your Company Name. All rights reserved.
+                    &copy; {year} Mouse Days. All rights reserved.
                 </p>
             </div>
         </footer>

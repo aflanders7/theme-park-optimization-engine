@@ -13,7 +13,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @router.post("/recommend", response_model=ParkRecommendationResponse)
 #@limiter.limit("2/minute")
-@limiter.limit("20/hour")
+#@limiter.limit("20/hour")
 async def recommend_parks(
     request: Request,
     search_request: ParkRecommendationRequest,

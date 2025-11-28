@@ -40,7 +40,7 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
   }
 
   return (
-    <Section icon={<Calendar className="w-6 h-6" />} title="Trip Dates">
+    <Section icon={<Calendar className="w-6 h-6 text-[var(--blue)]" />} title="Trip Dates">
       <div className="grid grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium mb-2">Arrival Day</label>
@@ -49,14 +49,14 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
             value={searchData.startDate}
             onChange={(e) => updateSearchData('startDate', e.target.value)}
             min={today}
-            className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none"
+            className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl"
           />
           <label className="flex items-center mt-2 text-sm">
             <input
               type="checkbox"
               checked={searchData.parkOnArrival || false}
               onChange={(e) => updateSearchData('parkOnArrival', e.target.checked)}
-              className="mr-2 accent-purple-500"
+              className="mr-2 accent-[var(--rose)]"
               disabled={tripLength === 1 && searchData.parkOnArrival}
             />
             Allow park on arrival day
@@ -69,14 +69,14 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
             value={searchData.endDate}
             onChange={(e) => updateSearchData('endDate', e.target.value)}
             min={searchData.startDate || today}
-            className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none"
+            className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl"
           />
           <label className="flex items-center mt-2 text-sm">
             <input
               type="checkbox"
               checked={searchData.parkOnDeparture || false}
               onChange={(e) => updateSearchData('parkOnDeparture', e.target.checked)}
-              className="mr-2 accent-purple-500"
+              className="mr-2 accent-[var(--rose)]"
             />
             Allow park on departure day
           </label>

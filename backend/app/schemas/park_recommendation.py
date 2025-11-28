@@ -22,7 +22,7 @@ class ParkPreference(str, Enum):
     THRILLS = "thrills"  # Hollywood Studios, Magic Kingdom
     FOOD_DRINKS = "food_drinks"  # Epcot
     ANIMALS_NATURE = "animals_nature"  # Animal Kingdom
-    CLASSIC_DISNEY = "classic_disney"  # Magic Kingdom
+    THEMES = "themes"  # Magic Kingdom
     CULTURAL = "cultural"  # Epcot
 
 

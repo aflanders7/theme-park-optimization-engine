@@ -12,8 +12,8 @@ router = APIRouter(prefix="/api/hotels", tags=["hotels"])
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 @router.post("/search", response_model=HotelSearchResponse)
-@limiter.limit("2/minute")
-@limiter.limit("20/hour")
+#@limiter.limit("5/minute")
+#@limiter.limit("20/hour")
 async def search_hotels(
     request: Request,
     search_request: HotelSearchRequest,

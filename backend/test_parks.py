@@ -35,7 +35,7 @@ def test_basic_recommendation():
         child_ages=[7, 4],
         infants=0,
         thrill_level=ThrillLevel.MODERATE,
-        park_preferences=[ParkPreference.CLASSIC_DISNEY],
+        park_preferences=[ParkPreference.THEMES],
     )
     
     try:
@@ -142,7 +142,7 @@ def test_toddlers_family():
         child_ages=[3, 2],
         infants=1,
         thrill_level=ThrillLevel.LOW,
-        park_preferences=[ParkPreference.CLASSIC_DISNEY],
+        park_preferences=[ParkPreference.THEMES],
     )
     
     try:
