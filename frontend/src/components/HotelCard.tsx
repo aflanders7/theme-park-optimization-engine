@@ -35,7 +35,7 @@ export default function HotelCard({ hotel, rank, isExpanded, onToggle }: HotelCa
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              <div className="w-10 h-10 bg-gradient-to-b from-[var(--sunset)] to-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
                 {rank}
               </div>
               <div>
@@ -44,7 +44,7 @@ export default function HotelCard({ hotel, rank, isExpanded, onToggle }: HotelCa
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+              <span className="px-3 py-1 bg-blue-50 text-[var(--dblue)] rounded-full text-sm font-medium">
                 {hotel.hotel_category}
               </span>
               <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
@@ -76,7 +76,7 @@ export default function HotelCard({ hotel, rank, isExpanded, onToggle }: HotelCa
         {/* Expand/Collapse Button */}
         <button
           onClick={onToggle}
-          className="w-full py-3 text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-2 border-t border-gray-200"
+          className="w-full py-3 text-[var(--blue)] hover:text-[var(--rose)] font-medium flex items-center justify-center gap-2 border-t border-gray-200"
         >
           {isExpanded ? (
             <>
@@ -126,7 +126,7 @@ function TransportationTags({ transportation }: { transportation: string[] }) {
         {transportation.map(t => (
           <span
             key={t}
-            className="px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium flex items-center gap-1"
+            className="px-2 py-1 bg-blue-50 text-[var(--dblue)] rounded-lg text-xs font-medium flex items-center gap-1"
           >
             <Bus className="w-3 h-3" />
             {t}
@@ -159,7 +159,7 @@ function FeatureTags({ features }: { features: string[] }) {
         {features.slice(0, 4).map((f, i) => (
           <span
             key={i}
-            className="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium"
+            className="px-2 py-1 bg-pink-50 text-pink-800 rounded-lg text-xs font-medium"
           >
             {f}
           </span>

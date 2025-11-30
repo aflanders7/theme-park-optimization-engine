@@ -313,7 +313,7 @@ class ParkRecommendationEngine:
         - Balance visit counts
         """
         candidates = []
-        print("here1")
+
         print(park_candidates)
         for park, dates in park_candidates.items():
             if date in dates:
@@ -322,7 +322,7 @@ class ParkRecommendationEngine:
                 score = park_scores[(park_scores['park'] == park) & (park_scores['date'] == date)]['score'].values[0]
                 adjusted_score = score - visits * 15 + (repeat_priority.get(park, 1) * 5 if visits > 0 else 0)
                 candidates.append((adjusted_score, park))
-        print("here2")
+
         # Sort candidates by adjusted score descending
         candidates.sort(key=lambda x: x[0], reverse=True)
 
@@ -333,11 +333,11 @@ class ParkRecommendationEngine:
             if park_visit_count.get(park, 0) > min_visits + 1:
                 continue
             return park
-        print("here3")
+
         # fallback: allow last_park if no other option
         if candidates:
             return candidates[0][1]
-        print("here4")
+
         return None
 
     def _optimize_schedule(
@@ -357,14 +357,14 @@ class ParkRecommendationEngine:
         last_park = None
 
         available_parks = [p for p in self.PARK_ATTRIBUTES.keys() if p not in request.avoid_parks]
-        print("here1")
+
         # Compute rest days
         rest_day_count = len(all_dates) - num_park_days
         preferred_rest_positions = self._calculate_preferred_rest_positions(
             len(all_dates), rest_day_count, request.park_on_arrival, request.park_on_departure
         )
         reserved_rest_dates = set(sorted(all_dates)[pos] for pos in preferred_rest_positions)
-        print("here2")
+
         # Precompute park candidates: for each park, sorted dates by score
         park_candidates = {}
         for park in available_parks:
@@ -372,8 +372,7 @@ class ParkRecommendationEngine:
                 (park_scores['park'] == park) & (~park_scores['date'].isin(reserved_rest_dates))
             ].sort_values('score', ascending=False)['date'].tolist()
             park_candidates[park] = candidates
-        print(park_candidates)
-        print("here3")
+
         # Phase 0: assign must-visit parks first
         for park in getattr(request, "must_visit_parks", []):
             candidates = park_candidates.get(park, [])
@@ -384,7 +383,7 @@ class ParkRecommendationEngine:
                     park_visit_count[park] = park_visit_count.get(park, 0) + 1
                     last_park = park
                     break
-        print("here4")
+
         # Phase 1: assign each park at least once
         for park in available_parks:
             if park_visit_count.get(park, 0) > 0:
@@ -399,11 +398,10 @@ class ParkRecommendationEngine:
                     park_visit_count[park] = park_visit_count.get(park, 0) + 1
                     last_park = park
                     break
-        print("here5")
+
         # Phase 2: fill remaining park days
         unscheduled_dates = [d for d in all_dates if d not in used_dates and d not in reserved_rest_dates]
-        print("here6")
-        print(park_candidates)
+
         for date in unscheduled_dates:
             park = self._pick_best_park_for_date(date, park_candidates, park_scores, park_visit_count, REPEAT_PRIORITY, last_park)
             print(park)
@@ -412,13 +410,13 @@ class ParkRecommendationEngine:
                 used_dates.add(date)
                 park_visit_count[park] = park_visit_count.get(park, 0) + 1
                 last_park = park
-        print("here7")
+
         # Optional balancing if any park exceeds others by more than 1
         max_visits = max(park_visit_count.values(), default=0)
         min_visits = min(park_visit_count.values(), default=0)
         if max_visits - min_visits > 1:
             schedule = self._rebalance_schedule(schedule, park_scores, park_visit_count, REPEAT_PRIORITY)
-        print("here8")
+
         schedule.sort(key=lambda x: x[0])
         return schedule
 
@@ -623,26 +621,26 @@ class ParkRecommendationEngine:
         
         # Crowd reason
         if crowd_level <= 3:
-            reasons.append(f"Very low crowds ({crowd_level}/10) - great day to visit!")
+            reasons.append(f"Very low crowds - great day to visit!")
         elif crowd_level <= 5:
-            reasons.append(f"Moderate crowds ({crowd_level}/10) - good touring conditions")
+            reasons.append(f"Moderate crowds - expect long waits mid-day")
         elif crowd_level <= 7:
-            reasons.append(f"Busy day ({crowd_level}/10) - arrive early for best experience")
+            reasons.append(f"Busy day - arrive early for the best experience")
         else:
-            reasons.append(f"Peak crowds ({crowd_level}/10) - this was the best available day")
+            reasons.append(f"Peak crowds - this was the best available day")
         
         # Preference-based reasons
         for pref in request.park_preferences:
             if pref == ParkPreference.FOOD_DRINKS and park == "epcot":
-                reasons.append("Perfect for food lovers - World Showcase has 11 countries")
+                reasons.append("The World Showcase is perfect for food and drink lovers")
             elif pref == ParkPreference.THRILLS and park_attrs["thrill_score"] >= 8:
                 reasons.append("Great thrill rides for adventure seekers")
             elif pref == ParkPreference.ANIMALS_NATURE and park == "animal_kingdom":
-                reasons.append("Amazing animal experiences and Pandora - World of Avatar")
+                reasons.append("Amazing animal experiences")
             elif pref == ParkPreference.THEMES and park == "magic_kingdom":
                 reasons.append("The classic Disney experience with iconic attractions")
             elif pref == ParkPreference.CULTURAL and park == "epcot":
-                reasons.append("Rich cultural experiences across World Showcase")
+                reasons.append("Rich cultural experiences across the World Showcase")
         
         # Age-specific reasons
         if request.infants > 0 and park_attrs["infant_friendly"] >= 8:
@@ -658,8 +656,8 @@ class ParkRecommendationEngine:
                 reasons.append("Great thrill rides for older kids and teens")
         
         # Walking consideration with infants
-        if request.infants > 0 and park_attrs["walking_intensity"] <= 7:
-            reasons.append("More compact layout - easier with strollers")
+        #if request.infants > 0 and park_attrs["walking_intensity"] <= 7:
+            #reasons.append("More compact layout - easier with strollers")
         
         return reasons[:3]
     
@@ -667,43 +665,35 @@ class ParkRecommendationEngine:
         self, park: str, crowd_level: float, request: ParkRecommendationRequest
     ) -> List[str]:
         """Generate tips with infant/family considerations"""
-        
+
         tips = []
         park_attrs = self.PARK_ATTRIBUTES[park]
         
         # Infant-specific tips
-        if request.infants > 0:
-            tips.append("Baby Care Centers available with changing tables, nursing rooms, and supplies")
-            if park_attrs["walking_intensity"] >= 9:
-                tips.append("This park requires lots of walking - bring a comfortable stroller")
+        if request.infants > 0 and park_attrs["walking_intensity"] >= 9:
+            tips.append("This park requires a lot of walking - bring a comfortable stroller")
         
         # Crowd-based tips
-        if crowd_level >= 7:
-            tips.append("Use Lightning Lane for popular attractions to maximize your time")
-            if request.children > 0 or request.infants > 0:
-                tips.append("Take a midday break - important for kids to rest (11am-3pm)")
+        if crowd_level >= 7 and (request.children > 0 or request.infants > 0):
+            tips.append("Take a midday break to rest when it's the hottest (11am-3pm)")
         elif crowd_level <= 3:
-            tips.append("Great day for standby lines - may not need Lightning Lane")
+            tips.append("Great day for standby lines")
         
         # Park-specific tips
         if park == "magic_kingdom":
-            tips.append("Arrive before rope drop for shortest waits on popular rides")
+            tips.append("Arrive early for the shortest waits on popular rides")
             if any(age < 8 for age in request.child_ages) if request.child_ages else False:
-                tips.append("Don't miss character meets at Princess Fairytale Hall and Town Square Theater")
+                tips.append("Don't miss character meets")
+
         elif park == "epcot":
-            if ParkPreference.FOOD_DRINKS in request.park_preferences:
-                tips.append("Try the food festival offerings if visiting during a festival")
-            tips.append("Test Track and Frozen are most popular - get there early")
+            tips.append("Check to see if your dates correspond with a festival")
+
         elif park == "hollywood_studios":
-            tips.append("Join virtual queue for Rise of the Resistance at park opening (7am)")
             if request.thrill_level == ThrillLevel.HIGH:
-                tips.append("Tower of Terror and Rock 'n' Roller Coaster are must-dos for thrill seekers")
+                tips.append("Several rides perfect for thrill seekers")
         elif park == "animal_kingdom":
-            tips.append("See animals early morning when they're most active")
-            tips.append("Flight of Passage has longest waits - ride first or use Lightning Lane")
-            if request.infants > 0:
-                tips.append("Shaded walkways and plenty of spots to rest with little ones")
-        
+            tips.append("See animals in the early morning when they're most active")
+
         return tips[:4]
     
     def _generate_summary(
@@ -733,14 +723,14 @@ class ParkRecommendationEngine:
         """Generate optimization notes with family-specific insights"""
         
         notes = []
-        
+        print("here10")
         # Rest day recommendations
         if len(daily_plans) >= 4 and request.num_nights - len(daily_plans) >= 1:
-            notes.append("Schedule includes rest days - important for avoiding burnout, especially with kids")
+            notes.append("Schedule includes rest days - important for avoiding burnout, especially with children")
         elif len(daily_plans) >= 5 and request.num_nights == len(daily_plans):
             if request.children > 0 or request.infants > 0:
                 notes.append("Consider adding a rest day - consecutive park days can be exhausting for families")
-        
+
         # Variety
         parks = [plan.park for plan in daily_plans]
         unique_parks = len(set(parks))
@@ -751,15 +741,21 @@ class ParkRecommendationEngine:
         
         # Crowd insights
         avg_crowd = sum(plan.crowd_level for plan in daily_plans) / len(daily_plans)
-        if avg_crowd < 5:
-            notes.append("Great timing! Your dates have below-average crowds")
+        if avg_crowd < 3:
+            notes.append("Great timing! Below-average crowd levels expected")
+        if avg_crowd < 7:
+            notes.append("Average crowd levels expected")
         elif avg_crowd > 7:
-            notes.append("Higher crowd levels expected - strongly consider Lightning Lane/Genie+")
+            notes.append("High crowd levels expected - consider using a skip-the-line service for shorter waits")
+
+        # Fast Pass
+        if len(request.must_visit_parks) > len(daily_plans) or len(daily_plans) > 4:
+            notes.append("Consider a ticket that allows you to visit multiple parks per day")
         
         # Weekday optimization
         weekday_parks = sum(1 for plan in daily_plans if plan.date.weekday() < 5)
         if weekday_parks >= len(daily_plans) * 0.7:
-            notes.append("Weekday visits scheduled to help minimize crowds")
+            notes.append("Weekday visits can help minimize crowds")
         
         # Infant-specific
         if request.infants > 0:
@@ -768,14 +764,16 @@ class ParkRecommendationEngine:
                 if self.PARK_ATTRIBUTES[plan.park]["walking_intensity"] >= 9
             )
             if high_walking_days >= 2:
-                notes.append("Multiple high-walking parks scheduled - stroller highly recommended")
+                notes.append("A lot of walking is expected - bring or rent a stroller")
+
+            notes.append("Baby Care Centers are available within parks with changing tables, nursing rooms, and supplies")
         
         # Age-specific
         if request.child_ages:
             avg_age = sum(request.child_ages) / len(request.child_ages)
             if avg_age < 5:
                 magic_kingdom_count = sum(1 for plan in daily_plans if plan.park == "magic_kingdom")
-                if magic_kingdom_count == 0:
-                    notes.append("Consider adding Magic Kingdom - it's the most popular with young children")
+                if magic_kingdom_count == 1:
+                    notes.append("Consider adding Magic Kingdom - it's the popular with young children")
         
         return notes

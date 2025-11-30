@@ -11,7 +11,7 @@ interface Props {
 
 export default function ParkPartySection({ searchData, updateSearchData, totalPeople }: Props) {
   const updateChildAges = (count: number) => {
-    const newAges = Array(count).fill(0).map((_, i) => searchData.childAges[i] || 8);
+    const newAges = Array(count).fill(0).map((_, i) => searchData.childAges[i] || 10);
     updateSearchData('children', count);
     updateSearchData('childAges', newAges);
   };

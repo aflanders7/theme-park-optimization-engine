@@ -39,6 +39,27 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
     updateSearchData("parkDays", maxParkDays);
   }
 
+  // Utility to clamp two dates so end >= start
+  const updateDates = (field: "startDate" | "endDate", value: string) => {
+    let newStart = searchData.startDate;
+    let newEnd = searchData.endDate;
+
+    if (field === "startDate") {
+      newStart = value;
+      if (newEnd && new Date(newEnd) < new Date(newStart)) {
+        newEnd = newStart; // push end date forward
+      }
+    } else {
+      newEnd = value;
+      if (newStart && new Date(newStart) > new Date(newEnd)) {
+        newStart = newEnd; // pull start date back
+      }
+    }
+
+    updateSearchData("startDate", newStart);
+    updateSearchData("endDate", newEnd);
+  };
+
   return (
     <Section icon={<Calendar className="w-6 h-6 text-[var(--blue)]" />} title="Trip Dates">
       <div className="grid grid-cols-3 gap-4">
@@ -47,7 +68,7 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
           <input
             type="date"
             value={searchData.startDate}
-            onChange={(e) => updateSearchData('startDate', e.target.value)}
+            onChange={(e) => updateDates("startDate", e.target.value)}
             min={today}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl"
           />
@@ -67,7 +88,7 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
           <input
             type="date"
             value={searchData.endDate}
-            onChange={(e) => updateSearchData('endDate', e.target.value)}
+            onChange={(e) => updateDates("endDate", e.target.value)}
             min={searchData.startDate || today}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl"
           />

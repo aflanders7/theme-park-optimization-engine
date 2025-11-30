@@ -15,7 +15,7 @@ const BrevoForm: React.FC = () => {
                         Get Disney Travel Tips & Updates
                     </h2>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                        Join our community and receive resort recommendations, travel tips, and feature updates — straight to your inbox.
+                        Join our community and receive resort recommendations, travel tips, and feature updates - straight to your inbox.
                     </p>
                 </div>
 

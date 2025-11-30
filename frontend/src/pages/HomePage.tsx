@@ -24,7 +24,7 @@ export default function HomePage() {
             </h1>
             
             <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto">
-              Get personalized suggestions for the perfect resort and park visit — all based on your travel style.
+              Get personalized suggestions for the perfect resort and park visit - all based on your travel style.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

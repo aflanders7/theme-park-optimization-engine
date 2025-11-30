@@ -29,7 +29,7 @@ export default function ParkSearchPage() {
   const totalPeople = parkSearchData.adults + parkSearchData.children + parkSearchData.infants;
 
   return (
-    <div className="py-8 px-4 bg-gradient-to-r from-[var(--snow)] via-[var(--lpink)] to-[var(--snow)]">
+    <div className="py-8 px-4 bg-gradient-to-r from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -74,11 +74,11 @@ export default function ParkSearchPage() {
             className={`w-full text-xl font-bold py-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 ${
               !parkSearchData.startDate || !parkSearchData.endDate
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-[var(--blue)] text-white hover:shadow-lg transform hover:scale-105'
+                : 'bg-[var(--sunset)] text-[var(--charcoal)] hover:shadow-lg transform hover:scale-105'
             }`}
           >
             <Search className="w-6 h-6" />
-            Generate My Park Plan
+            Generate Park Plan
           </button>
         </div>
       </div>

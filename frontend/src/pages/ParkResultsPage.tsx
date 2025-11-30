@@ -34,7 +34,7 @@ export default function ParkResultsPage() {
 
   const getCrowdColor = (level: number) => {
     if (level <= 3) return 'bg-green-100 text-green-800 border-green-300';
-    if (level < 7) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+    if (level < 7) return 'bg-yellow-50 text-yellow-900 border-yellow-400';
     return 'bg-red-100 text-red-800 border-red-300';
   };
 
@@ -68,20 +68,20 @@ export default function ParkResultsPage() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4">
+    <div className="min-h-screen py-8 px-4 bg-gradient-to-r from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <button
             onClick={() => navigate('/parks')}
-            className="inline-flex items-center gap-2 bg-white text-[var(--rose)] hover:bg-[var(--sunset)] hover:text-black font-medium mb-4 border rounded-lg px-3 py-2 transition-colors mb-4"
+            className="inline-flex items-center text-[var(--charcoal)] hover:text-[var(--rose)] gap-2 lg px-3 py-2 mb-4"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Search
           </button>
           <div className="flex items-center justify-center gap-3 mb-4">
             <Sparkles className="w-10 h-10 text-[var(--rose)]" />
-            <h1 className="text-4xl font-bold text-gray-800">Your Perfect Park Plan</h1>
+            <h1 className="text-4xl font-bold text-gray-800">Your Personalized Park Plan</h1>
           </div>
           <p className="text-gray-600 text-lg">
             We've optimized your {summary.total_days}-day trip based on crowd levels and your preferences
@@ -91,17 +91,17 @@ export default function ParkResultsPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <Calendar className="w-8 h-8 text-purple-600 mb-2" />
+            <Calendar className="w-8 h-8 text-[var(--blue)] mb-2" />
             <p className="text-3xl font-bold text-gray-800">{summary.park_days}</p>
             <p className="text-gray-600">Park Days</p>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <Coffee className="w-8 h-8 text-orange-600 mb-2" />
+            <Coffee className="w-8 h-8 text-yellow-500 mb-2" />
             <p className="text-3xl font-bold text-gray-800">{summary.rest_days}</p>
             <p className="text-gray-600">Rest Days</p>
           </div>
           <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <MapPin className="w-8 h-8 text-pink-600 mb-2" />
+            <MapPin className="w-8 h-8 text-[var(--rose)] mb-2" />
             <p className="text-3xl font-bold text-gray-800">{Object.keys(summary.parks_visited).length}</p>
             <p className="text-gray-600">Different Parks</p>
           </div>
@@ -114,15 +114,15 @@ export default function ParkResultsPage() {
 
         {/* Optimization Notes */}
         {optimization_notes.length > 0 && (
-          <div className="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-8 shadow-lg">
+          <div className="bg-white rounded-2xl p-6 mb-8 border-2 border-[var(--charcoal)]">
             <div className="flex items-start gap-3">
-              <Lightbulb className="w-6 h-6 text-purple-600 flex-shrink-0 mt-1" />
+              <Lightbulb className="w-6 h-6 text-yellow-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="font-bold text-lg text-gray-800 mb-3">Pro Tips for Your Trip</h3>
+                <h3 className="font-bold text-lg text-black mb-3">Insights about your trip</h3>
                 <ul className="space-y-2">
                   {optimization_notes.map((note, idx) => (
-                    <li key={idx} className="text-gray-700 flex items-start gap-2">
-                      <span className="text-purple-600 font-bold">•</span>
+                    <li key={idx} className="text-black flex items-start gap-2">
+                      <span className="text-[var(--charcoal)] font-bold">•</span>
                       <span>{note}</span>
                     </li>
                   ))}
@@ -135,7 +135,7 @@ export default function ParkResultsPage() {
         {/* Daily Plans - Now includes rest days */}
         <div className="space-y-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <Calendar className="w-7 h-7 text-purple-600" />
+            <Calendar className="w-7 h-7 text-[var(--blue)]" />
             Your Day-by-Day Schedule
           </h2>
 
@@ -145,27 +145,26 @@ export default function ParkResultsPage() {
             return (
               <div
                 key={idx}
-                className={`bg-white rounded-2xl shadow-lg overflow-hidden ${isRestDay ? 'border-4 border-orange-300' : ''
-                  }`}
+                className={`bg-white rounded-2xl shadow-lg overflow-hidden`}
               >
                 {/* Day Header */}
                 <div className={`p-6 ${isRestDay
-                    ? 'bg-gradient-to-r from-orange-100 to-yellow-100'
-                    : 'bg-gradient-to-r from-purple-600 to-pink-600'
+                    ? 'bg-gradient-to-r from-[var(--charcoal)] to-[var(--charcoal)]'
+                    : 'bg-gradient-to-br from-[var(--sunset)] to-[var(--rose)]'
                   }`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className={`text-sm font-medium ${isRestDay ? 'text-orange-700' : 'text-white/80'}`}>
+                      <p className={`text-sm font-medium ${isRestDay ? 'text-[var(--snow)]' : 'text-white'}`}>
                         Day {idx + 1}
                       </p>
-                      <h3 className={`text-2xl font-bold ${isRestDay ? 'text-orange-900' : 'text-white'}`}>
+                      <h3 className={`text-2xl font-bold text-white`}>
                         {formatDate(day.date)}
                       </h3>
                     </div>
                     {isRestDay ? (
                       <div className="text-right">
-                        <Coffee className="w-10 h-10 text-orange-600 mb-1 ml-auto" />
-                        <p className="text-lg font-bold text-orange-900">Rest Day</p>
+                        <Coffee className="w-10 h-10 text-white mb-1 ml-auto" />
+                        <p className="text-lg font-bold text-white">Rest Day</p>
                       </div>
                     ) : (
                       <div className="text-right">
@@ -193,13 +192,13 @@ export default function ParkResultsPage() {
                     {/* Reasons */}
                     <div>
                       <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-purple-600" />
+                        <Sparkles className="w-5 h-5 text-[var(--blue)]" />
                         Why This Park Today?
                       </h4>
                       <ul className="space-y-2">
                         {day.reasons.map((reason, i) => (
                           <li key={i} className="flex items-start gap-3 text-gray-700">
-                            <span className="text-purple-600 font-bold mt-1">✓</span>
+                            <span className="text-[var(--charcoal)] font-bold mt-1">✓</span>
                             <span>{reason}</span>
                           </li>
                         ))}
@@ -215,8 +214,8 @@ export default function ParkResultsPage() {
                         </h4>
                         <ul className="space-y-2">
                           {day.tips.map((tip, i) => (
-                            <li key={i} className="flex items-start gap-3 text-gray-700">
-                              <span className="text-yellow-600 font-bold mt-1">💡</span>
+                            <li key={i} className="flex items-start gap-2 text-gray-700">
+                              <span className="text-[var(--charcoal)] font-bold">•</span>
                               <span>{tip}</span>
                             </li>
                           ))}
@@ -228,9 +227,9 @@ export default function ParkResultsPage() {
 
                 {isRestDay && (
                   <div className="p-6">
-                    <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200">
-                      <p className="text-orange-900 font-medium">
-                        Take it easy today! Relax at your hotel, explore Disney Springs, or just recharge for tomorrow's adventure.
+                    <div className="rounded-xl p-4 border-2 border-[var(--blue)]">
+                      <p className="text-black font-medium">
+                        Take it easy today! Relax at your hotel, explore Disney Springs, or go to the pool.
                       </p>
                     </div>
                   </div>
@@ -243,15 +242,15 @@ export default function ParkResultsPage() {
         {/* Parks Visited Summary */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
           <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <MapPin className="w-6 h-6 text-purple-600" />
+            <MapPin className="w-6 h-6 text-[var(--blue)] " />
             Parks You'll Visit
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Object.entries(summary.parks_visited).map(([park, count]) => (
-              <div key={park} className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 text-center">
+              <div key={park} className="bg-gradient-to-br from-[var(--pale)] to-[var(--lpink)] rounded-xl p-4 text-center">
                 <div className="text-4xl mb-2">{getParkEmoji(park)}</div>
                 <p className="font-bold text-gray-800">{park}</p>
-                <p className="text-purple-600 font-bold">{count} {count === 1 ? 'day' : 'days'}</p>
+                <p className="text-[var(--rose)]  font-bold">{count} {count === 1 ? 'day' : 'days'}</p>
               </div>
             ))}
           </div>
@@ -261,13 +260,13 @@ export default function ParkResultsPage() {
         <div className="flex gap-4 justify-center">
           <button
             onClick={() => navigate('/parks')}
-            className="px-8 py-4 bg-white border-2 border-purple-600 text-purple-600 rounded-xl font-bold hover:bg-purple-50 transition-all"
+            className="px-8 py-4 bg-white border-2 border-[var(--rose)]  text-[var(--rose)]  rounded-xl font-bold hover:bg-[var(--lpink)] transition-all"
           >
             Modify Search
           </button>
           <button
             onClick={() => window.print()}
-            className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg transition-all"
+            className="px-8 py-4 bg-white border-2 border-yellow-600  text-yellow-600  rounded-xl font-bold hover:bg-[var(--lpink)] transition-all"
           >
             Save This Plan
           </button>

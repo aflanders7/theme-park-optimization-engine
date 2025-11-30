@@ -36,7 +36,7 @@ export default function ParkConstraints({ searchData, updateSearchData, showAdva
 
       {showAdvanced && (
         <div className="mt-6 space-y-6 pt-6 border-t border-gray-200">
-          <Section icon={<MapPin className="w-6 h-6 text-[var(--blue)]" />} title="">
+          <Section icon={<MapPin className="w-6 h-6 text-[var(--blue)]" />} title="Park Selections">
             {/* Must Visit Parks */}
             <div className="mb-6">
               <label className="block font-medium mb-3">

@@ -29,12 +29,12 @@ export default function SearchPage() {
   const totalPeople = searchData.adults + searchData.children + searchData.infants;
 
   return (
-    <div className="py-8 px-4 bg-white bg-gradient-to-r from-[var(--snow)] via-[var(--lpink)] to-[var(--snow)]">
+    <div className="py-8 px-4 bg-white bg-gradient-to-r from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Sparkles className="w-8 h-8 text-[var(--pink)]" />
+            <Sparkles className="w-8 h-8 text-[var(--rose)]" />
             <h1 className="text-4xl font-bold text-gray-800">Discover Your Perfect Disney Hotel</h1>
           </div>
           <p className="text-gray-600">Answer a few questions and we'll recommend the best hotel rooms for you</p>
@@ -66,10 +66,10 @@ export default function SearchPage() {
           {/* Search Button */}
           <button
             onClick={handleSearch}
-            className="w-full bg-[var(--blue)] text-white text-xl font-bold py-6 rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
+            className="w-full bg-[var(--sunset)] text-[var(--charcoal)] text-xl font-bold py-6 rounded-2xl hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
           >
             <Search className="w-6 h-6" />
-            Find My Perfect Hotel
+            Search
           </button>
         </div>
       </div>

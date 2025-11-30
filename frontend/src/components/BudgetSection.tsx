@@ -37,7 +37,7 @@ export default function BudgetSection({ searchData, updateSearchData, totalPeopl
             step="1000"
             value={searchData.totalBudget}
             onChange={(e) => updateSearchData('totalBudget', parseInt(e.target.value))}
-            className="w-full h-3 bg-gradient-to-r from-[var(--pale)] to-[var(--rose)] rounded-lg appearance-none cursor-pointer accent-[var(--blue)]"
+            className="w-full h-3 bg-gradient-to-r from-[var(--pale)] to-[var(--rose)] rounded-lg appearance-none cursor-pointer accent-[var(--charcoal)]"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-1">
             <span>$1,000</span>

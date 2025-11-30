@@ -25,7 +25,7 @@ export default function LoadingScreen({ messages }: Props) {
   }, [displayMessages.length]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--pink)] via-[var(--pale)] to-[var(--rose)] flex items-center justify-center p-4">
       <div className="text-center">
         <div className="mb-8">
           <Sparkles className="w-24 h-24 text-yellow-300 mx-auto animate-pulse" />
@@ -33,7 +33,7 @@ export default function LoadingScreen({ messages }: Props) {
         <h2 className="text-4xl font-bold text-white mb-4">
           Creating Your Perfect Plan
         </h2>
-        <p className="text-2xl text-white/90 mb-8 animate-pulse">
+        <p className="text-2xl text-[var(--charcoal)] mb-8 animate-pulse">
           {displayMessages[messageIndex]}
         </p>
         <div className="flex justify-center gap-2">
