@@ -9,29 +9,34 @@ import ParkSearchPage from './pages/ParkSearchPage';
 import ParkLoadingPage from './pages/ParkLoadingPage';
 import ParkResultsPage from './pages/ParkResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
-import Footer from './components/Footer';
+import ConditionsPage from './pages/ConditionsPage';
 
 function App() {
   return (
     <Router>
-      <main>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="results" element={<ResultsPage />} />
+
           <Route path="parks" element={<ParkSearchPage />} />
-          <Route path="park-loading" element={<ParkLoadingPage />} />
           <Route path="park-results" element={<ParkResultsPage />} />
+
           <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="terms" element={<ConditionsPage />} />
         </Route>
+
         <Route path="loading" element={<LoadingPage />} />
+        <Route path="park-loading" element={<ParkLoadingPage />} />
+
+        {/* fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      </main>
-      <Footer />
     </Router>
   );
 }
+
+
 
 export default App;

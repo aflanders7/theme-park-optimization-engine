@@ -1,12 +1,18 @@
 // frontend/src/components/layout/Layout.tsx
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
+import Footer from "./Footer";
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
       <Navbar />
-      <Outlet />
+      
+      <main className="flex-grow">
+        <Outlet />
+      </main>
+
+      <Footer />
     </div>
   );
 }

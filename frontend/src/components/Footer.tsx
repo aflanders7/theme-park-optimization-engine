@@ -20,12 +20,19 @@ const Footer = () => {
                     MouseDays is an independent project and is not affiliated with, endorsed by, or officially connected to Walt Disney World, Disneyland, Disney Enterprises Inc, or any of its affiliates or subsidiaries. All trademarks, names, and related properties are the sole property of their respective owners. References to third-party names or trademarks are for identification and informational purposes only.
                 </p>
 
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-2 text-sm text-white mb-4">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-3 text-sm text-white mb-4">
                     <Link
                         to="/privacy-policy"
                         className="!text-gray-200 hover:!text-[var(--rose)] transition-colors"
                     >
                         Privacy Policy
+                    </Link>
+                    <p>|</p>
+                    <Link
+                        to="/terms"
+                        className="!text-gray-200 hover:!text-[var(--rose)] transition-colors"
+                    >
+                        Terms & Conditions
                     </Link>
                 </div>
 
