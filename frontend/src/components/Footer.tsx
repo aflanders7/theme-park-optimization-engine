@@ -17,7 +17,8 @@ const Footer = () => {
                     Unofficial theme park recommendations
                 </p>
                 <p className="text-xs text-gray-400 mb-4 mx-auto">
-                    MouseDays is an independent project and is not affiliated with, endorsed by, or officially connected to Walt Disney World, Disneyland, Disney Enterprises Inc, or any of its affiliates or subsidiaries. All trademarks, names, and related properties are the sole property of their respective owners. References to third-party names or trademarks are for identification and informational purposes only.
+                    MouseDays is an independent project and is not affiliated with, endorsed by, or officially connected to Walt Disney World, Disneyland, Disney Enterprises Inc, or any of its affiliates or subsidiaries. All trademarks, names, and related properties are the sole property of their respective owners. 
+                    References to third-party names or trademarks are for identification and informational purposes only. Icons by Lucide (ISC).
                 </p>
 
                 <div className="flex flex-col sm:flex-row justify-center items-center gap-3 text-sm text-white mb-4">
@@ -37,7 +38,7 @@ const Footer = () => {
                 </div>
 
                 <p className="text-gray-400">
-                    &copy; {year} MouseDays. All rights reserved.
+                    &copy;{year} MouseDays.com. All rights reserved.
                 </p>
             </div>
         </footer>

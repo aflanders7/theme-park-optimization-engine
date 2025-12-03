@@ -12,7 +12,7 @@ export default function BudgetSection({ searchData, updateSearchData, totalPeopl
   return (
     <Section icon={<DollarSign className="w-6 h-6 text-[var(--blue)]" />} title="What's your budget?">
       <div className="space-y-4">
-                {/* Selected Budget Display */}
+        {/* Selected Budget Display */}
         <div className=" rounded-xl p-4 border-2 border-[var(--blue)]">
           <div className="flex items-center justify-between">
             <div>
@@ -21,11 +21,22 @@ export default function BudgetSection({ searchData, updateSearchData, totalPeopl
                 Under ${searchData.totalBudget.toLocaleString()}
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-600 mb-1">Estimated per person</p>
-              <p className="text-xl font-bold text-[var(--rose)]">
-                ~${Math.round(searchData.totalBudget / totalPeople).toLocaleString()}
-              </p>
+            <div className="flex items-start gap-10 text-right">
+
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Per Person</p>
+                <p className="text-xl font-bold text-[var(--rose)]">
+                  ~${Math.round(searchData.totalBudget / totalPeople).toLocaleString()}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Per Night</p>
+                <p className="text-xl font-bold text-yellow-700">
+                  ~${Math.round(searchData.totalBudget / searchData.numNights).toLocaleString()}
+                </p>
+              </div>
+
             </div>
           </div>
         </div>
@@ -45,8 +56,8 @@ export default function BudgetSection({ searchData, updateSearchData, totalPeopl
           </div>
           <br></br>
           <p className="text-sm text-gray-600 italic text-center">
-          Resort recommendations are based on typical pricing trends and do not reflect real-time pricing or availability.
-        </p>
+            Resort recommendations are based on typical pricing trends and do not reflect real-time pricing or availability.
+          </p>
         </div>
       </div>
     </Section>

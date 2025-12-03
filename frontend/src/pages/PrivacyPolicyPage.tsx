@@ -3,8 +3,8 @@ import { Mail, Globe } from 'lucide-react';
 
 export default function PrivacyPolicyPage() {
   const lastUpdated = "November 30, 2025"; 
-  const websiteName = "Disney Vacation Planner";
-  const contactEmail = "privacy@yourdomain.com"; 
+  const websiteName = "Mouse Days";
+  const contactEmail = "contact.mousedays@gmail.com"; 
   const websiteUrl = "https://yourdomain.com"; 
 
   return (
