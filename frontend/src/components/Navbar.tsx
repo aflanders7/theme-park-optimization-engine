@@ -1,102 +1,66 @@
 // frontend/src/components/layout/Navbar.tsx
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, Search, Home, Menu, X, Calendar, Rat } from 'lucide-react';
+import { Search, Home, Menu, X, Calendar, Rat } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50 border-b-2 border-orange-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* TOP ROW: logo/title + burger OR desktop nav */}
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
+
+          {/* LOGO + TITLE */}
           <Link
             to="/"
-            className="flex items-center gap-3 group"
+            className="flex items-center gap-3 min-w-0 flex-1"
           >
-            <div className="w-12 h-12 bg-[var(--sunset)] rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+            <div className="w-12 h-12 bg-[var(--sunset)] rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
               <Rat className="w-7 h-7 text-[var(--charcoal)]" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-[var(--charcoal)]">
+
+            <div className="flex flex-col min-w-0">
+              <h1 className="font-bold text-[clamp(1rem,4vw,1.5rem)] text-[var(--charcoal)] leading-tight whitespace-nowrap overflow-hidden">
                 Mouse Days
               </h1>
-              <p className="text-xs text-gray-600">Hotel & Park Recommendations</p>
+              <p className="text-[clamp(0.65rem,3vw,0.8rem)] text-gray-600 whitespace-nowrap overflow-hidden">
+                Hotel & Park Recommendations
+              </p>
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-2">
-            <NavLink
-              to="/"
-              icon={<Home className="w-5 h-5" />}
-              active={isActive('/')}
-            >
-              Home
-            </NavLink>
-            <NavLink
-              to="/search"
-              icon={<Search className="w-5 h-5" />}
-              active={isActive('/search')}
-            >
-              Hotels
-            </NavLink>
-            <NavLink
-              to="/parks"
-              icon={<Calendar className="w-5 h-5" />}
-              active={isActive('/parks')}
-            >
-              Parks
-            </NavLink>
-          </div>
-
-          {/* Mobile Menu Button */}
+          {/* MOBILE MENU BUTTON (INLINE with title on small screens) */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-[var(--snow)] transition-colors"
+            className="md:hidden p-2 ml-3 rounded-lg hover:bg-[var(--snow)] transition-colors flex-shrink-0"
           >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-gray-600" />
-            ) : (
-              <Menu className="w-6 h-6 text-gray-600" />
-            )}
+            {mobileMenuOpen
+              ? <X className="w-7 h-7 text-gray-700" />
+              : <Menu className="w-7 h-7 text-gray-700" />
+            }
           </button>
+
+          {/* DESKTOP NAV */}
+          <div className="hidden md:flex items-center gap-2">
+            <NavLink to="/" icon={<Home className="w-5 h-5" />} active={isActive('/')}>Home</NavLink>
+            <NavLink to="/search" icon={<Search className="w-5 h-5" />} active={isActive('/search')}>Hotels</NavLink>
+            <NavLink to="/parks" icon={<Calendar className="w-5 h-5" />} active={isActive('/parks')}>Parks</NavLink>
+          </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* MOBILE MENU EXPANDED */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t-2 border-[var(--charcoal)]">
+          <div className="md:hidden py-4 border-t border-gray-300">
             <div className="flex flex-col gap-2">
-              <MobileNavLink
-                to="/"
-                icon={<Home className="w-5 h-5" />}
-                active={isActive('/')}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Home
-              </MobileNavLink>
-              <MobileNavLink
-                to="/search"
-                icon={<Search className="w-5 h-5" />}
-                active={isActive('/search')}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Hotels
-              </MobileNavLink>
-              <MobileNavLink
-                to="/parks"
-                icon={<Calendar className="w-5 h-5" />}
-                active={isActive('/parks')}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Parks
-              </MobileNavLink>
+              <MobileNavLink to="/" icon={<Home className="w-5 h-5" />} active={isActive('/')} onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
+              <MobileNavLink to="/search" icon={<Search className="w-5 h-5" />} active={isActive('/search')} onClick={() => setMobileMenuOpen(false)}>Hotels</MobileNavLink>
+              <MobileNavLink to="/parks" icon={<Calendar className="w-5 h-5" />} active={isActive('/parks')} onClick={() => setMobileMenuOpen(false)}>Parks</MobileNavLink>
             </div>
           </div>
         )}
@@ -105,22 +69,13 @@ export default function Navbar() {
   );
 }
 
-interface NavLinkProps {
-  to: string;
-  icon: React.ReactNode;
-  active: boolean;
-  children: React.ReactNode;
-}
-
-function NavLink({ to, icon, active, children }: NavLinkProps) {
+function NavLink({ to, icon, active, children }) {
   return (
     <Link
       to={to}
       className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all ${
-        active
-          ? 'bg-[var(--sunset)] text-white shadow-lg'
-          : 'hover:bg-[var(--snow)]'
-        }`}
+        active ? 'bg-[var(--sunset)] text-white shadow-lg' : 'hover:bg-[var(--snow)]'
+      }`}
     >
       {icon}
       {children}
@@ -128,20 +83,14 @@ function NavLink({ to, icon, active, children }: NavLinkProps) {
   );
 }
 
-interface MobileNavLinkProps extends NavLinkProps {
-  onClick: () => void;
-}
-
-function MobileNavLink({ to, icon, active, children, onClick }: MobileNavLinkProps) {
+function MobileNavLink({ to, icon, active, children, onClick }) {
   return (
     <Link
       to={to}
       onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all ${
-        active
-          ? 'bg-[var(--pale)] text-white shadow-lg'
-          : 'hover:bg-[var(--snow)]'
-        }`}
+        active ? 'bg-[var(--pale)] text-white shadow-lg' : 'hover:bg-[var(--snow)]'
+      }`}
     >
       {icon}
       {children}
