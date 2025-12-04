@@ -10,9 +10,11 @@ import ParkLoadingPage from './pages/ParkLoadingPage';
 import ParkResultsPage from './pages/ParkResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import ConditionsPage from './pages/ConditionsPage';
+import { Analytics } from "@vercel/analytics/react"
 
 function App() {
   return (
+    <>
     <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -34,6 +36,9 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
+
+    <Analytics />
+    </>
   );
 }
 
