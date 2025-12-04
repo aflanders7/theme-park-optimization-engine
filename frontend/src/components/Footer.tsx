@@ -38,7 +38,7 @@ const Footer = () => {
                 </div>
 
                 <p className="text-gray-400">
-                    &copy;{year} MouseDays.com. All rights reserved.
+                    &copy;{year} MouseDays.net. All rights reserved.
                 </p>
             </div>
         </footer>
