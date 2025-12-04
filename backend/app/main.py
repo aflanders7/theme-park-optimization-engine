@@ -13,10 +13,6 @@ Base.metadata.create_all(bind=engine)
 app.include_router(hotel_search.router)
 app.include_router(park_recommendations.router)
 
-# Serve Vite frontend
-frontend_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../frontend/dist")
-app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
-
 # Keep your API root for info
 @app.get("/api")
 def root():
