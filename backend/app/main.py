@@ -5,6 +5,7 @@ from app.database import engine, Base
 from app.api import hotel_search, park_recommendations
 from app.core.app import app  # your existing FastAPI instance
 import os
+from fastapi.middleware.cors import CORSMiddleware
 
 # Create tables on startup
 Base.metadata.create_all(bind=engine)
