@@ -39,10 +39,6 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
     updateSearchData("parkDays", maxParkDays);
   }
 
-  const maxDate1 = new Date(searchData.startDate); // make a copy
-  maxDate1.setDate(maxDate1.getDate() + 14); 
-  const maxDate = maxDate1.toISOString().split("T")[0];
-
   // Utility to clamp two dates so end >= start
   const updateDates = (field: "startDate" | "endDate", value: string) => {
     let newStart = searchData.startDate;
@@ -94,7 +90,6 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
             value={searchData.endDate}
             onChange={(e) => updateDates("endDate", e.target.value)}
             min={searchData.startDate || today}
-            max={maxDate}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl"
           />
           <label className="flex items-center mt-2 text-sm">
