@@ -14,7 +14,7 @@ export default function ResultsPage() {
   }
 
   return (
-    <div className="py-8 px-4 bg-gradient-to-r from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
+    <div className="px-4 py-8 bg-gradient-to-r from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
@@ -33,12 +33,12 @@ export default function ResultsPage() {
           <p className="text-[var(--charcoal)]">*Results do not reflect real-time pricing or availability.</p>
         </div>
 
-        <div className="py-8">
+        <div className="py-4">
           <HotelList hotels={results.recommendations} />
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 justify-center">
+        <div className="flex gap-4 py-8 justify-center">
           <button
             onClick={() => navigate('/search')}
             className="px-8 py-4 bg-white border-2 border-[var(--rose)]  text-[var(--rose)]  rounded-xl font-bold hover:bg-[var(--lpink)] transition-all"
@@ -47,7 +47,7 @@ export default function ResultsPage() {
           </button>
           <button
             onClick={() => window.print()}
-            className="px-8 py-4 bg-white border-2 border-yellow-600  text-yellow-600  rounded-xl font-bold hover:bg-[var(--lpink)] transition-all"
+            className="px-8 bg-white border-2 border-yellow-600  text-yellow-600  rounded-xl font-bold hover:bg-[var(--lpink)] transition-all"
           >
             Save This Plan
           </button>

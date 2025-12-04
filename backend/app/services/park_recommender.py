@@ -723,7 +723,7 @@ class ParkRecommendationEngine:
         """Generate optimization notes with family-specific insights"""
         
         notes = []
-        print("here10")
+
         # Rest day recommendations
         if len(daily_plans) >= 4 and request.num_nights - len(daily_plans) >= 1:
             notes.append("Schedule includes rest days - important for avoiding burnout, especially with children")
