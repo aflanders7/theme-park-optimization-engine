@@ -15,13 +15,26 @@ export default function ParkSearchPage() {
   const { search } = useParkSearch();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
+  // Calculate difference in days
+  const start = parkSearchData.startDate ? new Date(parkSearchData.startDate) : null;
+  const end = parkSearchData.endDate ? new Date(parkSearchData.endDate) : null;
+
+  let dayRange = 0;
+  if (start && end) {
+    dayRange = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
+  const isRangeTooLong = dayRange > 12;
+
   const handleSearch = async () => {
+    if (isRangeTooLong) return;
+
     navigate('/park-loading');
     const result = await search(parkSearchData);
 
     if (result) {
       navigate('/park-results');
-    } else{
+    } else {
       navigate("/parks")
     }
   };
@@ -44,7 +57,7 @@ export default function ParkSearchPage() {
 
         {/* Main Form Card */}
         <div className="bg-white rounded-3xl shadow-xl p-8 space-y-8">
-          <ParkDateSection 
+          <ParkDateSection
             searchData={parkSearchData}
             updateSearchData={updateParkSearchData}
           />
@@ -67,15 +80,21 @@ export default function ParkSearchPage() {
             setShowAdvanced={setShowAdvanced}
           />
 
+          {/* Error Message */}
+          {isRangeTooLong && (
+            <p className="text-red-600 font-medium text-center -mt-4">
+              Date range cannot exceed 12 days.
+            </p>
+          )}
+
           {/* Search Button */}
           <button
             onClick={handleSearch}
-            disabled={!parkSearchData.startDate || !parkSearchData.endDate}
-            className={`w-full text-xl font-bold py-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 ${
-              !parkSearchData.startDate || !parkSearchData.endDate
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-[var(--sunset)] text-[var(--charcoal)] hover:shadow-lg transform hover:scale-105'
-            }`}
+            disabled={!parkSearchData.startDate || !parkSearchData.endDate || isRangeTooLong}
+            className={`w-full text-xl font-bold py-6 rounded-2xl transition-all duration-200 flex items-center justify-center gap-3 ${!parkSearchData.startDate || !parkSearchData.endDate || isRangeTooLong
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-[var(--sunset)] text-[var(--charcoal)] hover:shadow-lg transform hover:scale-105'
+              }`}
           >
             <Search className="w-6 h-6" />
             Generate Park Plan
