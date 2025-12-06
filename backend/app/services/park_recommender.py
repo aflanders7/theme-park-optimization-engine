@@ -314,7 +314,6 @@ class ParkRecommendationEngine:
         """
         candidates = []
 
-        print(park_candidates)
         for park, dates in park_candidates.items():
             if date in dates:
                 visits = park_visit_count.get(park, 0)
@@ -404,7 +403,6 @@ class ParkRecommendationEngine:
 
         for date in unscheduled_dates:
             park = self._pick_best_park_for_date(date, park_candidates, park_scores, park_visit_count, REPEAT_PRIORITY, last_park)
-            print(park)
             if park:
                 schedule.append((date, park))
                 used_dates.add(date)
