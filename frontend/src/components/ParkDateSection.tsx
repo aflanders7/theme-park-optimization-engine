@@ -62,7 +62,7 @@ export default function ParkDateSection({ searchData, updateSearchData }: Props)
 
   return (
     <Section icon={<Calendar className="w-6 h-6 text-[var(--blue)]" />} title="Trip Dates">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium mb-2">Arrival Day</label>
           <input

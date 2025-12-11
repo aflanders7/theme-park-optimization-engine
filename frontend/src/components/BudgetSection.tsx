@@ -14,7 +14,7 @@ export default function BudgetSection({ searchData, updateSearchData, totalPeopl
       <div className="space-y-4">
         {/* Selected Budget Display */}
         <div className=" rounded-xl p-4 border-2 border-[var(--blue)]">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <p className="text-sm text-gray-600 mb-1">Hotel Budget</p>
               <p className="text-2xl font-bold text-[var(--charcoal)]">

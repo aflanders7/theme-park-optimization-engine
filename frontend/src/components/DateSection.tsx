@@ -2,6 +2,7 @@
 import { Calendar } from 'lucide-react';
 import Section from './shared/Section';
 import { useEffect } from 'react';
+import NumberInput from './shared/NumberInput';
 
 interface Props {
     searchData: any;
@@ -39,7 +40,7 @@ export default function DateSection({ searchData, updateSearchData }: Props) {
 
     return (
         <Section icon={<Calendar className="w-6 h-6 text-[var(--blue)]" />} title="When are you going?">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                 <div>
                     <label className="block text-sm font-medium mb-2">Month</label>
                     <select
@@ -60,14 +61,12 @@ export default function DateSection({ searchData, updateSearchData }: Props) {
                 </div>
                 {/* Nights */}
                 <div>
-                    <label className="block text-sm font-medium mb-2">Nights</label>
-                    <input
-                        type="number"
-                        min="1"
-                        max="14"
+                    <NumberInput
+                        label="Nights"
                         value={searchData.numNights || 5}
-                        onChange={(e) => updateSearchData('numNights', parseInt(e.target.value))}
-                        className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none"
+                        onChange={(val) => updateSearchData('numNights', val)}
+                        min={1}
+                        max={14}
                     />
                 </div>
             </div>

@@ -20,7 +20,7 @@ export default function ParkPreferencesSection({ searchData, updateSearchData }:
       {/* Thrill Level */}
       <div className="mb-6">
         <label className="block font-medium mb-3">Thrill Level</label>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {[
             { value: 'low', label: 'Low', desc: 'Gentle rides', emoji: '🎠' },
             { value: 'moderate', label: 'Moderate', desc: 'Mix of both', emoji: '🎢' },

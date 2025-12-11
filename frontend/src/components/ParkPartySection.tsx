@@ -24,7 +24,7 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
 
   return (
     <Section icon={<Users className="w-6 h-6 text-[var(--blue)]" />} title="Who's coming?">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <NumberInput
           label="Adults (18+)"
           value={searchData.adults}
@@ -47,22 +47,20 @@ export default function ParkPartySection({ searchData, updateSearchData, totalPe
 
       {/* Child Ages */}
       {searchData.children > 0 && (
-        <div className="mt-4 rounded-xl p-4 border-2 border-[var(--blue)] bg-blue-50">
+        <div className="mt-4 rounded-xl p-4 border-2 border-[var(--blue)]">
           <p className="text-sm font-medium text-gray-700 mb-3">
             Children's ages:
           </p>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             {Array.from({ length: searchData.children }).map((_, i) => (
               <div key={i}>
                 <label className="block text-xs text-gray-600 mb-1">Child {i + 1}</label>
-                <input
-                  type="number"
-                  min="3"
-                  max="17"
-                  value={searchData.childAges[i] || []}
-                  onChange={(e) => handleChildAgeChange(i, parseInt(e.target.value) || 8)}
-                  placeholder="Age"
-                  className="w-full px-3 py-2 border-2 border-[var(--blue)] bg-white rounded-lg"
+                <NumberInput
+                  label=""
+                  value={searchData.childAges[i] || 8}
+                  onChange={(val) => handleChildAgeChange(i, val || 8)}
+                  min={3}
+                  max={17}
                 />
               </div>
             ))}
