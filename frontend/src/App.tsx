@@ -11,6 +11,7 @@ import ParkResultsPage from './pages/ParkResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import ConditionsPage from './pages/ConditionsPage';
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
     </Router>
 
     <Analytics />
+    <SpeedInsights/>
     </>
   );
 }
