@@ -7,7 +7,7 @@ const BrevoForm: React.FC = () => {
         <section className="py-20 px-4 bg-white">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
-                <div className="text-center mb-12">
+                {/* <div className="text-center mb-12">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--blue)] rounded-full mb-4 shadow-lg">
                         <Mail className="w-8 h-8 text-white" />
                     </div>
@@ -17,7 +17,7 @@ const BrevoForm: React.FC = () => {
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                         Join our community and receive resort recommendations, travel tips, and feature updates - straight to your inbox.
                     </p>
-                </div>
+                </div> */}
 
                 {/* Form Container */}
                 <div className="relative">
@@ -35,7 +35,7 @@ const BrevoForm: React.FC = () => {
                             />
 
                         {/* Benefits Footer */}
-                        <div className="bg-[var(--pale)] px-8 py-6 border-t-2 border-[var(--charcoal)]">
+                        <div className="bg-white] px-8 py-6 border-t-2 border-[var(--charcoal)]">
                             <div className="flex flex-wrap justify-center gap-6 text-sm">
                                 <div className="flex items-center gap-2 text-gray-700">
                                     <Sparkles className="w-4 h-4 text-[var(--blue)]" />

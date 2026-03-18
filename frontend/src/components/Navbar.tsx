@@ -35,7 +35,7 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* MOBILE MENU BUTTON (INLINE with title on small screens) */}
+          {/* MOBILE MENU BUTTON (INLINE with title on small screens)
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 ml-3 rounded-lg hover:bg-[var(--snow)] transition-colors flex-shrink-0"
@@ -47,11 +47,11 @@ export default function Navbar() {
           </button>
 
           {/* DESKTOP NAV */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* <div className="hidden md:flex items-center gap-2">
             <NavLink to="/" icon={<Home className="w-5 h-5" />} active={isActive('/')}>Home</NavLink>
             <NavLink to="/search" icon={<Search className="w-5 h-5" />} active={isActive('/search')}>Hotels</NavLink>
             <NavLink to="/parks" icon={<Calendar className="w-5 h-5" />} active={isActive('/parks')}>Parks</NavLink>
-          </div>
+          </div>  */}
         </div>
 
         {/* MOBILE MENU EXPANDED */}

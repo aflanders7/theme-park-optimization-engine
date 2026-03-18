@@ -10,6 +10,7 @@ import ParkLoadingPage from './pages/ParkLoadingPage';
 import ParkResultsPage from './pages/ParkResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import ConditionsPage from './pages/ConditionsPage';
+import ComingSoonPage from './pages/ComingSoonPage';
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
@@ -19,7 +20,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
+          {/* <Route index element={<HomePage />} /> */}
+          <Route index element={<ComingSoonPage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="results" element={<ResultsPage />} />
 
