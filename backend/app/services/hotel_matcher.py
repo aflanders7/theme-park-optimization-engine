@@ -118,8 +118,8 @@ class HotelRecommendationEngine:
             .filter(
                 RoomPricing.room_id.in_(room_ids),
                 RoomPricing.hotel_id.in_(hotel_ids),
-                RoomPricing.date >= search.check_in_date,
-                RoomPricing.date < search.check_out_date,
+                RoomPricing.date >= search.check_in,
+                RoomPricing.date < search.check_out,
             )
             .group_by(RoomPricing.room_id, RoomPricing.hotel_id)
             .having(func.avg(RoomPricing.price) <= search.budget_per_night)
