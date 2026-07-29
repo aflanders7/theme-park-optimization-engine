@@ -5,6 +5,7 @@ A full-stack travel planning application that generates optimized theme park iti
 This project was built as a software engineering portfolio project. It focuses on API design, data ingestion, offline forecasting, recommendation logic, and full-stack application architecture.
 
 Front-End Demo: [MouseDays.net](https://mousedays.net)
+
 Backend: Currently Offline
 
 ## Project Overview
@@ -29,9 +30,7 @@ Crowd predictions are generated offline using Prophet and historical crowd data.
 ## Architecture
 
 ```text
-                         User
-                           |
-                           v
+
               React + TypeScript Frontend
                            |
                   REST API Requests
