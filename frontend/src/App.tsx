@@ -10,7 +10,7 @@ import ParkLoadingPage from './pages/ParkLoadingPage';
 import ParkResultsPage from './pages/ParkResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import ConditionsPage from './pages/ConditionsPage';
-import ComingSoonPage from './pages/ComingSoonPage';
+import ComingSoonPage from './pages/PortfolioPage';
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
