@@ -10,7 +10,7 @@ const parks = {
 };
 
 // Set the output path
-const outputPath = path.join(__dirname, '..', 'output', 'disney_crowd_2022.json');
+const outputPath = path.join(__dirname, '..', 'output', 'disney_crowd_2026.json');
 
 (async () => {
   const browser = await puppeteer.launch({ headless: false });
@@ -23,17 +23,17 @@ const outputPath = path.join(__dirname, '..', 'output', 'disney_crowd_2022.json'
   const results = [];
 
   for (const [parkName, parkId] of Object.entries(parks)) {
-    for (let month = 1; month <= 12; month++) {
+    for (let month = 1; month <= 8; month++) {
       const monthStr = month.toString().padStart(2, '0');
-      const url = `https://queue-times.com/en-US/parks/${parkId}/calendar/2022/${monthStr}`;
-      console.log(`Scraping ${parkName} ${monthStr}/2022...`);
+      const url = `https://queue-times.com/en-US/parks/${parkId}/calendar/2026/${monthStr}`;
+      console.log(`Scraping ${parkName} ${monthStr}/2026...`);
 
       await page.goto(url, { waitUntil: 'networkidle0', timeout: 0 });
-      await page.waitForSelector('a.tile', { timeout: 30000 });
+      await page.waitForSelector('a.box.is-clearfix.is-fullheight', { timeout: 30000 });
 
       const monthData = await page.evaluate((parkName) => {
         const data = [];
-        const tiles = document.querySelectorAll('a.tile.is-child.box');
+        const tiles = document.querySelectorAll('a.box.is-clearfix.is-fullheight');
 
         tiles.forEach(tile => {
           const dateText = tile.querySelector('.tags.is-pulled-left .tag')?.innerText?.trim();

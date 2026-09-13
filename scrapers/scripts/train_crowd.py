@@ -1,4 +1,3 @@
-# train_prophet.py
 import pandas as pd
 import json
 from pathlib import Path
@@ -7,10 +6,10 @@ from prophet import Prophet
 # ---------------------------
 # Paths
 # ---------------------------
-BASE_DIR = Path(__file__).resolve().parent / "output"  # scrapers/output
+BASE_DIR = Path(__file__).resolve().parent.parent / "output"  # scrapers/output
 CROWD_FILES = [BASE_DIR / f"disney_crowd_202{year}.json" for year in range(2,6)]
 EVENTS_FILE = BASE_DIR / "events.json"
-OUTPUT_FILE = BASE_DIR / "predicted_crowds_2026.json"
+OUTPUT_FILE = BASE_DIR / "predicted_crowds_2026_4.json"
 
 # ---------------------------
 # Load crowd data
@@ -34,6 +33,7 @@ holiday_rows = []
 for e in events:
     start = pd.to_datetime(e['start_date'])
     end = pd.to_datetime(e['end_date'])
+
     for d in pd.date_range(start, end):
         holiday_rows.append({
             'holiday': e['event_name'],
@@ -44,6 +44,10 @@ for e in events:
 
 holidays_df = pd.DataFrame(holiday_rows)
 
+# Remove duplicate event/date combinations if any exist 
+if not holidays_df.empty: 
+    holidays_df = holidays_df.drop_duplicates( subset=["holiday", "ds"] )
+
 # ---------------------------
 # Train Prophet per park and predict 2026
 # ---------------------------
@@ -51,18 +55,23 @@ predictions = []
 
 for park in parks:
     print(f"Training Prophet for {park}...")
+
     park_df = crowd_df[crowd_df['park'] == park].copy()
     park_df = park_df.rename(columns={'date':'ds', 'crowd':'y'})
+    park_df = park_df.sort_values("ds")
 
     model = Prophet(
         weekly_seasonality=True,
         yearly_seasonality=True,
+        seasonality_mode="multiplicative", # scale crowd effects
+        changepoint_prior_scale=0.1,
+        holidays_prior_scale=10, # let events have more influence
         holidays=holidays_df
     )
     model.fit(park_df)
 
     # Predict all of 2026
-    future = model.make_future_dataframe(periods=365)
+    future = pd.DataFrame({ "ds": pd.date_range( start="2026-01-01", end="2026-12-31", freq="D" ) })
     forecast = model.predict(future)
 
     forecast['park'] = park
@@ -76,6 +85,7 @@ result_df = result_df.rename(columns={'ds':'date', 'yhat':'crowd'})
 
 # Clip crowd predictions to 0–10
 result_df['crowd'] = result_df['crowd'].clip(0,10)
+result_df["crowd"] = result_df["crowd"].round(2)
 
 # Save to JSON
 result_df.to_json(OUTPUT_FILE, orient='records', date_format='iso')

@@ -15,7 +15,7 @@ DATA_DIR = BASE_DIR / "scrapers" / "output"
 def load_crowd_calendar(db: Session):
     """Load Disney crowd calendar from JSON"""
     print("Loading Disney crowd calendar...")
-    file_path = DATA_DIR / "disney_crowd_2026.json"
+    file_path = DATA_DIR / "predicted_crowds_2026_5.json"
     
     if not file_path.exists():
         print(f"⚠️  File not found: {file_path}")
