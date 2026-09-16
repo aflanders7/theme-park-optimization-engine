@@ -11,37 +11,41 @@ import ParkResultsPage from './pages/ParkResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import ConditionsPage from './pages/ConditionsPage';
 import ComingSoonPage from './pages/PortfolioPage';
+import CrowdCalendarPage from './pages/CrowdCalendarPage';
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
 function App() {
   return (
     <>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          {/* <Route index element={<HomePage />} /> */}
-          <Route index element={<ComingSoonPage />} />
-          <Route path="search" element={<SearchPage />} />
-          <Route path="results" element={<ResultsPage />} />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            {/* <Route index element={<HomePage />} /> */}
+            <Route index element={<ComingSoonPage />} />
 
-          <Route path="parks" element={<ParkSearchPage />} />
-          <Route path="park-results" element={<ParkResultsPage />} />
+            <Route path="search" element={<SearchPage />} />
+            <Route path="results" element={<ResultsPage />} />
 
-          <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="terms" element={<ConditionsPage />} />
-        </Route>
+            <Route path="parks" element={<ParkSearchPage />} />
+            <Route path="park-results" element={<ParkResultsPage />} />
 
-        <Route path="loading" element={<LoadingPage />} />
-        <Route path="park-loading" element={<ParkLoadingPage />} />
+            <Route path="crowd-calendar" element={<CrowdCalendarPage />} />
 
-        {/* fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+            <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="terms" element={<ConditionsPage />} />
+          </Route>
 
-    <Analytics />
-    <SpeedInsights/>
+          <Route path="loading" element={<LoadingPage />} />
+          <Route path="park-loading" element={<ParkLoadingPage />} />
+
+          {/* fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+
+      <Analytics />
+      <SpeedInsights />
     </>
   );
 }

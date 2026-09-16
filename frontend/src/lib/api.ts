@@ -134,4 +134,43 @@ export const recommendParks = async (request: ParkRecommendationRequest): Promis
   };
 }
 
+// Crowd Calendar Types
+export interface ParkCrowdLevels {
+  magic_kingdom: number | null;
+  epcot: number | null;
+  hollywood_studios: number | null;
+  animal_kingdom: number | null;
+}
+
+export interface CrowdCalendarDay {
+  date: string; // "YYYY-MM-DD"
+  parks: ParkCrowdLevels;
+}
+
+export interface CrowdCalendarResponse {
+  year: number;
+  month: number;
+  has_data: boolean;
+  days: CrowdCalendarDay[];
+}
+
+export const getCrowdCalendar = async (
+  year: number,
+  month: number
+): Promise<CrowdCalendarResponse> => {
+  try {
+    const response = await api.get('/crowd-calendar', {
+      params: { year, month },
+    });
+
+    console.log('Crowd calendar response:', response);
+    console.log('Crowd calendar data:', response.data);
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Error loading crowd calendar:', error);
+    throw error;
+  }
+};
+
 export default api;
