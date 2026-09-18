@@ -1,7 +1,7 @@
 // frontend/src/pages/ParkResultsPage.tsx
 import { useNavigate } from 'react-router-dom';
 import { useParkStore } from '../hooks/useParkStore';
-import { Calendar, Users, Sparkles, TrendingUp, TrendingDown, AlertCircle, MapPin, Clock, Lightbulb, ArrowLeft, Coffee } from 'lucide-react';
+import { Calendar, Users, Sparkles, TrendingUp, TrendingDown, AlertCircle, MapPin, Clock, Lightbulb, ArrowLeft, Coffee, Star, HelpCircle } from 'lucide-react';
 
 export default function ParkResultsPage() {
   const navigate = useNavigate();
@@ -14,19 +14,24 @@ export default function ParkResultsPage() {
 
   const { daily_plans, rest_days, summary, optimization_notes } = parkResults;
 
-  // Merge park days and rest days into a single sorted schedule
+  // Merge park days and rest days into a single sorted schedule.
+  // rest_days now carries a `note` explaining why that day was chosen as a
+  // rest day, so the UI can show that reasoning instead of generic filler.
   const allDays = [
     ...daily_plans.map(plan => ({
       date: plan.date,
       isRestDay: false,
       ...plan
     })),
-    ...rest_days.map(date => ({
-      date,
+    ...rest_days.map(restDay => ({
+      date: restDay.date,
       isRestDay: true,
+      note: restDay.note,
       park: '',
       park_display_name: '',
       crowd_level: 0,
+      crowd_data_available: true,
+      is_must_visit: false,
       reasons: [],
       tips: []
     }))
@@ -170,6 +175,11 @@ export default function ParkResultsPage() {
                       <div className="text-right">
                         <p className="text-4xl mb-1">{getParkEmoji(day.park)}</p>
                         <p className="text-white font-bold text-lg">{day.park_display_name}</p>
+                        {day.is_must_visit && (
+                          <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-white/90 text-[var(--rose)] text-xs font-bold">
+                            <Star className="w-3 h-3 fill-current" /> Must-Visit
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>
@@ -178,7 +188,7 @@ export default function ParkResultsPage() {
                 {!isRestDay && (
                   <div className="p-6 space-y-6">
                     {/* Crowd Level */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-bold ${getCrowdColor(day.crowd_level)}`}>
                         {day.crowd_level < 7 ? (
                           <TrendingDown className="w-5 h-5" />
@@ -187,6 +197,12 @@ export default function ParkResultsPage() {
                         )}
                         {getCrowdLabel(day.crowd_level)} ({day.crowd_level}/10)
                       </div>
+                      {!day.crowd_data_available && (
+                        <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gray-100 text-gray-600 text-sm font-medium">
+                          <HelpCircle className="w-4 h-4" />
+                          Estimated - no forecast yet for this date
+                        </div>
+                      )}
                     </div>
 
                     {/* Reasons */}
@@ -229,7 +245,7 @@ export default function ParkResultsPage() {
                   <div className="p-6">
                     <div className="rounded-xl p-4 border-2 border-[var(--blue)]">
                       <p className="text-black font-medium">
-                        Take it easy today! Relax at your hotel, explore Disney Springs, or go to the pool.
+                        {day.note || 'Take it easy today! Relax at your hotel, explore Disney Springs, or go to the pool.'}
                       </p>
                     </div>
                   </div>

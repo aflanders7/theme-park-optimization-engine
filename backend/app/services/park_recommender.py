@@ -1,777 +1,641 @@
 # backend/app/services/park_recommender.py
-import pandas as pd
-from datetime import datetime, timedelta, date
-from typing import List, Dict, Tuple
+"""
+Disney World park recommendation engine.
+
+Given a trip window, party composition, preferences and hard constraints,
+produces a day-by-day plan where every day is either "visit park X" or an
+intentional rest day.
+
+Scheduling approach
+--------------------
+The whole trip is optimized together with a small dynamic program instead of
+greedily filling park days first and fitting rest days around what's left.
+The DP walks the trip day by day and tracks just enough state to enforce the
+hard constraints and score the soft goals:
+
+    state = (day_index, last_park, parks_visited_so_far, park_days_used, streak)
+
+- `last_park`      lets us penalize/avoid back-to-back repeats.
+- `parks_visited`  a small bitmask, used for variety bonuses and to check
+                   must-visit parks got scheduled.
+- `park_days_used` lets us enforce the exact park_days count.
+- `streak`         consecutive park days immediately before this point
+                   (capped at STREAK_CAP), used to value rest days by how much
+                   they actually break up the trip rather than just picking
+                   the two lowest-scoring dates.
+
+At each day the DP considers every legal action (rest, or visit any
+available park) and keeps whichever leads to the highest total score over
+the rest of the trip. Hard constraints (exact park_days, must-visit parks,
+arrival/departure park-day eligibility, avoided parks) are enforced structurally
+-- illegal states simply aren't reachable / are pruned -- rather than being
+scoring bonuses that could be outbid by other preferences.
+
+The number of trip days is small (the frontend caps ranges at 12 days), so
+the full state space is a few tens of thousands of entries at most and a
+plain memoized recursion is fast and easy to reason about; no external
+solver or ML is involved.
+"""
+
+from __future__ import annotations
+
+from datetime import date, timedelta
+from typing import Dict, List, Optional, Tuple
+
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
 from app.models.crowd import CrowdCalendar
 from app.schemas.park_recommendation import (
-    ParkRecommendationRequest, 
     DailyParkPlan,
+    ParkPreference,
+    ParkRecommendationRequest,
+    RestDayPlan,
     ThrillLevel,
-    ParkPreference
 )
+
+PARKS: Tuple[str, ...] = ("magic_kingdom", "epcot", "hollywood_studios", "animal_kingdom")
+
+PARK_ATTRIBUTES: Dict[str, Dict] = {
+    "magic_kingdom": {
+        "display_name": "Magic Kingdom",
+        "thrill_score": 6,
+        "food_score": 7,
+        "cultural_score": 3,
+        "nature_score": 4,
+        "theme_score": 10,
+        "toddler_score": 10,
+        "preschool_score": 10,
+        "grade_school_score": 9,
+        "teen_score": 7,
+        "infant_friendly": 10,
+        "walking_intensity": 8,
+    },
+    "epcot": {
+        "display_name": "Epcot",
+        "thrill_score": 7,
+        "food_score": 10,
+        "cultural_score": 10,
+        "nature_score": 6,
+        "theme_score": 6,
+        "toddler_score": 5,
+        "preschool_score": 6,
+        "grade_school_score": 7,
+        "teen_score": 9,
+        "infant_friendly": 7,
+        "walking_intensity": 10,
+    },
+    "hollywood_studios": {
+        "display_name": "Hollywood Studios",
+        "thrill_score": 9,
+        "food_score": 6,
+        "cultural_score": 5,
+        "nature_score": 3,
+        "theme_score": 8,
+        "toddler_score": 4,
+        "preschool_score": 6,
+        "grade_school_score": 9,
+        "teen_score": 10,
+        "infant_friendly": 6,
+        "walking_intensity": 6,
+    },
+    "animal_kingdom": {
+        "display_name": "Animal Kingdom",
+        "thrill_score": 5,
+        "food_score": 4,
+        "cultural_score": 8,
+        "nature_score": 10,
+        "theme_score": 6,
+        "toddler_score": 7,
+        "preschool_score": 9,
+        "grade_school_score": 9,
+        "teen_score": 7,
+        "infant_friendly": 8,
+        "walking_intensity": 9,
+    },
+}
+
+# --- Scoring weights (soft goals). Kept simple, deterministic and additive so
+# the influence of each factor stays easy to reason about. ---
+W_CROWD = 0.35
+W_INTEREST = 0.30
+W_FAMILY = 0.20
+W_THRILL = 0.15
+
+CROWD_EXPONENT = 1.6          # >1 => progressively punishes higher crowd levels
+NEUTRAL_CROWD_ESTIMATE = 5.0  # used only when no crowd row exists for a park/date
+
+REPEAT_PENALTY = 18.0   # same park as the immediately preceding park day
+NEW_PARK_BONUS = 9.0    # first time this park is visited on the trip
+
+STREAK_CAP = 3
+# Value of taking a rest day, keyed by how many consecutive park days
+# immediately preceded it (capped). A rest day right after a long park
+# streak is worth much more than one that isn't breaking anything up.
+REST_VALUE_BY_STREAK = {0: -6.0, 1: -1.0, 2: 9.0, 3: 18.0}
+FAMILY_REST_MULTIPLIER = 1.25  # rest days matter more with young kids/infants along
+
+THRILL_TARGET = {
+    ThrillLevel.LOW: 2.0,
+    ThrillLevel.MODERATE: 5.5,
+    ThrillLevel.HIGH: 9.0,
+}
+
+
+def to_user_crowd_level(raw_occupancy: float) -> int:
+    """Map a raw 0-10 predicted occupancy value to the 1-10 level shown to users."""
+    raw_occupancy = max(0, min(10, raw_occupancy))
+    level = 1 + 9 * (raw_occupancy / 10) ** 0.85
+    return max(1, min(10, round(level)))
 
 
 class ParkRecommendationEngine:
-    
-    # Enhanced park attributes for better matching
-    PARK_ATTRIBUTES = {
-        "magic_kingdom": {
-            "display_name": "Magic Kingdom",
-            "thrill_score": 6,
-            "food_score": 7,
-            "kid_friendly_score": 10,
-            "toddler_score": 10,  # Ages 0-3
-            "preschool_score": 10,  # Ages 4-6
-            "grade_school_score": 9,  # Ages 7-12
-            "teen_score": 7,  # Ages 13+
-            "infant_friendly": 10,  # Baby care centers, quiet areas
-            "cultural_score": 3,
-            "nature_score": 4,
-            "walking_intensity": 8,  # Higher = more walking
-            "shade_availability": 6,  # Important for hot days with babies
-            "tags": ["themes", "thrills", "family", "characters"],
-        },
-        "epcot": {
-            "display_name": "Epcot",
-            "thrill_score": 7,
-            "food_score": 10,
-            "kid_friendly_score": 6,
-            "toddler_score": 5,
-            "preschool_score": 6,
-            "grade_school_score": 7,
-            "teen_score": 9,
-            "infant_friendly": 7,
-            "cultural_score": 10,
-            "nature_score": 6,
-            "walking_intensity": 10,  # Most walking
-            "shade_availability": 7,
-            "tags": ["food_drinks", "cultural", "adults", "educational"],
-        },
-        "hollywood_studios": {
-            "display_name": "Hollywood Studios",
-            "thrill_score": 9,
-            "food_score": 6,
-            "kid_friendly_score": 8,
-            "toddler_score": 4,
-            "preschool_score": 6,
-            "grade_school_score": 9,
-            "teen_score": 10,
-            "infant_friendly": 6,
-            "cultural_score": 5,
-            "nature_score": 3,
-            "walking_intensity": 6,
-            "shade_availability": 5,
-            "tags": ["thrills", "shows", "teens", "star_wars"],
-        },
-        "animal_kingdom": {
-            "display_name": "Animal Kingdom",
-            "thrill_score": 5,
-            "food_score": 4,
-            "kid_friendly_score": 9,
-            "toddler_score": 7,
-            "preschool_score": 9,
-            "grade_school_score": 9,
-            "teen_score": 7,
-            "infant_friendly": 8,
-            "cultural_score": 8,
-            "nature_score": 10,
-            "walking_intensity": 9,
-            "shade_availability": 8,
-            "tags": ["animals_nature", "family", "adventure", "educational"],
-        },
-    }
-    
     def __init__(self, db: Session):
         self.db = db
-    
+
+    # ------------------------------------------------------------------ #
+    # Entry point
+    # ------------------------------------------------------------------ #
     def recommend_parks(self, request: ParkRecommendationRequest) -> Dict:
-        """Main recommendation logic"""
-        
-        # 1. Get all available dates
         all_dates = self._get_date_range(request.start_date, request.end_date)
-        
-        # 2. Load crowd data for date range
-        crowd_data = self._load_crowd_data(request.start_date, request.end_date)
-        
-        if crowd_data.empty:
-            raise ValueError("No crowd data available for selected dates")
-        
-        # 3. Use the park_days from request
-        num_park_days = request.park_days
-        
-        # 4. Score each park for each day with enhanced logic
-        park_scores = self._score_parks_by_date(crowd_data, request, all_dates)
-        
-        # 5. Optimize park schedule
-        schedule = self._optimize_schedule(park_scores, num_park_days, request, all_dates)
-        
-        # 6. Build daily plans with details
-        daily_plans = self._build_daily_plans(schedule, crowd_data, request)
-        
-        # 7. Identify rest days
-        park_dates = [plan.date for plan in daily_plans]
-        rest_days = [d for d in all_dates if d not in park_dates]
-        
-        # 8. Generate summary and notes
-        summary = self._generate_summary(daily_plans, rest_days, request)
-        optimization_notes = self._generate_optimization_notes(daily_plans, request)
-        
+        available_parks = self._validate_and_get_available_parks(request, all_dates)
+
+        crowd_lookup, crowd_available = self._load_crowd_lookup(all_dates, available_parks)
+
+        schedule, day_meta = self._optimize_schedule(
+            request, all_dates, available_parks, crowd_lookup, crowd_available
+        )
+
+        daily_plans = self._build_daily_plans(schedule, day_meta, request)
+        rest_days = self._build_rest_days(schedule, all_dates, day_meta, request)
+
+        summary = self._generate_summary(daily_plans, rest_days, all_dates)
+        optimization_notes = self._generate_optimization_notes(daily_plans, rest_days, request, all_dates)
+
         return {
             "daily_plans": daily_plans,
             "rest_days": rest_days,
             "summary": summary,
-            "optimization_notes": optimization_notes
+            "optimization_notes": optimization_notes,
         }
-    
+
+    # ------------------------------------------------------------------ #
+    # Validation
+    # ------------------------------------------------------------------ #
+    def _validate_and_get_available_parks(
+        self, request: ParkRecommendationRequest, all_dates: List[date]
+    ) -> List[str]:
+        if request.end_date < request.start_date:
+            raise ValueError("end_date cannot be before start_date.")
+
+        trip_days = len(all_dates)
+
+        unknown = [p for p in (*request.must_visit_parks, *request.avoid_parks) if p not in PARKS]
+        if unknown:
+            raise ValueError(f"Unknown park name(s): {', '.join(sorted(set(unknown)))}.")
+
+        conflict = set(request.must_visit_parks) & set(request.avoid_parks)
+        if conflict:
+            raise ValueError(
+                f"These parks are both must-visit and avoided, which is impossible: {', '.join(sorted(conflict))}."
+            )
+
+        available_parks = [p for p in PARKS if p not in request.avoid_parks]
+        if not available_parks:
+            raise ValueError("Every park has been excluded via avoid_parks; at least one park must remain available.")
+
+        if request.park_days > trip_days:
+            raise ValueError(
+                f"Requested {request.park_days} park day(s), but the trip is only {trip_days} day(s) long."
+            )
+
+        if request.max_park_days is not None and request.max_park_days < request.park_days:
+            raise ValueError(
+                f"park_days ({request.park_days}) exceeds the max_park_days limit ({request.max_park_days})."
+            )
+
+        if len(request.must_visit_parks) > request.park_days:
+            raise ValueError(
+                f"{len(request.must_visit_parks)} must-visit park(s) requested but only "
+                f"{request.park_days} park day(s) are scheduled."
+            )
+
+        if request.child_ages and len(request.child_ages) != request.children:
+            raise ValueError(
+                f"Received {len(request.child_ages)} child age(s) but children={request.children}."
+            )
+
+        return available_parks
+
+    # ------------------------------------------------------------------ #
+    # Data loading
+    # ------------------------------------------------------------------ #
     def _get_date_range(self, start: date, end: date) -> List[date]:
-        """Generate list of all dates in range"""
         dates = []
         current = start
         while current <= end:
             dates.append(current)
             current += timedelta(days=1)
         return dates
-    
-    def _load_crowd_data(self, start: date, end: date) -> pd.DataFrame:
-        """Load crowd calendar data from database"""
-        
-        crowd_records = self.db.query(CrowdCalendar).filter(
-            and_(
-                CrowdCalendar.date >= start,
-                CrowdCalendar.date <= end
-            )
-        ).all()
-        
-        if not crowd_records:
-            return pd.DataFrame()
-        
-        data = [{
-            'park': record.park,
-            'date': record.date,
-            'crowd': record.crowd
-        } for record in crowd_records]
-        
-        return pd.DataFrame(data)
-    
-    def _score_parks_by_date(
-        self, 
-        crowd_data: pd.DataFrame, 
-        request: ParkRecommendationRequest,
-        dates: List[date]
-    ) -> pd.DataFrame:
-        """Score each park for each date with enhanced preference matching"""
-        
-        scores = []
-        
-        for date_val in dates:
-            day_crowds = crowd_data[crowd_data['date'] == date_val]
-            
-            for park in self.PARK_ATTRIBUTES.keys():
-                if park in request.avoid_parks:
-                    continue
-                
-                park_crowd = day_crowds[day_crowds['park'] == park]['crowd'].values
-                crowd_level = park_crowd[0] if len(park_crowd) > 0 else 5.0
-                
-                score = self._calculate_park_score(park, crowd_level, request, date_val)
-                
-                scores.append({
-                    'date': date_val,
-                    'park': park,
-                    'crowd_level': crowd_level,
-                    'score': score
-                })
-        
-        return pd.DataFrame(scores)
-    
-    def _calculate_park_score(
-        self,
-        park: str,
-        crowd_level: float,
-        request: ParkRecommendationRequest,
-        date_val: date
-    ) -> float:
-        """Enhanced scoring with better preference and age matching"""
-        
-        score = 0.0
-        park_attrs = self.PARK_ATTRIBUTES[park]
-        
-        # 1. CROWD SCORE (0-35 points) - Lower crowds = higher score
-        crowd_score = (10 - crowd_level) * 3.5
-        score += crowd_score
-        
-        # 2. PREFERENCE MATCH (0-25 points) - Weight based on number of preferences
-        if request.park_preferences:
-            pref_score = 0
-            pref_weight = 25 / len(request.park_preferences)  # Distribute points
-            
-            for pref in request.park_preferences:
-                if pref == ParkPreference.THRILLS and park_attrs["thrill_score"]:
-                    pref_score += pref_weight * (park_attrs["thrill_score"] / 10)
-                elif pref == ParkPreference.FOOD_DRINKS and park_attrs["food_score"]:
-                    pref_score += pref_weight * (park_attrs["food_score"] / 10)
-                elif pref == ParkPreference.ANIMALS_NATURE and park == "animal_kingdom":
-                    pref_score += pref_weight
-                elif pref == ParkPreference.THEMES and park == "magic_kingdom":
-                    pref_score += pref_weight
-                elif pref == ParkPreference.CULTURAL and park == "epcot":
-                    pref_score += pref_weight
-            
-            score += pref_score
-        
-        # 3. THRILL LEVEL MATCH (0-15 points)
-        if request.thrill_level == ThrillLevel.LOW:
-            thrill_match = (10 - park_attrs["thrill_score"]) * 1.5
-        elif request.thrill_level == ThrillLevel.HIGH:
-            thrill_match = park_attrs["thrill_score"] * 1.5
-        else:  # MODERATE
-            thrill_match = 12
-        
-        score += thrill_match
-        
-        # 4. ENHANCED AGE-APPROPRIATE SCORING (0-25 points)
-        age_score = self._calculate_age_appropriateness(park_attrs, request)
-        score += age_score
-        
-        # 5. INFANT CONSIDERATIONS (0-15 points)
-        if request.infants > 0:
-            infant_score = park_attrs["infant_friendly"] * 1.5
-            # Penalize high walking intensity parks with infants
-            if park_attrs["walking_intensity"] >= 9:
-                infant_score -= 5
-            # Bonus for good shade (important for babies)
-            if park_attrs["shade_availability"] >= 7:
-                infant_score += 3
-            score += max(0, infant_score)
-        
-        # 6. MUST-VISIT BONUS (0-20 points)
-        if park in request.must_visit_parks:
-            score += 20
-        
-        # 7. WEEKDAY BONUS (0-5 points)
-        if date_val.weekday() < 5 and crowd_level < 7:
-            score += 5
-        
-        return score
-    
-    def _calculate_age_appropriateness(
-        self, park_attrs: Dict, request: ParkRecommendationRequest
-    ) -> float:
-        """Calculate how appropriate park is for party's age distribution"""
-        
+
+    def _load_crowd_lookup(
+        self, all_dates: List[date], available_parks: List[str]
+    ) -> Tuple[Dict[Tuple[date, str], float], Dict[Tuple[date, str], bool]]:
+        """Returns (raw crowd value per (date, park), whether real data existed)."""
+        if not all_dates:
+            return {}, {}
+
+        records = (
+            self.db.query(CrowdCalendar)
+            .filter(and_(CrowdCalendar.date >= all_dates[0], CrowdCalendar.date <= all_dates[-1]))
+            .all()
+        )
+
+        crowd_lookup: Dict[Tuple[date, str], float] = {}
+        for record in records:
+            crowd_lookup[(record.date, record.park)] = record.crowd
+
+        available = {}
+        for d in all_dates:
+            for p in available_parks:
+                available[(d, p)] = (d, p) in crowd_lookup
+
+        # Missing data is never treated as an authoritative prediction: fall
+        # back to a neutral midpoint value and let callers know via `available`.
+        for d in all_dates:
+            for p in available_parks:
+                if (d, p) not in crowd_lookup:
+                    crowd_lookup[(d, p)] = NEUTRAL_CROWD_ESTIMATE
+
+        return crowd_lookup, available
+
+    # ------------------------------------------------------------------ #
+    # Scoring
+    # ------------------------------------------------------------------ #
+    def _crowd_component(self, raw_crowd: float) -> float:
+        raw_crowd = max(0.0, min(10.0, raw_crowd))
+        return 1.0 - (raw_crowd / 10.0) ** CROWD_EXPONENT
+
+    def _interest_component(self, park: str, preferences: List[ParkPreference]) -> float:
+        if not preferences:
+            return 0.6  # mildly positive default so crowd/family still dominate
+        attrs = PARK_ATTRIBUTES[park]
+        values = []
+        for pref in preferences:
+            if pref == ParkPreference.THRILLS:
+                values.append(attrs["thrill_score"] / 10)
+            elif pref == ParkPreference.FOOD_DRINKS:
+                values.append(attrs["food_score"] / 10)
+            elif pref == ParkPreference.ANIMALS_NATURE:
+                values.append(attrs["nature_score"] / 10)
+            elif pref == ParkPreference.THEMES:
+                values.append(attrs["theme_score"] / 10)
+            elif pref == ParkPreference.CULTURAL:
+                values.append(attrs["cultural_score"] / 10)
+        return sum(values) / len(values) if values else 0.6
+
+    def _family_component(self, park: str, request: ParkRecommendationRequest) -> float:
+        attrs = PARK_ATTRIBUTES[park]
         if request.children == 0 and request.infants == 0:
-            # Adult-only group
-            return 15  # Neutral, all parks work
-        
-        age_score = 0.0
-        total_kids = request.children + request.infants
-        
+            return 0.75  # neutral: every park works fine for an adults-only party
+
+        values = []
         if request.infants > 0:
-            # Weight infant friendliness
-            infant_weight = request.infants / (request.adults + total_kids)
-            age_score += park_attrs["infant_friendly"] * infant_weight * 10
-        
-        if request.child_ages:
-            # Calculate score based on actual child ages
-            for age in request.child_ages:
-                if age <= 3:
-                    age_score += park_attrs["toddler_score"] * 0.5
-                elif age <= 6:
-                    age_score += park_attrs["preschool_score"] * 0.5
-                elif age <= 12:
-                    age_score += park_attrs["grade_school_score"] * 0.5
-                else:
-                    age_score += park_attrs["teen_score"] * 0.5
-            
-            # Average out the child scores
-            age_score = age_score / len(request.child_ages)
-        else:
-            # Default to kid_friendly_score if no ages provided
-            age_score = park_attrs["kid_friendly_score"]
-        
-        # Normalize to 0-25 range
-        return min(25, age_score * 2.5)
-    
-    def _pick_best_park_for_date(
-        self,
-        date: date,
-        park_candidates: dict,
-        park_scores: pd.DataFrame,
-        park_visit_count: dict,
-        repeat_priority: dict,
-        last_park: str = None,
-        avoid_last: bool = True
-    ) -> str:
-        """
-        Pick the best park for a given date considering:
-        - Park scores for the date
-        - Repeat penalty / priority
-        - Avoid back-to-back visits
-        - Balance visit counts
-        """
-        candidates = []
+            values.append(attrs["infant_friendly"] / 10)
+        for age in request.child_ages:
+            if age <= 3:
+                values.append(attrs["toddler_score"] / 10)
+            elif age <= 6:
+                values.append(attrs["preschool_score"] / 10)
+            elif age <= 12:
+                values.append(attrs["grade_school_score"] / 10)
+            else:
+                values.append(attrs["teen_score"] / 10)
 
-        for park, dates in park_candidates.items():
-            if date in dates:
-                visits = park_visit_count.get(park, 0)
-                # Calculate adjusted score
-                score = park_scores[(park_scores['park'] == park) & (park_scores['date'] == date)]['score'].values[0]
-                adjusted_score = score - visits * 15 + (repeat_priority.get(park, 1) * 5 if visits > 0 else 0)
-                candidates.append((adjusted_score, park))
+        family_score = sum(values) / len(values) if values else 0.7
+        if request.infants > 0 and attrs["walking_intensity"] >= 9:
+            family_score = max(0.0, family_score - 0.1)
+        return family_score
 
-        # Sort candidates by adjusted score descending
-        candidates.sort(key=lambda x: x[0], reverse=True)
+    def _thrill_component(self, park: str, thrill_level: ThrillLevel) -> float:
+        target = THRILL_TARGET[thrill_level]
+        attrs = PARK_ATTRIBUTES[park]
+        return max(0.0, 1.0 - abs(target - attrs["thrill_score"]) / 10)
 
-        for _, park in candidates:
-            if avoid_last and park == last_park:
-                continue
-            min_visits = min(park_visit_count.values(), default=0)
-            if park_visit_count.get(park, 0) > min_visits + 1:
-                continue
-            return park
+    def _day_park_score(
+        self, park: str, raw_crowd: float, request: ParkRecommendationRequest
+    ) -> float:
+        crowd = self._crowd_component(raw_crowd)
+        interest = self._interest_component(park, request.park_preferences)
+        family = self._family_component(park, request)
+        thrill = self._thrill_component(park, request.thrill_level)
+        return 100 * (W_CROWD * crowd + W_INTEREST * interest + W_FAMILY * family + W_THRILL * thrill)
 
-        # fallback: allow last_park if no other option
-        if candidates:
-            return candidates[0][1]
+    def _rest_value(self, streak_before: int, request: ParkRecommendationRequest) -> float:
+        value = REST_VALUE_BY_STREAK.get(streak_before, REST_VALUE_BY_STREAK[STREAK_CAP])
+        if request.infants > 0 or (request.child_ages and min(request.child_ages) <= 6):
+            value *= FAMILY_REST_MULTIPLIER
+        return value
 
-        return None
-
+    # ------------------------------------------------------------------ #
+    # Dynamic program
+    # ------------------------------------------------------------------ #
     def _optimize_schedule(
         self,
-        park_scores: pd.DataFrame,
-        num_park_days: int,
         request: ParkRecommendationRequest,
-        all_dates: List[date]
-    ) -> List[Tuple[date, str]]:
-        """Optimized park schedule with greedy approach, variety, balanced visits, and best dates."""
+        all_dates: List[date],
+        available_parks: List[str],
+        crowd_lookup: Dict[Tuple[date, str], float],
+        crowd_available: Dict[Tuple[date, str], bool],
+    ) -> Tuple[List[Tuple[date, Optional[str]]], Dict[date, Dict]]:
+        n = len(all_dates)
+        park_days = request.park_days
+        park_index = {p: i for i, p in enumerate(available_parks)}
+        must_bits = 0
+        for p in request.must_visit_parks:
+            must_bits |= 1 << park_index[p]
 
-        REPEAT_PRIORITY = self._get_repeat_priority(request)
+        # Precompute each park's raw score contribution per day (state-independent part).
+        base_score = {
+            (day, p): self._day_park_score(p, crowd_lookup[(all_dates[day], p)], request)
+            for day in range(n)
+            for p in available_parks
+        }
 
-        schedule = []
-        used_dates = set()
-        park_visit_count = {}
-        last_park = None
+        memo: Dict[Tuple[int, int, int, int, int], float] = {}
+        choice: Dict[Tuple[int, int, int, int, int], Tuple] = {}
 
-        available_parks = [p for p in self.PARK_ATTRIBUTES.keys() if p not in request.avoid_parks]
+        def rec(day: int, last_park: int, visited: int, used: int, streak: int) -> float:
+            if day == n:
+                if used == park_days and (visited & must_bits) == must_bits:
+                    return 0.0
+                return float("-inf")
 
-        # Compute rest days
-        rest_day_count = len(all_dates) - num_park_days
-        preferred_rest_positions = self._calculate_preferred_rest_positions(
-            len(all_dates), rest_day_count, request.park_on_arrival, request.park_on_departure
-        )
-        reserved_rest_dates = set(sorted(all_dates)[pos] for pos in preferred_rest_positions)
+            key = (day, last_park, visited, used, streak)
+            if key in memo:
+                return memo[key]
 
-        # Precompute park candidates: for each park, sorted dates by score
-        park_candidates = {}
-        for park in available_parks:
-            candidates = park_scores[
-                (park_scores['park'] == park) & (~park_scores['date'].isin(reserved_rest_dates))
-            ].sort_values('score', ascending=False)['date'].tolist()
-            park_candidates[park] = candidates
+            best = float("-inf")
+            best_choice: Optional[Tuple] = None
 
-        # Phase 0: assign must-visit parks first
-        for park in getattr(request, "must_visit_parks", []):
-            candidates = park_candidates.get(park, [])
-            for date in candidates:
-                if date not in used_dates:
-                    schedule.append((date, park))
-                    used_dates.add(date)
-                    park_visit_count[park] = park_visit_count.get(park, 0) + 1
-                    last_park = park
-                    break
+            # Rest is always a legal action - park_on_arrival/park_on_departure
+            # never force a park visit, they only gate whether a park visit is
+            # allowed at all on that specific day (see park_allowed_today below).
+            if used <= park_days:
+                gain = self._rest_value(streak, request)
+                total = gain + rec(day + 1, last_park, visited, used, 0)
+                if total > best:
+                    best, best_choice = total, ("rest",)
 
-        # Phase 1: assign each park at least once
-        for park in available_parks:
-            if park_visit_count.get(park, 0) > 0:
-                continue
-            candidates = park_candidates.get(park, [])
-            for date in candidates:
-                if date not in used_dates:
-                    if last_park == park:
-                        continue
-                    schedule.append((date, park))
-                    used_dates.add(date)
-                    park_visit_count[park] = park_visit_count.get(park, 0) + 1
-                    last_park = park
-                    break
+            # A park visit is only considered on the arrival day if
+            # park_on_arrival is enabled, and on the departure day only if
+            # park_on_departure is enabled. If disabled, that day must be a
+            # rest day. If enabled, the optimizer is free to choose either a
+            # park visit or a rest day based on overall itinerary score - it
+            # is an allowance, not a requirement.
+            park_allowed_today = True
+            if day == 0 and not request.park_on_arrival:
+                park_allowed_today = False
+            if day == n - 1 and not request.park_on_departure:
+                park_allowed_today = False
 
-        # Phase 2: fill remaining park days
-        unscheduled_dates = [d for d in all_dates if d not in used_dates and d not in reserved_rest_dates]
+            if park_allowed_today and used < park_days:
+                for p in available_parks:
+                    pi = park_index[p]
+                    gain = base_score[(day, p)]
+                    if last_park == pi:
+                        gain -= REPEAT_PENALTY
+                    if not (visited >> pi) & 1:
+                        gain += NEW_PARK_BONUS
+                    new_streak = min(streak + 1, STREAK_CAP)
+                    total = gain + rec(day + 1, pi, visited | (1 << pi), used + 1, new_streak)
+                    if total > best:
+                        best, best_choice = total, ("park", p, pi)
 
-        for date in unscheduled_dates:
-            park = self._pick_best_park_for_date(date, park_candidates, park_scores, park_visit_count, REPEAT_PRIORITY, last_park)
-            if park:
-                schedule.append((date, park))
-                used_dates.add(date)
-                park_visit_count[park] = park_visit_count.get(park, 0) + 1
-                last_park = park
+            memo[key] = best
+            choice[key] = best_choice
+            return best
 
-        # Optional balancing if any park exceeds others by more than 1
-        max_visits = max(park_visit_count.values(), default=0)
-        min_visits = min(park_visit_count.values(), default=0)
-        if max_visits - min_visits > 1:
-            schedule = self._rebalance_schedule(schedule, park_scores, park_visit_count, REPEAT_PRIORITY)
+        result = rec(0, -1, 0, 0, 0)
+        if result == float("-inf"):
+            raise ValueError(
+                "No valid itinerary satisfies these constraints together "
+                "(check must-visit parks, avoided parks, and arrival/departure requirements)."
+            )
 
-        schedule.sort(key=lambda x: x[0])
-        return schedule
+        schedule: List[Tuple[date, Optional[str]]] = []
+        day_meta: Dict[date, Dict] = {}
+        day, last_park, visited, used, streak = 0, -1, 0, 0, 0
+        while day < n:
+            key = (day, last_park, visited, used, streak)
+            action = choice[key]
+            the_date = all_dates[day]
+            if action[0] == "rest":
+                schedule.append((the_date, None))
+                day_meta[the_date] = {"streak_before": streak}
+                streak = 0
+            else:
+                _, p, pi = action
+                is_new = not (visited >> pi) & 1
+                schedule.append((the_date, p))
+                day_meta[the_date] = {
+                    "is_new_park": is_new,
+                    "was_repeat": last_park == pi,
+                    "crowd_raw": crowd_lookup[(the_date, p)],
+                    "crowd_available": crowd_available.get((the_date, p), False),
+                }
+                visited |= 1 << pi
+                last_park = pi
+                streak = min(streak + 1, STREAK_CAP)
+                used += 1
+            day += 1
 
-    
-    def _get_repeat_priority(self, request) -> dict:
-        """
-        Calculate dynamic repeat priority for parks based on user preferences and must-visit parks.
-        Higher score = better candidate for repeats.
-        """
-        REPEAT_PRIORITY = {}
-        pref_weight = 2  # Tweakable weight for preference influence
-        base_repeat_score = 1  
+        return schedule, day_meta
 
-        for park, park_attrs in self.PARK_ATTRIBUTES.items():
-            score = base_repeat_score
-
-            # Must-visit parks get a strong boost
-            if park in getattr(request, "must_visit_parks", []):
-                score += 10
-
-            # Preferences influence repeat priority
-            for pref in getattr(request, "park_preferences", []):
-                if pref == ParkPreference.THRILLS:
-                    score += pref_weight * (park_attrs["thrill_score"] / 10)
-                elif pref == ParkPreference.FOOD_DRINKS:
-                    score += pref_weight * (park_attrs["food_score"] / 10)
-                elif pref == ParkPreference.ANIMALS_NATURE and park == "animal_kingdom":
-                    score += pref_weight
-                elif pref == ParkPreference.THEMES and park == "magic_kingdom":
-                    score += pref_weight
-                elif pref == ParkPreference.CULTURAL and park == "epcot":
-                    score += pref_weight
-
-            REPEAT_PRIORITY[park] = score
-
-        return REPEAT_PRIORITY
-
-
-    def _calculate_preferred_rest_positions(
-        self,
-        total_days: int,
-        rest_day_count: int,
-        park_on_arrival: bool,
-        park_on_departure: bool
-    ) -> List[int]:
-        """
-        Calculate optimal positions for rest days in trip.
-
-        Rules:
-        - Days where park is not desired are automatically rest days
-        - Remaining rest days are spaced evenly
-        - Avoid clustering rest days
-        """
-        if rest_day_count <= 0:
-            return []
-
-        if rest_day_count >= total_days:
-            return list(range(total_days))
-
-        preferred_positions = []
-
-        # Force first/last day as rest if park is not desired
-        if not park_on_arrival:
-            preferred_positions.append(0)
-        if not park_on_departure and (total_days - 1) not in preferred_positions:
-            preferred_positions.append(total_days - 1)
-
-        remaining_rest_count = rest_day_count - len(preferred_positions)
-        if remaining_rest_count <= 0:
-            return sorted(preferred_positions)
-
-        # Build candidate positions excluding already assigned rest days
-        available_positions = [i for i in range(total_days) if i not in preferred_positions]
-
-        # Evenly space remaining rest days
-        step = len(available_positions) / (remaining_rest_count + 1)
-
-        for i in range(remaining_rest_count):
-            pos_index = int((i + 1) * step) - 1
-            pos_index = max(0, min(pos_index, len(available_positions) - 1))
-            pos = available_positions[pos_index]
-
-            # Avoid clustering: move forward if adjacent to existing rest day
-            while any(abs(pos - r) <= 1 for r in preferred_positions):
-                pos_index += 1
-                if pos_index >= len(available_positions):
-                    pos = available_positions[-1]
-                    break
-                pos = available_positions[pos_index]
-
-            preferred_positions.append(pos)
-
-        return sorted(preferred_positions)
-
-    
-    def _rebalance_schedule(
-        self,
-        schedule: List[Tuple[date, str]],
-        park_scores: pd.DataFrame,
-        park_visit_count: Dict[str, int],
-        repeat_priority: Dict[str, int]
-    ) -> List[Tuple[date, str]]:
-        """
-        Rebalance park visits to reduce over-representation while:
-        - Considering park_scores
-        - Avoiding back-to-back visits
-        - Respecting repeat priority
-        """
-        # Compute max/min visits
-        max_visits = max(park_visit_count.values())
-        min_visits = min(park_visit_count.values())
-        
-        if max_visits - min_visits <= 1:
-            return schedule  # Already balanced
-
-        over_visited = [p for p, count in park_visit_count.items() if count == max_visits]
-        under_visited = [p for p, count in park_visit_count.items() if count == min_visits]
-
-        for over_park in over_visited:
-            for under_park in under_visited:
-                # Skip high-priority repeat parks if they’re allowed extra visits
-                if repeat_priority.get(over_park, 0) >= 3 and max_visits <= min_visits + 1:
-                    continue
-
-                # Look for swap opportunities
-                for i, (date_val, park) in enumerate(schedule):
-                    if park != over_park:
-                        continue
-
-                    # Avoid creating back-to-back visits
-                    prev_park = schedule[i-1][1] if i > 0 else None
-                    next_park = schedule[i+1][1] if i < len(schedule)-1 else None
-                    if under_park in (prev_park, next_park):
-                        continue
-
-                    # Check if under_park is feasible for this date
-                    alt_score_row = park_scores[
-                        (park_scores['date'] == date_val) & 
-                        (park_scores['park'] == under_park)
-                    ]
-                    if alt_score_row.empty:
-                        continue
-
-                    original_score = park_scores[
-                        (park_scores['date'] == date_val) & 
-                        (park_scores['park'] == over_park)
-                    ]['score'].values[0]
-                    alt_score = alt_score_row['score'].values[0]
-
-                    # Swap if reasonable (within 20 points)
-                    if alt_score >= original_score - 20:
-                        schedule[i] = (date_val, under_park)
-                        park_visit_count[over_park] -= 1
-                        park_visit_count[under_park] += 1
-                        return schedule  # Apply one swap at a time
-
-        return schedule
-
-    
+    # ------------------------------------------------------------------ #
+    # Response assembly
+    # ------------------------------------------------------------------ #
     def _build_daily_plans(
         self,
-        schedule: List[Tuple[date, str]],
-        crowd_data: pd.DataFrame,
-        request: ParkRecommendationRequest
+        schedule: List[Tuple[date, Optional[str]]],
+        day_meta: Dict[date, Dict],
+        request: ParkRecommendationRequest,
     ) -> List[DailyParkPlan]:
-        """Build detailed daily plan for each park day"""
-        
-        daily_plans = []
-        
-        for date_val, park in schedule:
-            park_attrs = self.PARK_ATTRIBUTES[park]
-            
-            crowd_row = crowd_data[
-                (crowd_data['date'] == date_val) & 
-                (crowd_data['park'] == park)
-            ]
-            crowd_level = crowd_row['crowd'].values[0] if not crowd_row.empty else 5.0
-            
-            reasons = self._generate_reasons(park, crowd_level, request, date_val)
-            tips = self._generate_tips(park, crowd_level, request)
-            
-            plan = DailyParkPlan(
-                date=date_val,
-                park=park,
-                park_display_name=park_attrs["display_name"],
-                crowd_level=round(crowd_level, 1),
-                reasons=reasons,
-                tips=tips,
+        plans = []
+        for the_date, park in schedule:
+            if park is None:
+                continue
+            meta = day_meta[the_date]
+            attrs = PARK_ATTRIBUTES[park]
+            crowd_level = to_user_crowd_level(meta["crowd_raw"])
+
+            plans.append(
+                DailyParkPlan(
+                    date=the_date,
+                    park=park,
+                    park_display_name=attrs["display_name"],
+                    crowd_level=crowd_level,
+                    crowd_data_available=meta["crowd_available"],
+                    is_must_visit=park in request.must_visit_parks,
+                    reasons=self._generate_reasons(park, crowd_level, meta, request),
+                    tips=self._generate_tips(park, crowd_level, meta, request),
+                )
             )
-            
-            daily_plans.append(plan)
-        
-        return daily_plans
-    
+        return plans
+
+    def _build_rest_days(
+        self,
+        schedule: List[Tuple[date, Optional[str]]],
+        all_dates: List[date],
+        day_meta: Dict[date, Dict],
+        request: ParkRecommendationRequest,
+    ) -> List[RestDayPlan]:
+        rest_days = []
+        for the_date, park in schedule:
+            if park is not None:
+                continue
+            streak_before = day_meta[the_date]["streak_before"]
+            if the_date == all_dates[0]:
+                note = "Kept your arrival day open to check in and settle in before hitting the parks."
+            elif the_date == all_dates[-1]:
+                note = "Left your departure day free for packing and travel instead of rushing from a park."
+            elif streak_before >= 2:
+                note = f"Placed after {streak_before} park days in a row to avoid burnout before the next one."
+            else:
+                note = "A breather day worked into the schedule between park days."
+            rest_days.append(RestDayPlan(date=the_date, note=note))
+        return rest_days
+
     def _generate_reasons(
-        self, park: str, crowd_level: float, request: ParkRecommendationRequest, date_val: date
+        self, park: str, crowd_level: int, meta: Dict, request: ParkRecommendationRequest
     ) -> List[str]:
-        """Generate human-readable reasons with enhanced age awareness"""
-        
         reasons = []
-        park_attrs = self.PARK_ATTRIBUTES[park]
-        
-        # Crowd reason
-        if crowd_level <= 3:
-            reasons.append(f"Very low crowds - great day to visit!")
-        elif crowd_level <= 5:
-            reasons.append(f"Moderate crowds - expect long waits mid-day")
-        elif crowd_level <= 7:
-            reasons.append(f"Busy day - arrive early for the best experience")
+        attrs = PARK_ATTRIBUTES[park]
+
+        if not meta["crowd_available"]:
+            reasons.append("No crowd forecast was available for this date, so this reflects your other preferences.")
+        elif crowd_level <= 3:
+            reasons.append("Predicted crowds are low here - one of the best days on your trip to visit.")
+        elif crowd_level <= 6:
+            reasons.append("Moderate predicted crowds - a solid, balanced day at this park.")
         else:
-            reasons.append(f"Peak crowds - this was the best available day")
-        
-        # Preference-based reasons
+            reasons.append("This was the best day available for this park despite higher predicted crowds.")
+
+        if park in request.must_visit_parks:
+            reasons.append("You marked this park as a must-visit, so it's guaranteed a spot in your plan.")
+
         for pref in request.park_preferences:
             if pref == ParkPreference.FOOD_DRINKS and park == "epcot":
-                reasons.append("The World Showcase is perfect for food and drink lovers")
-            elif pref == ParkPreference.THRILLS and park_attrs["thrill_score"] >= 8:
-                reasons.append("Great thrill rides for adventure seekers")
-            elif pref == ParkPreference.ANIMALS_NATURE and park == "animal_kingdom":
-                reasons.append("Amazing animal experiences")
-            elif pref == ParkPreference.THEMES and park == "magic_kingdom":
-                reasons.append("The classic Disney experience with iconic attractions")
-            elif pref == ParkPreference.CULTURAL and park == "epcot":
-                reasons.append("Rich cultural experiences across the World Showcase")
-        
-        # Age-specific reasons
-        if request.infants > 0 and park_attrs["infant_friendly"] >= 8:
-            reasons.append("Excellent baby care centers and quiet areas for infants")
-        
+                reasons.append("Matches your interest in food and drinks - the World Showcase is unmatched for this.")
+            elif pref == ParkPreference.THRILLS and attrs["thrill_score"] >= 8:
+                reasons.append("Matches your interest in thrill rides.")
+            elif pref == ParkPreference.ANIMALS_NATURE and attrs["nature_score"] >= 8:
+                reasons.append("Matches your interest in animals and nature.")
+            elif pref == ParkPreference.THEMES and attrs["theme_score"] >= 8:
+                reasons.append("Matches your interest in classic Disney theming.")
+            elif pref == ParkPreference.CULTURAL and attrs["cultural_score"] >= 8:
+                reasons.append("Matches your interest in cultural experiences.")
+
+        if request.infants > 0 and attrs["infant_friendly"] >= 8:
+            reasons.append("Strong baby care facilities and quieter areas for your infant.")
+
         if request.child_ages:
             avg_age = sum(request.child_ages) / len(request.child_ages)
-            if avg_age < 4 and park_attrs["toddler_score"] >= 9:
-                reasons.append("Perfect for toddlers with gentle rides and character experiences")
-            elif avg_age < 7 and park == "magic_kingdom":
-                reasons.append("Best park for young children with magical experiences")
-            elif avg_age >= 10 and park_attrs["thrill_score"] >= 8:
-                reasons.append("Great thrill rides for older kids and teens")
-        
-        # Walking consideration with infants
-        #if request.infants > 0 and park_attrs["walking_intensity"] <= 7:
-            #reasons.append("More compact layout - easier with strollers")
-        
-        return reasons[:3]
-    
+            if avg_age <= 6 and attrs["toddler_score"] >= 9:
+                reasons.append("Well suited to young children in your group.")
+            elif avg_age >= 10 and attrs["thrill_score"] >= 8:
+                reasons.append("Good fit for older kids/teens looking for bigger rides.")
+
+        if meta.get("is_new_park"):
+            reasons.append(f"Adds {attrs['display_name']} to your trip for variety across the four parks.")
+        elif meta.get("was_repeat"):
+            reasons.append("A repeat visit - your other constraints made this the best remaining option.")
+
+        return reasons[:4]
+
     def _generate_tips(
-        self, park: str, crowd_level: float, request: ParkRecommendationRequest
+        self, park: str, crowd_level: int, meta: Dict, request: ParkRecommendationRequest
     ) -> List[str]:
-        """Generate tips with infant/family considerations"""
-
         tips = []
-        park_attrs = self.PARK_ATTRIBUTES[park]
-        
-        # Infant-specific tips
-        if request.infants > 0 and park_attrs["walking_intensity"] >= 9:
-            tips.append("This park requires a lot of walking - bring a comfortable stroller")
-        
-        # Crowd-based tips
+        attrs = PARK_ATTRIBUTES[park]
+
+        if request.infants > 0 and attrs["walking_intensity"] >= 9:
+            tips.append("This park involves a lot of walking - bring a comfortable stroller.")
+
         if crowd_level >= 7 and (request.children > 0 or request.infants > 0):
-            tips.append("Take a midday break to rest when it's the hottest (11am-3pm)")
+            tips.append("Plan a midday break during the hottest, busiest stretch (roughly 11am-3pm).")
         elif crowd_level <= 3:
-            tips.append("Great day for standby lines")
-        
-        # Park-specific tips
+            tips.append("Standby lines should be short most of the day - a good day to be flexible.")
+
         if park == "magic_kingdom":
-            tips.append("Arrive early for the shortest waits on popular rides")
-            if any(age < 8 for age in request.child_ages) if request.child_ages else False:
-                tips.append("Don't miss character meets")
-
+            tips.append("Arrive at rope drop for the shortest waits on the most popular rides.")
+            if any(age < 8 for age in request.child_ages):
+                tips.append("Build in time for character meet-and-greets.")
         elif park == "epcot":
-            tips.append("Check to see if your dates correspond with a festival")
-
+            tips.append("Check whether your date falls during a festival - it changes food options significantly.")
         elif park == "hollywood_studios":
             if request.thrill_level == ThrillLevel.HIGH:
-                tips.append("Several rides perfect for thrill seekers")
+                tips.append("Prioritize the headline thrill rides early before lines build.")
         elif park == "animal_kingdom":
-            tips.append("See animals in the early morning when they're most active")
+            tips.append("Visit animal habitats in the early morning when animals are most active.")
 
         return tips[:4]
-    
+
     def _generate_summary(
-        self, daily_plans: List[DailyParkPlan], rest_days: List[date], request: ParkRecommendationRequest
+        self, daily_plans: List[DailyParkPlan], rest_days: List[RestDayPlan], all_dates: List[date]
     ) -> Dict:
-        """Generate trip summary statistics"""
-        
-        parks_visited = {}
+        parks_visited: Dict[str, int] = {}
         for plan in daily_plans:
             parks_visited[plan.park_display_name] = parks_visited.get(plan.park_display_name, 0) + 1
-        
-        avg_crowd = sum(plan.crowd_level for plan in daily_plans) / len(daily_plans) if daily_plans else 0
+
+        avg_crowd = sum(p.crowd_level for p in daily_plans) / len(daily_plans) if daily_plans else 0
 
         return {
-            "total_days": request.num_nights,
+            "total_days": len(all_dates),
             "park_days": len(daily_plans),
             "rest_days": len(rest_days),
             "parks_visited": parks_visited,
             "average_crowd_level": round(avg_crowd, 1),
             "busiest_day": max(daily_plans, key=lambda x: x.crowd_level).date if daily_plans else None,
-            "quietest_day": min(daily_plans, key=lambda x: x.crowd_level).date if daily_plans else None
+            "quietest_day": min(daily_plans, key=lambda x: x.crowd_level).date if daily_plans else None,
         }
-    
+
     def _generate_optimization_notes(
-        self, daily_plans: List[DailyParkPlan], request: ParkRecommendationRequest
+        self,
+        daily_plans: List[DailyParkPlan],
+        rest_days: List[RestDayPlan],
+        request: ParkRecommendationRequest,
+        all_dates: List[date],
     ) -> List[str]:
-        """Generate optimization notes with family-specific insights"""
-        
         notes = []
 
-        # Rest day recommendations
-        if len(daily_plans) >= 4 and request.num_nights - len(daily_plans) >= 1:
-            notes.append("Schedule includes rest days - important for avoiding burnout, especially with children")
-        elif len(daily_plans) >= 5 and request.num_nights == len(daily_plans):
-            if request.children > 0 or request.infants > 0:
-                notes.append("Consider adding a rest day - consecutive park days can be exhausting for families")
+        if rest_days and (request.children > 0 or request.infants > 0):
+            notes.append("Rest days were placed to break up park-day streaks, which matters most with kids along.")
+        elif not rest_days and len(all_dates) >= 4:
+            notes.append("Every day of your trip is a park day - pace yourselves, especially later in the trip.")
 
-        # Variety
-        parks = [plan.park for plan in daily_plans]
-        unique_parks = len(set(parks))
-        if unique_parks == len(parks):
-            notes.append("Each park visited once for maximum variety")
+        parks_used = [p.park for p in daily_plans]
+        unique_parks = len(set(parks_used))
+        if daily_plans and unique_parks == len(parks_used):
+            notes.append("Each park is visited once for maximum variety.")
         elif unique_parks >= 3:
-            notes.append(f"Visiting {unique_parks} different parks for a well-rounded experience")
-        
-        # Crowd insights
-        avg_crowd = sum(plan.crowd_level for plan in daily_plans) / len(daily_plans)
-        if avg_crowd < 3:
-            notes.append("Great timing! Below-average crowd levels expected")
-        if avg_crowd < 7:
-            notes.append("Average crowd levels expected")
-        elif avg_crowd > 7:
-            notes.append("High crowd levels expected - consider using a skip-the-line service for shorter waits")
+            notes.append(f"You'll visit {unique_parks} different parks across the trip.")
 
-        # Fast Pass
-        if len(request.must_visit_parks) > len(daily_plans) or len(daily_plans) > 4:
-            notes.append("Consider a ticket that allows you to visit multiple parks per day")
-        
-        # Weekday optimization
-        weekday_parks = sum(1 for plan in daily_plans if plan.date.weekday() < 5)
-        if weekday_parks >= len(daily_plans) * 0.7:
-            notes.append("Weekday visits can help minimize crowds")
-        
-        # Infant-specific
-        if request.infants > 0:
-            high_walking_days = sum(
-                1 for plan in daily_plans 
-                if self.PARK_ATTRIBUTES[plan.park]["walking_intensity"] >= 9
+        estimated_days = sum(1 for p in daily_plans if not p.crowd_data_available)
+        if estimated_days:
+            notes.append(
+                f"Crowd predictions weren't available for {estimated_days} day(s) in your plan; "
+                "those days were scheduled based on your other preferences instead."
             )
-            if high_walking_days >= 2:
-                notes.append("A lot of walking is expected - bring or rent a stroller")
 
-            notes.append("Baby Care Centers are available within parks with changing tables, nursing rooms, and supplies")
-        
-        # Age-specific
-        if request.child_ages:
-            avg_age = sum(request.child_ages) / len(request.child_ages)
-            if avg_age < 5:
-                magic_kingdom_count = sum(1 for plan in daily_plans if plan.park == "magic_kingdom")
-                if magic_kingdom_count == 1:
-                    notes.append("Consider adding Magic Kingdom - it's the popular with young children")
-        
+        if daily_plans:
+            avg_crowd = sum(p.crowd_level for p in daily_plans) / len(daily_plans)
+            if avg_crowd <= 4:
+                notes.append("Great timing overall - below-average crowds are predicted across your park days.")
+            elif avg_crowd >= 7:
+                notes.append("Higher crowds are predicted overall - consider a skip-the-line option if it's in budget.")
+
+        if request.infants > 0:
+            notes.append("Baby Care Centers with changing tables and nursing rooms are available in every park.")
+
         return notes

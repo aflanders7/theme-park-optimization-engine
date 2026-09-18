@@ -163,12 +163,9 @@ export const getCrowdCalendar = async (
       params: { year, month },
     });
 
-    console.log('Crowd calendar response:', response);
-    console.log('Crowd calendar data:', response.data);
-
     return response.data;
   } catch (error: any) {
-    console.error('Error loading crowd calendar:', error);
+
     throw error;
   }
 };

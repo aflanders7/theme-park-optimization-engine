@@ -1,6 +1,6 @@
 // frontend/src/components/layout/Navbar.tsx
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Home, Menu, X, Calendar, Rat } from 'lucide-react';
+import { Search, Home, Menu, X, Calendar, Rat, CableCar } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Navbar() {
@@ -49,8 +49,9 @@ export default function Navbar() {
 
           <div className="hidden md:flex items-center gap-2">
             <NavLink to="/" icon={<Home className="w-5 h-5" />} active={isActive('/')}>Home</NavLink>
-            <NavLink to="/search" icon={<Search className="w-5 h-5" />} active={isActive('/search')}>Hotels</NavLink>
-            <NavLink to="/parks" icon={<Calendar className="w-5 h-5" />} active={isActive('/parks')}>Parks</NavLink>
+             <NavLink to="/crowd-calendar" icon={<Calendar className="w-5 h-5" />} active={isActive('/crowd-calendar')}>Crowd Calendar</NavLink>
+            <NavLink to="/search" icon={<Search className="w-5 h-5" />} active={isActive('/search')}>Hotel Matcher</NavLink>
+            <NavLink to="/parks" icon={<CableCar className="w-5 h-5" />} active={isActive('/parks')}>Park Planner</NavLink>
           </div>
         </div>
 
@@ -58,8 +59,9 @@ export default function Navbar() {
           <div className="md:hidden py-4 border-t border-gray-300">
             <div className="flex flex-col gap-2">
               <MobileNavLink to="/" icon={<Home className="w-5 h-5" />} active={isActive('/')} onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
-              <MobileNavLink to="/search" icon={<Search className="w-5 h-5" />} active={isActive('/search')} onClick={() => setMobileMenuOpen(false)}>Hotels</MobileNavLink>
-              <MobileNavLink to="/parks" icon={<Calendar className="w-5 h-5" />} active={isActive('/parks')} onClick={() => setMobileMenuOpen(false)}>Parks</MobileNavLink>
+              <MobileNavLink to="/parks" icon={<Calendar className="w-5 h-5" />} active={isActive('/crowd-calendar')} onClick={() => setMobileMenuOpen(false)}>Crowd Calendar</MobileNavLink>
+              <MobileNavLink to="/search" icon={<Search className="w-5 h-5" />} active={isActive('/search')} onClick={() => setMobileMenuOpen(false)}>Hotel Matcher</MobileNavLink>
+              <MobileNavLink to="/parks" icon={<CableCar className="w-5 h-5" />} active={isActive('/parks')} onClick={() => setMobileMenuOpen(false)}>Park Planner</MobileNavLink>
             </div>
           </div>
         )}
