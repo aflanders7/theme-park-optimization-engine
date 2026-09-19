@@ -19,7 +19,7 @@ export default function ResultsPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <button
-            onClick={() => navigate('/search')}
+            onClick={() => navigate('/hotels')}
             className="inline-flex items-center text-[var(--charcoal)] hover:text-[var(--rose)] gap-2 lg px-3 py-2 mb-4"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -40,7 +40,7 @@ export default function ResultsPage() {
         {/* Action Buttons */}
         <div className="flex gap-4 py-8 justify-center">
           <button
-            onClick={() => navigate('/search')}
+            onClick={() => navigate('/hotels')}
             className="px-8 py-4 bg-white border-2 border-[var(--rose)]  text-[var(--rose)]  rounded-xl font-bold hover:bg-[var(--lpink)] transition-all"
           >
             Modify Search

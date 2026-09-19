@@ -1,6 +1,6 @@
 import { Github, Server, Sparkles } from 'lucide-react';
 
-export default function ComingSoonPage() {
+export default function PortfolioPage() {
   return (
     <div className="min-h-screen">
 
@@ -41,6 +41,27 @@ export default function ComingSoonPage() {
         {/* Decorative blobs */}
         <div className="absolute top-16 left-8 w-48 h-48 bg-yellow-200/10 rounded-full blur-3xl" />
         <div className="absolute bottom-16 right-8 w-56 h-56 bg-yellow-400/20 rounded-full blur-3xl" />
+      </section>
+
+            {/* Tech Stack */}
+      <section className="py-16 px-4 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-block px-3 py-1 bg-gradient-to-r from-[var(--pink)] to-[var(--rose)] text-white rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+            Tech Stack
+          </div>
+          <h2 className="text-3xl font-bold text-gray-800 mb-8">Built With</h2>
+
+          <div className="flex flex-wrap justify-center gap-3">
+            <TechTag text="React" />
+            <TechTag text="TypeScript" />
+            <TechTag text="Vite" />
+            <TechTag text="Python" />
+            <TechTag text="FastAPI" />
+            <TechTag text="PostgreSQL" />
+            <TechTag text="Pandas" />
+            <TechTag text="Tailwind CSS" />
+          </div>
+        </div>
       </section>
 
       {/* Project Overview */}
@@ -91,28 +112,6 @@ export default function ComingSoonPage() {
           </div>
         </div>
       </section>
-
-      {/* Tech Stack */}
-      <section className="py-16 px-4 bg-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-block px-3 py-1 bg-gradient-to-r from-[var(--pink)] to-[var(--rose)] text-white rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-            Tech Stack
-          </div>
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">Built With</h2>
-
-          <div className="flex flex-wrap justify-center gap-3">
-            <TechTag text="React" />
-            <TechTag text="TypeScript" />
-            <TechTag text="Vite" />
-            <TechTag text="Python" />
-            <TechTag text="FastAPI" />
-            <TechTag text="PostgreSQL" />
-            <TechTag text="Pandas" />
-            <TechTag text="Tailwind CSS" />
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 }

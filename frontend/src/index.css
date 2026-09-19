@@ -68,6 +68,100 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.blog-prose {
+  color: #374151;
+  font-size: 1.075rem;
+  line-height: 1.85;
+}
+
+.blog-prose h1,
+.blog-prose h2,
+.blog-prose h3,
+.blog-prose h4 {
+  color: #111827;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-top: 2.25rem;
+  margin-bottom: 0.85rem;
+}
+
+.blog-prose h1 {
+  font-size: 2.25rem;
+}
+
+.blog-prose h2 {
+  font-size: 1.75rem;
+}
+
+.blog-prose h3 {
+  font-size: 1.35rem;
+}
+
+.blog-prose p,
+.blog-prose ul,
+.blog-prose ol,
+.blog-prose blockquote {
+  margin: 1.25rem 0;
+}
+
+.blog-prose ul,
+.blog-prose ol {
+  padding-left: 1.5rem;
+}
+
+.blog-prose ul {
+  list-style: disc;
+}
+
+.blog-prose ol {
+  list-style: decimal;
+}
+
+.blog-prose li {
+  margin: 0.45rem 0;
+  padding-left: 0.2rem;
+}
+
+.blog-prose a {
+  color: var(--red);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+.blog-prose a:hover {
+  color: var(--rose);
+}
+
+.blog-prose img {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  margin: 2rem 0;
+}
+
+.blog-prose blockquote {
+  border-left: 4px solid var(--sunset);
+  color: #4b5563;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+}
+
+.blog-prose code {
+  background: var(--pale);
+  border: 1px solid #fed7aa;
+  border-radius: 0.25rem;
+  color: var(--red);
+  font-size: 0.92em;
+  padding: 0.1rem 0.3rem;
+}
+
+.blog-prose hr {
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+  margin: 2rem 0;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

@@ -359,7 +359,8 @@ export default function CrowdCalendarPage() {
         {/* Explanation */}
         <p className="mx-auto mt-5 max-w-4xl text-center text-sm leading-relaxed text-gray-500">
           Predictions are estimates based on historical crowd patterns, holidays, and
-          special events. A higher score means the park is expected to feel busier that day.
+          special events. A higher score means the park is expected to feel busier that day. 
+          Crowd forecasts are estimates, so treat them as a guide rather than a guarantee.
         </p>
       </div>
     </div>

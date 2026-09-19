@@ -3,7 +3,7 @@ import { AlertCircle, Mail } from 'lucide-react';
 
 export default function TermsAndConditions() {
     const lastUpdated = "November 30, 2025";
-    const websiteName = "Mouse Days";
+    const websiteName = "MouseDays";
     const contactEmail = "contact.mousedays@gmail.com";
     const websiteUrl = "https://mousedays.net";
 
@@ -28,7 +28,7 @@ export default function TermsAndConditions() {
                             <div>
                                 <h3 className="font-bold mb-2">Please Read Carefully</h3>
                                 <p className="text-sm">
-                                    By accessing or using Mouse Days (“we,” “us,” “our”), you agree to these Terms & Conditions (“Terms”). If you do not agree, please discontinue use of the Website.
+                                    By accessing or using MouseDays (“we,” “us,” “our”), you agree to these Terms & Conditions (“Terms”). If you do not agree, please discontinue use of the Website.
                                 </p>
                             </div>
                         </div>
@@ -36,9 +36,9 @@ export default function TermsAndConditions() {
 
                     {/* Section 1 */}
                     <section>
-                        <h2 className="text-2xl font-bold mb-4" >1. About Mouse Days</h2>
+                        <h2 className="text-2xl font-bold mb-4" >1. About MouseDays</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            Welcome to {websiteName} ("we," "us," or "our"). Mouse Days is an independent recommendation engine tool designed to help
+                            Welcome to {websiteName} ("we," "us," or "our"). MouseDays is an independent recommendation engine tool designed to help
                             users research and compare Walt Disney World Resort hotels and related options.
                         </p>
                         <p className="text-gray-700 leading-relaxed mt-3">
@@ -76,7 +76,7 @@ export default function TermsAndConditions() {
                             Important Disclaimer:
                         </p>
                         <p className="text-gray-700 leading-relaxed">
-                            Mouse Days is an independent project and is <strong>not affiliated with, endorsed by,
+                            MouseDays is an independent project and is <strong>not affiliated with, endorsed by,
                                 or officially connected to</strong> The Walt Disney Company, Walt Disney World Resort,
                             Disneyland Resort, any Disney-owned entity, or any Disney subsidiary or affiliate.
                         </p>
@@ -138,9 +138,9 @@ export default function TermsAndConditions() {
                     <section>
                         <h2 className="text-2xl font-bold mb-4">6. Intellectual Property Rights</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            All content on Mouse Days - including but not limited to text, graphics, data compilations,
+                            All content on MouseDays - including but not limited to text, graphics, data compilations,
                             logos, user interface design, code, algorithms, and website functionality - is owned by
-                            Mouse Days or licensed to us and is protected by copyright, trademark, and other
+                            MouseDays or licensed to us and is protected by copyright, trademark, and other
                             intellectual property laws.
                         </p>
                         <p className="text-gray-700 leading-relaxed mt-3">
@@ -156,7 +156,7 @@ export default function TermsAndConditions() {
                         <div className="rounded-xl mb-4">
                             <h3 className="font-bold mb-3">General Information Only</h3>
                             <p className="text-gray-700 leading-relaxed">
-                                Mouse Days provides general information, recommendations, and research tools. All information is provided for
+                                MouseDays provides general information, recommendations, and research tools. All information is provided for
                                 informational purposes only and should not be considered professional travel advice.
                             </p>
                         </div>
@@ -201,7 +201,7 @@ export default function TermsAndConditions() {
                     <section>
                         <h2 className="text-2xl font-bold mb-4">8. No Booking Services</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            Mouse Days does not process reservations, handle payments, or facilitate hotel bookings.
+                            MouseDays does not process reservations, handle payments, or facilitate hotel bookings.
                             All reservations and bookings must be made directly through official Disney channels or authorized travel agents.
                         </p>
                         <p className="text-gray-700 leading-relaxed mt-3">
@@ -255,7 +255,7 @@ export default function TermsAndConditions() {
                     <section>
                         <h2 className="text-2xl font-bold mb-4">12. Limitation of Liability</h2>
                         <p className="text-gray-700 leading-relaxed mb-3">
-                            TO THE MAXIMUM EXTENT PERMITTED BY LAW, MOUSE DAYS, ITS OWNERS, OPERATORS, EMPLOYEES, AND
+                            TO THE MAXIMUM EXTENT PERMITTED BY LAW, MouseDays, ITS OWNERS, OPERATORS, EMPLOYEES, AND
                             AFFILIATES SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL,
                             OR PUNITIVE DAMAGES ARISING FROM OR RELATED TO:
                         </p>
@@ -302,7 +302,7 @@ export default function TermsAndConditions() {
                     <section>
                         <h2 className="text-2xl font-bold mb-4">13. Indemnification</h2>
                         <p className="text-gray-700 leading-relaxed mb-3">
-                            You agree to indemnify, defend, and hold harmless Mouse Days and its owners, operators,
+                            You agree to indemnify, defend, and hold harmless MouseDays and its owners, operators,
                             employees, and affiliates from and against any claims, liabilities, damages, losses, costs,
                             or expenses (including reasonable attorney's fees) arising from:
                         </p>
@@ -354,7 +354,7 @@ export default function TermsAndConditions() {
                         <h2 className="text-2xl font-bold mb-4">16. Entire Agreement</h2>
                         <p className="text-gray-700 leading-relaxed">
                             These Terms, together with our Privacy Policy, constitute the entire agreement between you
-                            and Mouse Days regarding your use of the Website and supersede all prior agreements,
+                            and MouseDays regarding your use of the Website and supersede all prior agreements,
                             understandings, or communications.
                         </p>
                     </section>
@@ -380,7 +380,7 @@ export default function TermsAndConditions() {
                 <div className="text-center mt-8 text-gray-600 text-sm">
                     <div className="flex items-center justify-center gap-2">
                         <p>
-                            By using Mouse Days, you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions.
+                            By using MouseDays, you acknowledge that you have read, understood, and agree to be bound by these Terms & Conditions.
                         </p>
                     </div>
                     <p className="mt-2">This policy is effective as of {lastUpdated}</p>

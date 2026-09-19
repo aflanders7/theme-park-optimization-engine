@@ -20,9 +20,9 @@ export default function SearchPage() {
     const result = await search(searchData);
 
     if (result) {
-      navigate('/results');
+      navigate("/hotels/results");
     } else{
-      navigate("/search")
+      navigate("/hotels");
     }
   };
 

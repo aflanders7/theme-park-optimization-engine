@@ -33,7 +33,7 @@ export default function ParkSearchPage() {
     const result = await search(parkSearchData);
 
     if (result) {
-      navigate('/park-results');
+      navigate('/parks/results');
     } else {
       navigate("/parks")
     }

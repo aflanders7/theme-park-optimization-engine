@@ -3,9 +3,9 @@ import { Mail, Globe } from 'lucide-react';
 
 export default function PrivacyPolicyPage() {
   const lastUpdated = "November 30, 2025"; 
-  const websiteName = "Mouse Days";
+  const websiteName = "MouseDays";
   const contactEmail = "contact.mousedays@gmail.com"; 
-  const websiteUrl = "https://yourdomain.com"; 
+  const websiteUrl = "https://mousedays.net"; 
 
   return (
     <div className="min-h-screen py-12 px-4">

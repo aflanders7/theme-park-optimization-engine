@@ -119,20 +119,30 @@ export interface ParkRecommendationResponse {
   optimization_notes: string[];
 }
 
-export const recommendParks = async (request: ParkRecommendationRequest): Promise<ParkRecommendationResponse> => {
+export const recommendParks = async (
+  request: ParkRecommendationRequest
+): Promise<ParkRecommendationResponse> => {
   try {
     const response = await api.post('/parks/recommend', request);
     return response.data;
-  } catch (error: any) {
-    if (error.response?.status === 429) {
-      alert("Too many requests. Please wait a moment and try again.");
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 429) {
+        alert("Too many requests. Please wait a moment and try again.");
+      } else if (error.response?.data?.detail) {
+        alert(error.response.data.detail);
+      } else {
+        alert("An error occurred while generating park recommendations.");
+        console.error(error);
+      }
     } else {
       alert("An error occurred while generating park recommendations.");
       console.error(error);
     }
+
     throw error;
-  };
-}
+  }
+};
 
 // Crowd Calendar Types
 export interface ParkCrowdLevels {

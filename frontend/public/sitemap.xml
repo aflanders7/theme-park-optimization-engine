@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://mousedays.net/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mousedays.net/blog</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mousedays.net/crowd-calendar</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mousedays.net/parks</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mousedays.net/hotels</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://mousedays.net/blog/resort-match-tips-test</loc>
+    <lastmod>2026-09-21</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mousedays.net/blog/disney-world-planning-checklist-test</loc>
+    <lastmod>2026-09-20</lastmod>
+    <priority>0.6</priority>
+  </url>
+</urlset>

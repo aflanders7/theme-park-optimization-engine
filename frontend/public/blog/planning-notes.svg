@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">MouseDays planning notes</title>
+  <desc id="desc">An editorial illustration of a vacation planning notebook, calendar, and small travel icons.</desc>
+  <rect width="1200" height="630" fill="#fff8f0"/>
+  <rect x="110" y="95" width="980" height="440" rx="6" fill="#ffffff" stroke="#274156" stroke-width="8"/>
+  <rect x="110" y="95" width="980" height="92" fill="#ffe0b2"/>
+  <circle cx="210" cy="142" r="24" fill="#cc3f4f"/>
+  <circle cx="285" cy="142" r="24" fill="#e0728d"/>
+  <circle cx="360" cy="142" r="24" fill="#759fbc"/>
+  <rect x="180" y="245" width="360" height="44" rx="6" fill="#274156"/>
+  <rect x="180" y="324" width="520" height="22" rx="5" fill="#cc3f4f" opacity=".82"/>
+  <rect x="180" y="372" width="455" height="22" rx="5" fill="#759fbc" opacity=".88"/>
+  <rect x="180" y="420" width="330" height="22" rx="5" fill="#e0728d" opacity=".82"/>
+  <rect x="780" y="242" width="210" height="210" rx="8" fill="#fff3e0" stroke="#274156" stroke-width="6"/>
+  <rect x="780" y="242" width="210" height="54" fill="#cc3f4f"/>
+  <g fill="#274156">
+    <rect x="820" y="327" width="28" height="28" rx="3"/>
+    <rect x="872" y="327" width="28" height="28" rx="3"/>
+    <rect x="924" y="327" width="28" height="28" rx="3"/>
+    <rect x="820" y="380" width="28" height="28" rx="3"/>
+    <rect x="872" y="380" width="28" height="28" rx="3"/>
+    <rect x="924" y="380" width="28" height="28" rx="3"/>
+  </g>
+  <path d="M652 263c36-48 108-48 144 0" fill="none" stroke="#e0728d" stroke-width="20" stroke-linecap="round"/>
+  <path d="M724 194v120" fill="none" stroke="#e0728d" stroke-width="20" stroke-linecap="round"/>
+</svg>

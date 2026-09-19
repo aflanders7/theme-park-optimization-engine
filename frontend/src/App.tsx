@@ -10,8 +10,10 @@ import ParkLoadingPage from './pages/ParkLoadingPage';
 import ParkResultsPage from './pages/ParkResultsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import ConditionsPage from './pages/ConditionsPage';
-import ComingSoonPage from './pages/PortfolioPage';
+import PortfolioPage from './pages/PortfolioPage';
 import CrowdCalendarPage from './pages/CrowdCalendarPage';
+import BlogIndexPage from './pages/BlogIndexPage';
+import BlogPostPage from './pages/BlogPostPage';
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
@@ -21,16 +23,19 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Layout />}>
-            {/* <Route index element={<HomePage />} /> */}
-            <Route index element={<ComingSoonPage />} />
+            { <Route index element={<HomePage />} /> }
+            <Route path="portfolio" element={<PortfolioPage />} />
 
-            <Route path="search" element={<SearchPage />} />
-            <Route path="results" element={<ResultsPage />} />
+            <Route path="hotels" element={<SearchPage />} />
+            <Route path="hotels/results" element={<ResultsPage />} />
 
             <Route path="parks" element={<ParkSearchPage />} />
-            <Route path="park-results" element={<ParkResultsPage />} />
+            <Route path="parks/results" element={<ParkResultsPage />} />
 
             <Route path="crowd-calendar" element={<CrowdCalendarPage />} />
+
+            <Route path="blog" element={<BlogIndexPage />} />
+            <Route path="blog/:slug" element={<BlogPostPage />} />
 
             <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
             <Route path="terms" element={<ConditionsPage />} />
