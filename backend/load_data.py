@@ -130,7 +130,7 @@ def load_pricing(db: Session):
     """Load pricing from hotel_room_prices.json without deleting existing data."""
     print("Loading pricing data (non-destructive)...")
     
-    with open(DATA_DIR / "hotel_room_prices_2026_flat.json") as f:
+    with open(DATA_DIR / "hotel_room_prices_2027.json") as f:
         pricing_data = json.load(f)
     
     loaded_count = 0
@@ -202,8 +202,8 @@ def main():
         # Load data in order (hotels → rooms → pricing)
         #load_hotels(db)
         #load_rooms(db)
-        #load_pricing(db)
-        load_crowd_calendar(db)
+        load_pricing(db)
+        #load_crowd_calendar(db)
         
         # Print summary
         print("\n" + "=" * 60)
