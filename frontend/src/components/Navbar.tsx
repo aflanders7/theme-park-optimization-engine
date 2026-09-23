@@ -50,7 +50,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             <NavLink to="/" icon={<Home className="w-5 h-5" />} active={isActive('/')}>Home</NavLink>
             <NavLink to="/crowd-calendar" icon={<Calendar className="w-5 h-5" />} active={isActive('/crowd-calendar')}>Crowd Calendar</NavLink>
-            <NavLink to="/hotels" icon={<Search className="w-5 h-5" />} active={isActive('/hotels')}>Hotel Matcher</NavLink>
+            {/* <NavLink to="/hotels" icon={<Search className="w-5 h-5" />} active={isActive('/hotels')}>Hotel Matcher</NavLink> */}
             <NavLink to="/parks" icon={<CableCar className="w-5 h-5" />} active={isActive('/parks')}>Park Planner</NavLink>
             <NavLink to="/blog" icon={<BookOpen className="w-5 h-5" />} active={location.pathname.startsWith('/blog')}>Blog</NavLink>
           </div>
@@ -61,7 +61,7 @@ export default function Navbar() {
             <div className="flex flex-col gap-2">
               <MobileNavLink to="/" icon={<Home className="w-5 h-5" />} active={isActive('/')} onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
               <MobileNavLink to="/crowd-calendar" icon={<Calendar className="w-5 h-5" />} active={isActive('/crowd-calendar')} onClick={() => setMobileMenuOpen(false)}>Crowd Calendar</MobileNavLink>
-              <MobileNavLink to="/hotels" icon={<Search className="w-5 h-5" />} active={isActive('/hotels')} onClick={() => setMobileMenuOpen(false)}>Hotel Matcher</MobileNavLink>
+              {/* <MobileNavLink to="/hotels" icon={<Search className="w-5 h-5" />} active={isActive('/hotels')} onClick={() => setMobileMenuOpen(false)}>Hotel Matcher</MobileNavLink> */}
               <MobileNavLink to="/parks" icon={<CableCar className="w-5 h-5" />} active={isActive('/parks')} onClick={() => setMobileMenuOpen(false)}>Park Planner</MobileNavLink>
               <MobileNavLink to="/blog" icon={<BookOpen className="w-5 h-5" />} active={location.pathname.startsWith('/blog')} onClick={() => setMobileMenuOpen(false)}>Blog</MobileNavLink>
             </div>

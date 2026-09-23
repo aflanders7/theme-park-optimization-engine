@@ -409,7 +409,7 @@ export default function HomePage() {
         {/* Hotel Matcher                                               */}
         {/* ---------------------------------------------------------- */}
 
-        <section
+        {/* <section
           aria-labelledby="hotel-matcher"
           className="mb-16 rounded-2xl border-2 border-[var(--charcoal)] bg-gradient-to-br from-[var(--pale)] to-[var(--pink)] p-6 md:p-8"
         >
@@ -445,7 +445,7 @@ export default function HomePage() {
               </Link>
             </p>
           </div>
-        </section>
+        </section> */}
 
         {/* ---------------------------------------------------------- */}
         {/* Blog                                                        */}
