@@ -164,20 +164,86 @@ export interface CrowdCalendarResponse {
   days: CrowdCalendarDay[];
 }
 
+// ---------------------------------------------------------------------------
+// Client-side cache
+// ---------------------------------------------------------------------------
+// Bump the version if the response shape ever changes so stale shapes are ignored.
+const STORAGE_PREFIX = 'crowd-cal:v1:';
+const TTL_WITH_DATA_MS = 24 * 60 * 60 * 1000; // 24 hours
+const TTL_NO_DATA_MS = 15 * 60 * 1000; // 15 minutes (predictions may be published soon)
+
+interface CacheRecord {
+  savedAt: number;
+  data: CrowdCalendarResponse;
+}
+
+const memoryCache = new Map<string, CacheRecord>();
+const inFlight = new Map<string, Promise<CrowdCalendarResponse>>();
+
+const isFresh = (record: CacheRecord) =>
+  Date.now() - record.savedAt < (record.data.has_data ? TTL_WITH_DATA_MS : TTL_NO_DATA_MS);
+
+function readCache(key: string): CrowdCalendarResponse | null {
+  const inMemory = memoryCache.get(key);
+  if (inMemory && isFresh(inMemory)) return inMemory.data;
+
+  try {
+    const raw = localStorage.getItem(STORAGE_PREFIX + key);
+    if (raw) {
+      const record: CacheRecord = JSON.parse(raw);
+      if (isFresh(record)) {
+        memoryCache.set(key, record);
+        return record.data;
+      }
+      localStorage.removeItem(STORAGE_PREFIX + key);
+    }
+  } catch {
+    // Storage unavailable (private mode, quota, bad JSON) - just skip the cache
+  }
+  return null;
+}
+
+function writeCache(key: string, data: CrowdCalendarResponse) {
+  const record: CacheRecord = { savedAt: Date.now(), data };
+  memoryCache.set(key, record);
+  try {
+    localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(record));
+  } catch {
+    // ignore
+  }
+}
+
 export const getCrowdCalendar = async (
   year: number,
   month: number
 ): Promise<CrowdCalendarResponse> => {
-  try {
-    const response = await api.get('/crowd-calendar', {
-      params: { year, month },
+  // The backend rejects past months with a 400, so don't spend a request on it
+  const now = new Date();
+  if (year * 12 + month < now.getFullYear() * 12 + (now.getMonth() + 1)) {
+    throw new Error('Cannot fetch crowd data for a past month.');
+  }
+
+  const key = `${year}-${month}`;
+
+  const cached = readCache(key);
+  if (cached) return cached;
+
+  // Share requests if the same month is already being requested
+  const pending = inFlight.get(key);
+  if (pending) return pending;
+
+  const request = api
+    .get<CrowdCalendarResponse>('/crowd-calendar', { params: { year, month } })
+    .then((response) => {
+      writeCache(key, response.data);
+      return response.data;
+    })
+    .finally(() => {
+      inFlight.delete(key);
     });
 
-    return response.data;
-  } catch (error: any) {
-
-    throw error;
-  }
+  inFlight.set(key, request);
+  return request;
 };
 
 export default api;
