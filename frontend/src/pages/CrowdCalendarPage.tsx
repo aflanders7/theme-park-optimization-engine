@@ -11,8 +11,8 @@ const MONTH_NAMES = [
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-// How many years forward the year dropdown offers, starting at the current year.
-const YEAR_OPTIONS_COUNT = 3;
+// How many years the month/year dropdown spans, starting at the current year.
+const YEAR_OPTIONS_COUNT = 2;
 
 function todayYearMonth() {
   const now = new Date();
@@ -40,31 +40,39 @@ function formatDayLabel(dateStr: string) {
 function ParkScore({
   shortLabel,
   score,
+  variant = 'row',
 }: {
   shortLabel: string;
   score: number | null;
+  variant?: 'row' | 'stack';
 }) {
   const band = getCrowdBand(score);
   const styles = CROWD_BAND_STYLES[band];
 
+  if (variant === 'stack') {
+    // Compact, vertically-stacked tile - used in the mobile agenda where
+    // four of these sit side by side and there isn't much width to spare.
+    return (
+      <div
+        className={`flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-2 shadow-sm ${styles.bg}`}
+      >
+        <span className="text-[10px] font-bold uppercase tracking-wide text-gray-700">{shortLabel}</span>
+        <span className={`text-lg font-extrabold leading-none ${styles.text}`}>{score ?? '–'}</span>
+      </div>
+    );
+  }
+
   return (
     <div
       className={[
-        "flex min-h-[48px] items-center justify-between rounded-lg px-8 py-2.5",
-        "shadow-sm transition-all duration-150",
-        "hover:-translate-y-0.5 hover:shadow-md",
-        styles.bg
-      ].join(" ")}
+        'flex min-h-[44px] min-w-0 items-center justify-between rounded-lg px-3 py-2',
+        'shadow-sm transition-all duration-150',
+        'hover:-translate-y-0.5 hover:shadow-md',
+        styles.bg,
+      ].join(' ')}
     >
-      <span className="text-s font-bold uppercase tracking-wide text-gray-700">
-        {shortLabel}
-      </span>
-
-      <span
-        className={`text-2xl font-extrabold leading-none ${styles.text}`}
-      >
-        {score ?? "–"}
-      </span>
+      <span className="truncate text-sm font-bold uppercase tracking-wide text-gray-700">{shortLabel}</span>
+      <span className={`text-xl font-extrabold leading-none ${styles.text}`}>{score ?? '–'}</span>
     </div>
   );
 }
@@ -72,12 +80,12 @@ function ParkScore({
 function CalendarLegend() {
   const bands = ['low', 'moderate', 'high', 'veryHigh'] as const;
   return (
-    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-gray-200 py-4">
+    <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-y border-gray-200 py-4 sm:justify-start">
       {bands.map((band) => {
         const styles = CROWD_BAND_STYLES[band];
         return (
           <div key={band} className="flex items-center gap-2">
-            <span className={`h-3.5 w-3.5 rounded-full ${styles.dot}`} />
+            <span className={`h-3.5 w-3.5 shrink-0 rounded-full ${styles.dot}`} />
             <span className="text-sm font-medium text-gray-700">
               {styles.label} <span className="font-normal text-gray-400">({styles.range})</span>
             </span>
@@ -130,9 +138,9 @@ function DesktopGrid({
               <div
                 key={`blank-${i}`}
                 className={[
-                  "min-h-[245px] bg-gray-50/40 border-b border-gray-200",
-                  column !== 6 ? "border-r border-gray-200" : "",
-                ].join(" ")}
+                  'min-h-[245px] border-b border-gray-200 bg-gray-50/40',
+                  column !== 6 ? 'border-r border-gray-200' : '',
+                ].join(' ')}
               />
             );
           }
@@ -143,16 +151,14 @@ function DesktopGrid({
             <div
               key={day.date}
               className={[
-                "flex min-h-[245px] flex-col bg-white p-3",
-                "border-b border-gray-200",
-                column !== 6 ? "border-r border-gray-200" : "",
-              ].join(" ")}
+                'flex min-h-[245px] flex-col bg-white p-3',
+                'border-b border-gray-200',
+                column !== 6 ? 'border-r border-gray-200' : '',
+              ].join(' ')}
             >
               {/* Date */}
               <div className="mb-3 flex items-center">
-                <span className="text-lg font-bold text-gray-800">
-                  {dayNum}
-                </span>
+                <span className="text-lg font-bold text-gray-800">{dayNum}</span>
               </div>
 
               {/* Park scores */}
@@ -177,16 +183,15 @@ function MobileAgenda({ days }: { days: CrowdCalendarDay[] }) {
   return (
     <div className="divide-y divide-gray-100 md:hidden">
       {days.map((day) => (
-        <div key={day.date} className="flex flex-col gap-3 py-5">
-          <span className="text-sm font-semibold text-gray-700">
-            {formatDayLabel(day.date)}
-          </span>
-          <div className="grid grid-cols-4 gap-2">
+        <div key={day.date} className="flex flex-col items-center gap-3 py-5">
+          <span className="text-sm font-semibold text-gray-700">{formatDayLabel(day.date)}</span>
+          <div className="grid w-full grid-cols-4 gap-1.5 xs:gap-2">
             {PARKS.map((p) => (
               <ParkScore
                 key={p.key}
                 shortLabel={p.short}
                 score={day.parks[p.key as keyof ParkCrowdLevels]}
+                variant="stack"
               />
             ))}
           </div>
@@ -198,7 +203,7 @@ function MobileAgenda({ days }: { days: CrowdCalendarDay[] }) {
 
 function ParkKey() {
   return (
-    <p className="mt-4 text-xs text-gray-400">
+    <p className="mt-4 text-center text-xs text-gray-400 md:text-left">
       MK Magic Kingdom&emsp;EP EPCOT&emsp;HS Hollywood Studios&emsp;AK Animal Kingdom
     </p>
   );
@@ -209,25 +214,27 @@ function SelectField({
   onChange,
   options,
   ariaLabel,
+  className = '',
 }: {
-  value: number;
-  onChange: (value: number) => void;
-  options: { value: number; label: string }[];
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
   ariaLabel: string;
+  className?: string;
 }) {
   return (
-    <div className="relative">
+    <div className={`relative ${className}`}>
       <select
         value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e) => onChange(e.target.value)}
         aria-label={ariaLabel}
-        className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-3 pr-8 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:border-gray-400 focus:border-[var(--rose)] focus:outline-none focus:ring-2 focus:ring-[var(--rose)]/30"
+        className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-4 pr-9 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:border-gray-400 focus:border-[var(--rose)] focus:outline-none focus:ring-2 focus:ring-[var(--rose)]/30"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
       </select>
-      <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
     </div>
   );
 }
@@ -243,28 +250,29 @@ export default function CrowdCalendarPage() {
     setViewed((prev) => addMonths(prev.year, prev.month, delta));
   };
 
-  const monthOptions = useMemo(() => {
-    const startMonth = year === currentYear ? currentMonth : 1;
-    return MONTH_NAMES.map((name, idx) => idx + 1)
-      .filter((m) => m >= startMonth)
-      .map((m) => ({ value: m, label: MONTH_NAMES[m - 1] }));
-  }, [year, currentYear, currentMonth]);
+  // A single flat list of every selectable month, from the current month
+  // through December of the final year in range. This avoids the old
+  // two-dropdown problem where picking a month first required changing
+  // the year, since a whole year's months could be hidden.
+  const monthYearOptions = useMemo(() => {
+    const options: { value: string; label: string }[] = [];
+    const lastYear = currentYear + YEAR_OPTIONS_COUNT - 1;
+    let cursor = { year: currentYear, month: currentMonth };
 
-  const yearOptions = useMemo(
-    () =>
-      Array.from({ length: YEAR_OPTIONS_COUNT }, (_, i) => currentYear + i).map((y) => ({
-        value: y,
-        label: String(y),
-      })),
-    [currentYear]
-  );
+    while (true) {
+      options.push({
+        value: `${cursor.year}-${cursor.month}`,
+        label: `${MONTH_NAMES[cursor.month - 1]} ${cursor.year}`,
+      });
+      if (cursor.year === lastYear && cursor.month === 12) break;
+      cursor = addMonths(cursor.year, cursor.month, 1);
+    }
 
-  const handleMonthSelect = (newMonth: number) => {
-    setViewed({ year, month: newMonth });
-  };
+    return options;
+  }, [currentYear, currentMonth]);
 
-  const handleYearSelect = (newYear: number) => {
-    const newMonth = newYear === currentYear && month < currentMonth ? currentMonth : month;
+  const handleMonthYearSelect = (value: string) => {
+    const [newYear, newMonth] = value.split('-').map(Number);
     setViewed({ year: newYear, month: newMonth });
   };
 
@@ -272,8 +280,8 @@ export default function CrowdCalendarPage() {
     <div className="bg-[var(--snow)] px-4 py-8">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
+        <div className="mb-8 text-center">
+          <div className="mb-4 flex items-center justify-center gap-2">
             <h1 className="text-4xl font-bold text-gray-800">Crowd Calendar</h1>
           </div>
           <p className="text-gray-600">
@@ -281,37 +289,30 @@ export default function CrowdCalendarPage() {
           </p>
         </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm sm:p-10">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6 md:p-10">
           {/* Month selector */}
-          <div className="mb-6 flex flex-wrap items-center justify-center gap-3 sm:justify-between">
+          <div className="mb-6 flex items-center justify-center gap-3">
             <button
               onClick={() => goToMonth(-1)}
               disabled={isAtEarliestMonth}
               aria-label="Previous month"
-              className="rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+              className="shrink-0 rounded p-2 text-gray-500 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-2">
-              <SelectField
-                value={month}
-                onChange={handleMonthSelect}
-                options={monthOptions}
-                ariaLabel="Select month"
-              />
-              <SelectField
-                value={year}
-                onChange={handleYearSelect}
-                options={yearOptions}
-                ariaLabel="Select year"
-              />
-            </div>
+            <SelectField
+              value={`${year}-${month}`}
+              onChange={handleMonthYearSelect}
+              options={monthYearOptions}
+              ariaLabel="Select month and year"
+              className="w-40 sm:w-48"
+            />
 
             <button
               onClick={() => goToMonth(1)}
               aria-label="Next month"
-              className="rounded p-2 text-gray-500 transition-colors hover:bg-gray-100"
+              className="shrink-0 rounded p-2 text-gray-500 transition-colors hover:bg-gray-100"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -344,7 +345,7 @@ export default function CrowdCalendarPage() {
             {status === 'success' && data && (
               <>
                 {!data.has_data && (
-                  <div className="mb-4 rounded border border-[var(--pale)] bg-[var(--pale)]/40 px-3 py-2 text-sm text-gray-600">
+                  <div className="mb-4 rounded border border-[var(--pale)] bg-[var(--pale)]/40 px-3 py-2 text-center text-sm text-gray-600 md:text-left">
                     Predictions for {MONTH_NAMES[month - 1]} {year} haven't been published yet. Check back closer to the date.
                   </div>
                 )}
@@ -359,7 +360,7 @@ export default function CrowdCalendarPage() {
         {/* Explanation */}
         <p className="mx-auto mt-5 max-w-4xl text-center text-sm leading-relaxed text-gray-500">
           Predictions are estimates based on historical crowd patterns, holidays, and
-          special events. A higher score means the park is expected to feel busier that day. 
+          special events. A higher score means the park is expected to feel busier that day.
           Crowd forecasts are estimates, so treat them as a guide rather than a guarantee.
         </p>
       </div>
