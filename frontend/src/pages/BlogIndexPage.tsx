@@ -15,7 +15,7 @@ export default function BlogIndexPage() {
   };
 
   return (
-    <div className="bg-[var(--snow)] px-4 py-10">
+   <div className="py-8 px-4 bg-gradient-to-r from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
       <SEO
         title={`Disney World Planning Blog | ${SITE_NAME}`}
         description="Practical Disney World planning notes, itineraries, crowd guidance, and resort planning from MouseDays."
@@ -31,10 +31,10 @@ export default function BlogIndexPage() {
             MouseDays Blogs
           </div>
           <h1 className="max-w-3xl text-4xl font-bold leading-tight text-gray-900 md:text-5xl">
-            Disney World planning notes for real trip decisions
+            Disney World planning, made simple.
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-gray-600">
-            Itineraries, crowd strategy, park-day tradeoffs, and resort planning written for people turning a big trip into a workable plan.
+            Practical guides for choosing your park days, managing crowds, and getting more out of your Disney World trip.
           </p>
         </header>
 

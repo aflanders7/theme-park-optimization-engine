@@ -98,9 +98,15 @@ writePage('blog', blogHead, layout(`
   <div class="bg-[var(--snow)] px-4 py-10">
     <div class="mx-auto max-w-6xl">
       <header class="mb-10 border-b border-gray-200 pb-8">
-        <div class="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--red)]">MouseDays Journal</div>
-        <h1 class="max-w-3xl text-4xl font-bold leading-tight text-gray-900 md:text-5xl">Disney World planning notes for real trip decisions</h1>
-        <p class="mt-4 max-w-2xl text-lg leading-8 text-gray-600">Itineraries, crowd strategy, park-day tradeoffs, and resort planning written for people turning a big trip into a workable plan.</p>
+        <div class="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--red)]">
+          MouseDays Blogs
+        </div>
+        <h1 class="max-w-3xl text-4xl font-bold leading-tight text-gray-900 md:text-5xl">
+          Disney World planning, made simple.
+        </h1>
+        <p class="mt-4 max-w-2xl text-lg leading-8 text-gray-600">
+          Practical guides for choosing your park days, managing crowds, and getting more out of your Disney World trip.
+        </p>
       </header>
       <div class="grid gap-6 md:grid-cols-2">${blogCards}</div>
     </div>
