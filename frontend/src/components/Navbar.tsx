@@ -30,7 +30,7 @@ export default function Navbar() {
                 Mouse Days
               </h1>
               <p className="text-[clamp(0.65rem,3vw,0.8rem)] text-gray-600 whitespace-nowrap overflow-hidden">
-                Hotel & Park Recommendations
+                Park Planning Made Easy
               </p>
             </div>
           </Link>
