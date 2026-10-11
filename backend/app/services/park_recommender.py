@@ -31,6 +31,32 @@ arrival/departure park-day eligibility, avoided parks) are enforced structurally
 -- illegal states simply aren't reachable / are pruned -- rather than being
 scoring bonuses that could be outbid by other preferences.
 
+Pacing objective
+-----------------
+Rest-day *placement* among the fixed number of rest days (trip length minus
+park_days is already a hard constraint, so this is purely about where the
+discretionary ones land) is shaped by four explicit terms layered on top of
+`_rest_value` and the park-visit branch of the DP:
+
+- a penalty for resting on the first full day or the last full day of the
+  trip (the day right after arrival / right before departure), so those
+  days default to a park visit when the rest of the itinerary allows it;
+- the existing streak-based reward, which favors resting after 2-3
+  consecutive park days over resting after 0-1;
+- a flat, strong penalty applied every time a park day is taken on top of an
+  existing 3-day streak, so 4+ consecutive park days only happen when no
+  better distribution is feasible, instead of being scored the same as a
+  3-day streak;
+- a mild bonus for resting near the middle of the trip (biased toward the
+  later half when the trip length is even), which only meaningfully sways
+  the outcome when there's a single discretionary rest day to place and the
+  other terms are roughly tied.
+
+These pacing terms are sized to be larger than the typical day-to-day crowd
+score differences (a few points), so good pacing wins ties against a
+slightly-lower-crowd alternative, while staying smaller than a strong
+preference/must-visit/variety signal so those aren't overridden.
+
 The number of trip days is small (the frontend caps ranges at 12 days), so
 the full state space is a few tens of thousands of entries at most and a
 plain memoized recursion is fast and easy to reason about; no external
@@ -132,8 +158,29 @@ STREAK_CAP = 3
 # Value of taking a rest day, keyed by how many consecutive park days
 # immediately preceded it (capped). A rest day right after a long park
 # streak is worth much more than one that isn't breaking anything up.
-REST_VALUE_BY_STREAK = {0: -6.0, 1: -1.0, 2: 9.0, 3: 18.0}
+# streak_before == 0 covers both "trip just started" and "we rested
+# yesterday too" - it's set deliberately more negative than MID_REST_BONUS's
+# max so two rest days back-to-back is never worth it just because they both
+# happen to land near the middle of the trip (anti-clustering).
+REST_VALUE_BY_STREAK = {0: -15.0, 1: -1.0, 2: 9.0, 3: 18.0}
 FAMILY_REST_MULTIPLIER = 1.25  # rest days matter more with young kids/infants along
+
+# --- Pacing terms (see module docstring) ---
+# Applied every time a park day is taken while already on a 3-day streak, i.e.
+# for the 4th, 5th, ... consecutive park day. Bigger than REPEAT_PENALTY so a
+# long run of park days is discouraged more than visiting the same park twice.
+LONG_STREAK_PENALTY = 30.0
+
+# Subtracted from the rest value on the first full day (day after arrival)
+# and the last full day (day before departure), so those days default to a
+# park visit unless the rest of the schedule genuinely needs the break there.
+EDGE_ADJACENT_REST_PENALTY = 8.0
+
+# Added to the rest value based on proximity to the middle of the trip,
+# biased toward the later half. Modest relative to the streak-based reward so
+# it mainly acts as a tiebreaker (most clearly visible when there's a single
+# discretionary rest day to place).
+MID_REST_BONUS = 5.0
 
 THRILL_TARGET = {
     ThrillLevel.LOW: 2.0,
@@ -331,8 +378,21 @@ class ParkRecommendationEngine:
         thrill = self._thrill_component(park, request.thrill_level)
         return 100 * (W_CROWD * crowd + W_INTEREST * interest + W_FAMILY * family + W_THRILL * thrill)
 
-    def _rest_value(self, streak_before: int, request: ParkRecommendationRequest) -> float:
+    def _rest_value(self, day: int, n: int, streak_before: int, request: ParkRecommendationRequest) -> float:
         value = REST_VALUE_BY_STREAK.get(streak_before, REST_VALUE_BY_STREAK[STREAK_CAP])
+
+        # Discourage resting on the first/last full day so those default to a
+        # park visit (see EDGE_ADJACENT_REST_PENALTY docs above).
+        if n > 1 and day in (1, n - 2):
+            value -= EDGE_ADJACENT_REST_PENALTY
+
+        # Mild pull toward the middle of the trip, biased to the later half
+        # for even-length trips (e.g. day 3 of 0-5, not day 2).
+        if n > 1:
+            mid = n // 2
+            distance = abs(day - mid)
+            value += MID_REST_BONUS * max(0.0, 1.0 - distance / max(1, mid))
+
         if request.infants > 0 or (request.child_ages and min(request.child_ages) <= 6):
             value *= FAMILY_REST_MULTIPLIER
         return value
@@ -382,7 +442,7 @@ class ParkRecommendationEngine:
             # never force a park visit, they only gate whether a park visit is
             # allowed at all on that specific day (see park_allowed_today below).
             if used <= park_days:
-                gain = self._rest_value(streak, request)
+                gain = self._rest_value(day, n, streak, request)
                 total = gain + rec(day + 1, last_park, visited, used, 0)
                 if total > best:
                     best, best_choice = total, ("rest",)
@@ -407,6 +467,12 @@ class ParkRecommendationEngine:
                         gain -= REPEAT_PENALTY
                     if not (visited >> pi) & 1:
                         gain += NEW_PARK_BONUS
+                    # Already on a 3+ day streak: this would be the 4th (or
+                    # later) consecutive park day. Strongly discourage it so
+                    # the DP only accepts it when no better distribution of
+                    # the fixed rest-day count is feasible elsewhere.
+                    if streak >= STREAK_CAP:
+                        gain -= LONG_STREAK_PENALTY
                     new_streak = min(streak + 1, STREAK_CAP)
                     total = gain + rec(day + 1, pi, visited | (1 << pi), used + 1, new_streak)
                     if total > best:
@@ -490,19 +556,28 @@ class ParkRecommendationEngine:
         day_meta: Dict[date, Dict],
         request: ParkRecommendationRequest,
     ) -> List[RestDayPlan]:
+        n = len(all_dates)
         rest_days = []
-        for the_date, park in schedule:
+        for day_index, (the_date, park) in enumerate(schedule):
             if park is not None:
                 continue
             streak_before = day_meta[the_date]["streak_before"]
+            is_edge_adjacent = n > 1 and day_index in (1, n - 2)
+
             if the_date == all_dates[0]:
                 note = "Kept your arrival day open to check in and settle in before hitting the parks."
             elif the_date == all_dates[-1]:
                 note = "Left your departure day free for packing and travel instead of rushing from a park."
-            elif streak_before >= 2:
-                note = f"Placed after {streak_before} park days in a row to avoid burnout before the next one."
+            elif streak_before >= STREAK_CAP:
+                note = f"Placed after {streak_before}+ park days in a row - any longer and the trip starts to feel like a grind."
+            elif streak_before == 2:
+                note = "Placed after 2 park days in a row to keep the pace comfortable before the next one."
+            elif is_edge_adjacent:
+                # The pacing scoring generally favors a park visit here; if it's
+                # still a rest day, the rest of the itinerary needed it more.
+                note = "Worked in here to keep the rest of your schedule well-paced."
             else:
-                note = "A breather day worked into the schedule between park days."
+                note = "A breather day placed roughly in the middle of your trip to break it into two halves."
             rest_days.append(RestDayPlan(date=the_date, note=note))
         return rest_days
 
@@ -609,10 +684,30 @@ class ParkRecommendationEngine:
     ) -> List[str]:
         notes = []
 
+        # Walk the combined, date-ordered schedule to find the longest run of
+        # consecutive park days, for an honest pacing note below.
+        rest_date_set = {r.date for r in rest_days}
+        max_streak = 0
+        current_streak = 0
+        for d in all_dates:
+            if d in rest_date_set:
+                current_streak = 0
+            else:
+                current_streak += 1
+                max_streak = max(max_streak, current_streak)
+
         if rest_days and (request.children > 0 or request.infants > 0):
             notes.append("Rest days were placed to break up park-day streaks, which matters most with kids along.")
+        elif rest_days:
+            notes.append("Rest days were spaced through the trip rather than clustered together.")
         elif not rest_days and len(all_dates) >= 4:
             notes.append("Every day of your trip is a park day - pace yourselves, especially later in the trip.")
+
+        if max_streak > STREAK_CAP:
+            notes.append(
+                f"Your longest park-day stretch is {max_streak} days in a row - "
+                "this was the best option given your other constraints, but expect it to be tiring."
+            )
 
         parks_used = [p.park for p in daily_plans]
         unique_parks = len(set(parks_used))
