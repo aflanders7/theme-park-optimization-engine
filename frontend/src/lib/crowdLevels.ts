@@ -28,7 +28,7 @@ export const CROWD_BAND_STYLES: Record<
     range: '1–3',
     bg: 'bg-[#BEE5D3]',
     text: 'text-[#1B5E44]',
-    dot: 'bg-[#219653]',
+    dot: 'bg-[#8CCDB0]',
     border: 'border-[#8CCDB0]',
   },
   moderate: {
@@ -36,7 +36,7 @@ export const CROWD_BAND_STYLES: Record<
     range: '4–6',
     bg: 'bg-[#FCDD8E]',
     text: 'text-[#7A5900]',
-    dot: 'bg-[#E0A106]',
+    dot: 'bg-[#E5C45D]',
     border: 'border-[#E5C45D]',
   },
   high: {
@@ -44,7 +44,7 @@ export const CROWD_BAND_STYLES: Record<
     range: '7–8',
     bg: 'bg-[#FBBB86]',
     text: 'text-[#8A3A0E]',
-    dot: 'bg-[#E36F0C]',
+    dot: 'bg-[#E99A58]',
     border: 'border-[#E99A58]',
   },
   veryHigh: {
@@ -52,7 +52,7 @@ export const CROWD_BAND_STYLES: Record<
     range: '9–10',
     bg: 'bg-[#F3A2A2]',
     text: 'text-[#7A1F1F]',
-    dot: 'bg-[#D23F3F]',
+    dot: 'bg-[#E07C7C]',
     border: 'border-[#E07C7C]',
   },
   unknown: {

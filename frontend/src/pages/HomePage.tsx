@@ -291,14 +291,17 @@ export default function HomePage() {
               aria-label="Crowd levels"
               className="mt-4 flex flex-wrap gap-2 text-sm"
             >
-              <li className="rounded-full border-2 border-green-300 bg-green-100 px-3 py-1 font-bold text-green-800">
+              <li className="rounded-full border-2 border-[#8CCDB0] bg-[#BEE5D3] px-3 py-1 font-bold text-[#1B5E44]">
                 Low · 1–3
               </li>
-              <li className="rounded-full border-2 border-yellow-400 bg-yellow-50 px-3 py-1 font-bold text-yellow-900">
+              <li className="rounded-full border-2 border-[#E5C45D] bg-[#FCDD8E] px-3 py-1 font-bold text-[#7A5900]">
                 Moderate · 4–6
               </li>
-              <li className="rounded-full border-2 border-red-300 bg-red-100 px-3 py-1 font-bold text-red-800">
-                High · 7–10
+              <li className="rounded-full border-2 border-[#E99A58] bg-[#FBBB86] px-3 py-1 font-bold text-[#8A3A0E]">
+                High · 7–8
+              </li>
+              <li className="rounded-full border-2 border-[#E07C7C] bg-[#F3A2A2] px-3 py-1 font-bold text-[#7A1F1F]">
+                Very High · 9–10
               </li>
             </ul>
 
@@ -308,7 +311,7 @@ export default function HomePage() {
               together.
             </p>
 
-                        <p className="mt-6">
+            <p className="mt-6">
               <Link
                 to={ROUTES.crowdCalendar}
                 className="inline-flex items-center gap-3 bg-[var(--sunset)] px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all duration-200"
@@ -343,7 +346,7 @@ export default function HomePage() {
 
               <p className="mt-4 leading-relaxed">
                 The model studies those past patterns, then estimates what
-                future park days are likely to feel like. 
+                future park days are likely to feel like.
               </p>
 
               <p className="mt-4 text-sm font-semibold text-[var(--dblue)]">
