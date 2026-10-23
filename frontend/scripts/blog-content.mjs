@@ -3,7 +3,7 @@ import path from 'node:path';
 
 export const SITE_NAME = 'MouseDays';
 export const SITE_URL = (process.env.SITE_URL || process.env.VITE_SITE_URL || 'https://mousedays.net').replace(/\/$/, '');
-export const DEFAULT_SOCIAL_IMAGE = '/blog/planning-notes.svg';
+export const DEFAULT_SOCIAL_IMAGE = '/blog/disney-castle.jpeg';
 
 export const root = process.cwd();
 export const contentDir = path.join(root, 'src/content/blog');
@@ -99,6 +99,101 @@ export function renderMarkdown(markdown) {
       continue;
     }
 
+    
+    // Handle Markdown tables, including escaped pipes and single-line tables.
+    const normalizeTableLine = (value) =>
+      value.trim().replace(/\\\|/g, '|');
+
+    const normalizedLine = normalizeTableLine(line);
+
+    if (normalizedLine.startsWith('|')) {
+      const tableLines = [];
+
+      // Support tables where every row is on its own line.
+      while (
+        i < lines.length &&
+        normalizeTableLine(lines[i]).startsWith('|')
+      ) {
+        tableLines.push(normalizeTableLine(lines[i]));
+        i += 1;
+      }
+
+      const getCells = (row) =>
+        row.replace(/^\|/, '').replace(/\|$/, '')
+          .split('|')
+          .map((cell) => cell.trim());
+
+      const separatorCells =
+        tableLines.length >= 2 ? getCells(tableLines[1]) : [];
+
+      const isSeparatorRow =
+        separatorCells.length > 0 &&
+        separatorCells.every((cell) => /^:?-{3,}:?$/.test(cell));
+
+      if (tableLines.length >= 2 && isSeparatorRow) {
+        const tableHtml = [];
+
+        tableHtml.push(
+          '<div class="overflow-x-auto my-4">'
+        );
+        tableHtml.push(
+          '<table class="min-w-full border border-gray-300 dark:border-gray-700 text-left border-collapse">'
+        );
+
+        tableLines.forEach((row, rowIndex) => {
+          const cells = getCells(row);
+
+          if (rowIndex === 1) return;
+
+          if (rowIndex === 0) {
+            tableHtml.push('  <thead>');
+            tableHtml.push(
+              '    <tr class="bg-gray-100 dark:bg-gray-800">'
+            );
+
+            cells.forEach((cell) => {
+              tableHtml.push(
+                `      <th class="p-2 border border-gray-300 dark:border-gray-700 font-bold">${renderInline(cell)}</th>`
+              );
+            });
+
+            tableHtml.push('    </tr>');
+            tableHtml.push('  </thead>');
+            tableHtml.push('  <tbody>');
+          } else {
+            const rowClass =
+              rowIndex % 2 === 0
+                ? ' class="bg-gray-50/50 dark:bg-gray-900/50"'
+                : '';
+
+            tableHtml.push(`    <tr${rowClass}>`);
+
+            cells.forEach((cell) => {
+              tableHtml.push(
+                `      <td class="p-2 border border-gray-300 dark:border-gray-700">${renderInline(cell)}</td>`
+              );
+            });
+
+            tableHtml.push('    </tr>');
+          }
+        });
+
+        tableHtml.push('  </tbody>');
+        tableHtml.push('</table>');
+        tableHtml.push('</div>');
+
+        html.push(tableHtml.join('\n'));
+        continue;
+      }
+
+      // Fallback if the pipe pattern was coincidental block text.
+      tableLines.forEach((fallbackLine) => {
+        html.push(`<p>${renderInline(fallbackLine)}</p>`);
+      });
+
+      continue;
+    }
+
     if (/^---+$/.test(line)) {
       html.push('<hr>');
       i += 1;
@@ -153,7 +248,14 @@ export function renderMarkdown(markdown) {
 
     const paragraphLines = [line];
     i += 1;
-    while (i < lines.length && lines[i].trim() && !/^(#{1,4})\s+/.test(lines[i].trim()) && !/^([-*]|\d+\.)\s+/.test(lines[i].trim()) && !lines[i].trim().startsWith('> ')) {
+    while (
+      i < lines.length
+      && lines[i].trim()
+      && !/^(#{1,4})\s+/.test(lines[i].trim())
+      && !/^([-*]|\d+\.)\s+/.test(lines[i].trim())
+      && !lines[i].trim().startsWith('> ')
+      && !lines[i].trim().startsWith('|')
+    ) {
       paragraphLines.push(lines[i].trim());
       i += 1;
     }

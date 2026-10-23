@@ -5,7 +5,7 @@ slug: "disney-world-planning-checklist-test"
 date: "2026-09-20"
 updated: "2026-09-20"
 author: "MouseDays"
-featuredImage: "/blog/planning-notes.svg"
+featuredImage: "/blog/disney-castle.jpeg"
 published: true
 ---
 
@@ -20,7 +20,7 @@ This is temporary test content for the MouseDays blog. Replace or remove it befo
 
 Use the [crowd calendar](/crowd-calendar) to compare dates, then try the [park planner](/parks) when you are ready to shape park days.
 
-![Planning notes with park-day reminders](/blog/planning-notes.svg)
+![Planning notes with park-day reminders](/blog/disney-castle.jpeg.svg)
 
 ## Sample planning note
 

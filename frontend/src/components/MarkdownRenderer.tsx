@@ -65,6 +65,61 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
       continue;
     }
 
+    if (line.startsWith('|')) {
+      const tableLines: string[] = [];
+
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        tableLines.push(lines[i].trim());
+        i += 1;
+      }
+
+      const getCells = (row: string) => row
+        .replace(/^\|/, '')
+        .replace(/\|$/, '')
+        .split('|')
+        .map((cell) => cell.trim());
+      const separatorCells = tableLines.length >= 2 ? getCells(tableLines[1]) : [];
+      const isSeparatorRow = separatorCells.length > 0
+        && separatorCells.every((cell) => /^:?-{3,}:?$/.test(cell));
+
+      if (tableLines.length >= 2 && isSeparatorRow) {
+        const headers = getCells(tableLines[0]);
+        const rows = tableLines.slice(2).map(getCells);
+
+        rendered.push(
+          <div key={i} className="my-4 overflow-x-auto">
+            <table className="min-w-full border-collapse border border-gray-300 text-left">
+              <thead>
+                <tr className="bg-gray-100">
+                  {headers.map((cell, index) => (
+                    <th key={index} className="border border-gray-300 p-2 font-bold">
+                      {parseInline(cell)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, rowIndex) => (
+                  <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-gray-50' : undefined}>
+                    {row.map((cell, cellIndex) => (
+                      <td key={cellIndex} className="border border-gray-300 p-2">
+                        {parseInline(cell)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      } else {
+        tableLines.forEach((tableLine, index) => {
+          rendered.push(<p key={`${i}-${index}`}>{parseInline(tableLine)}</p>);
+        });
+      }
+      continue;
+    }
+
     if (/^---+$/.test(line)) {
       rendered.push(<hr key={i} />);
       i += 1;
@@ -121,7 +176,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
     const paragraphLines = [line];
     i += 1;
-    while (i < lines.length && lines[i].trim() && !/^(#{1,4})\s+/.test(lines[i].trim()) && !/^([-*]|\d+\.)\s+/.test(lines[i].trim()) && !lines[i].trim().startsWith('> ')) {
+    while (i < lines.length && lines[i].trim() && !/^(#{1,4})\s+/.test(lines[i].trim()) && !/^([-*]|\d+\.)\s+/.test(lines[i].trim()) && !lines[i].trim().startsWith('> ') && !lines[i].trim().startsWith('|')) {
       paragraphLines.push(lines[i].trim());
       i += 1;
     }
