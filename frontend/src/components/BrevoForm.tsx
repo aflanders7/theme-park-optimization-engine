@@ -1,6 +1,6 @@
 // frontend/src/components/BrevoForm.tsx
 import { Link } from 'react-router-dom';
-import { Check, Mail, Sparkles } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 const BREVO_FORM_URL =
   'https://ab1eeccf.sibforms.com/serve/MUIFAO5wTxGlVQRFTWzrgx7UtG23UOKXqODLVZJq0wmVCjT2sgHhn3E9rTteZazdx7UrgplDJAtPccYBq5eRsgB-jtkUrfU3pJja6_yNctKjLy-U1860542iKrPGisC3sbJYc6T8yKjdygnGBhof_8Gmj14uSmmu9LeZud5nT-7IAXbscaFESZ1P0TRRhjb68E-t3lxsoHvpb8e6aw==';
@@ -16,7 +16,7 @@ interface BrevoFormProps {
   iframeHeight?: number;
 }
 
-export default function BrevoForm({ iframeHeight = 680 }: BrevoFormProps) {
+export default function BrevoForm({ iframeHeight = 550 }: BrevoFormProps) {
   return (
     <section
       aria-labelledby="newsletter"
@@ -35,10 +35,11 @@ export default function BrevoForm({ iframeHeight = 680 }: BrevoFormProps) {
       <div className="relative z-10 mx-auto grid max-w-5xl items-start gap-8 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-10">
         {/* Copy */}
         <div className="pt-2">
-
+          <h2 id="newsletter" className="font-display text-2xl font-bold text-[var(--charcoal)] md:text-3xl">
+            Want to hear when new planning guides are up?
+          </h2>
           <p className="mt-3 max-w-md leading-relaxed">
-            Join the MouseDays community for practical planning tips, helpful
-            recommendations, and updates when we add new tools and features.
+            We’ll send a friendly note when there’s a new guide or something useful to help with your trip.
           </p>
 
           <ul className="mt-5 space-y-2 text-sm">
