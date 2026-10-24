@@ -9,7 +9,7 @@ const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 // How many years the month/year dropdown spans, starting at the current year.
 const YEAR_OPTIONS_COUNT = 2;
@@ -26,10 +26,9 @@ function addMonths(year: number, month: number, delta: number) {
   return { year: newYear, month: newMonth + 1 };
 }
 
-// Monday-first weekday index for the 1st of the month (0 = Monday).
-function mondayIndex(year: number, month: number) {
-  const jsDay = new Date(year, month - 1, 1).getDay(); // 0 = Sunday
-  return (jsDay + 6) % 7;
+// Sunday-first weekday index for the 1st of the month (0 = Sunday).
+function sundayIndex(year: number, month: number) {
+  return new Date(year, month - 1, 1).getDay();
 }
 
 function formatDayLabel(dateStr: string) {
@@ -105,7 +104,7 @@ function DesktopGrid({
   year: number;
   month: number;
 }) {
-  const leadingBlanks = mondayIndex(year, month);
+  const leadingBlanks = sundayIndex(year, month);
 
   const cells: (CrowdCalendarDay | null)[] = [
     ...Array(leadingBlanks).fill(null),
@@ -121,7 +120,7 @@ function DesktopGrid({
         {WEEKDAY_LABELS.map((d) => (
           <div
             key={d}
-            className="border-r border-gray-200 px-4 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 last:border-r-0"
+            className={`border-r border-gray-200 px-4 py-3 text-sm font-bold uppercase tracking-wider text-gray-500 last:border-r-0 ${d === 'Sun' || d === 'Sat' ? 'bg-[var(--pale)] ring-1 ring-[var(--sunset)] ' : ''}`}
           >
             {d}
           </div>
