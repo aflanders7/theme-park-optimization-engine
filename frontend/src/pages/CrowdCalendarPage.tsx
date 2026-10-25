@@ -276,7 +276,7 @@ export default function CrowdCalendarPage() {
   };
 
   return (
-    <div className="bg-[var(--snow)] px-4 py-8">
+    <div className="bg-[#f8f6f3] px-4 py-8">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-8 text-center">

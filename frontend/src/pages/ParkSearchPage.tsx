@@ -42,7 +42,7 @@ export default function ParkSearchPage() {
   const totalPeople = parkSearchData.adults + parkSearchData.children + parkSearchData.infants;
 
   return (
-    <div className="py-8 px-4 bg-gradient-to-r from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
+    <div className="py-8 px-4 bg-[#f8f6f3]">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">

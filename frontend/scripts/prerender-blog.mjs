@@ -101,7 +101,7 @@ writePage('blog', blogHead, layout(`
         <div class="mb-4 text-sm font-bold uppercase tracking-wide text-[var(--red)]">
           MouseDays Blogs
         </div>
-        <h1 class="max-w-3xl text-4xl font-bold leading-tight text-gray-900 md:text-5xl">
+        <h1 class="max-w-3xl text-1xl font-bold leading-tight text-gray-900 md:text-5xl">
           Disney World planning, made simple.
         </h1>
         <p class="mt-4 max-w-2xl text-lg leading-8 text-gray-600">

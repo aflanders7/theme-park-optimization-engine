@@ -47,7 +47,7 @@ export default function BlogPostPage() {
   ];
 
   return (
-    <article className="bg-white px-4 py-10">
+    <article className="blog-post-page bg-white px-4 py-10">
       <SEO
         title={frontmatter.title}
         description={frontmatter.description}
@@ -61,12 +61,12 @@ export default function BlogPostPage() {
       />
 
       <div className="mx-auto max-w-3xl">
-        <Link to="/blog" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-[var(--red)] hover:text-[var(--rose)]">
+        <Link to="/blog" className="blog-back-link mb-8 inline-flex items-center gap-2 text-sm font-bold text-[var(--red)] hover:text-[var(--rose)]">
           <ArrowLeft className="h-4 w-4" />
           Back to blog
         </Link>
 
-        <header className="border-b border-gray-200 pb-8">
+        <header className="blog-post-header border-b border-gray-200 pb-8">
           <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-gray-500">
             <span className="inline-flex items-center gap-2">
               <CalendarDays className="h-4 w-4 text-[var(--rose)]" />
@@ -77,15 +77,15 @@ export default function BlogPostPage() {
             )}
           </div>
 
-          <h1 className="text-4xl font-bold leading-tight text-gray-950 md:text-5xl">{frontmatter.title}</h1>
-          <p className="mt-5 text-xl leading-8 text-gray-600">{frontmatter.description}</p>
+          <h1 className="blog-post-title text-4xl font-bold leading-tight text-gray-950 md:text-5xl">{frontmatter.title}</h1>
+          <p className="blog-post-description mt-5 text-xl leading-8 text-gray-600">{frontmatter.description}</p>
         </header>
 
         {frontmatter.featuredImage && (
           <img
             src={frontmatter.featuredImage}
             alt=""
-            className="my-8 aspect-[16/9] w-full rounded-lg border border-gray-200 object-cover"
+            className="blog-post-image my-8 aspect-[16/9] w-full rounded-lg border border-gray-200 object-cover"
           />
         )}
 

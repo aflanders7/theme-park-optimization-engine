@@ -1,5 +1,6 @@
 // frontend/src/App.tsx
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import SearchPage from './pages/SearchPage';
 import ResultsPage from './pages/ResultsPage';
 import LoadingPage from './pages/LoadingPage';
@@ -17,10 +18,21 @@ import BlogPostPage from './pages/BlogPostPage';
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   return (
     <>
       <Router>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<Layout />}>
             { <Route index element={<HomePage />} /> }

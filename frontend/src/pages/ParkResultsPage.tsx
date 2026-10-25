@@ -73,7 +73,7 @@ export default function ParkResultsPage() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 bg-gradient-to-r from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
+    <div className="min-h-screen py-8 px-4 bg-[#f8f6f3]">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">

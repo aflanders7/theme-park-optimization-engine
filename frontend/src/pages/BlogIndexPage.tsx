@@ -15,7 +15,7 @@ export default function BlogIndexPage() {
   };
 
   return (
-   <div className="py-8 px-4 bg-gradient-to-r from-[var(--snow)] via-[var(--pale)] to-[var(--snow)]">
+   <div className="blog-index-page py-8 px-4">
       <SEO
         title={`Disney World Planning Blog | ${SITE_NAME}`}
         description="Practical Disney World planning notes, itineraries, crowd guidance, and resort planning from MouseDays."
@@ -25,12 +25,12 @@ export default function BlogIndexPage() {
       />
 
       <div className="mx-auto max-w-6xl">
-        <header className="mb-10 border-b border-gray-200 pb-8">
+        <header className="blog-index-header mb-10 border-b border-gray-200 pb-8">
           <div className="mb-4 flex items-center gap-3 text-sm font-bold uppercase tracking-wide text-[var(--red)]">
             <BookOpen className="h-5 w-5" />
             MouseDays Blogs
           </div>
-          <h1 className="max-w-3xl text-4xl font-bold leading-tight text-gray-900 md:text-5xl">
+          <h1 className="max-w-3xl text-1xl font-bold leading-tight text-gray-900 md:text-5xl">
             Disney World planning, made simple.
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-gray-600">
@@ -40,7 +40,7 @@ export default function BlogIndexPage() {
 
         <div className="grid gap-6 md:grid-cols-2">
           {blogPosts.map((post) => (
-            <article key={post.frontmatter.slug} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+            <article key={post.frontmatter.slug} className="blog-card overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
               {post.frontmatter.featuredImage && (
                 <Link to={`/blog/${post.frontmatter.slug}`} aria-label={post.frontmatter.title}>
                   <img
