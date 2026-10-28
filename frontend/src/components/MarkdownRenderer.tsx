@@ -88,11 +88,11 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
         rendered.push(
           <div key={i} className="my-4 overflow-x-auto">
-            <table className="min-w-full border-collapse border border-gray-300 text-left">
+            <table className="min-w-full text-left">
               <thead>
                 <tr className="bg-gray-100">
                   {headers.map((cell, index) => (
-                    <th key={index} className="border border-gray-300 p-2 font-bold">
+                    <th key={index} className="p-2 font-bold">
                       {parseInline(cell)}
                     </th>
                   ))}
@@ -102,7 +102,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                 {rows.map((row, rowIndex) => (
                   <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-gray-50' : undefined}>
                     {row.map((cell, cellIndex) => (
-                      <td key={cellIndex} className="border border-gray-300 p-2">
+                      <td key={cellIndex} className="p-2">
                         {parseInline(cell)}
                       </td>
                     ))}

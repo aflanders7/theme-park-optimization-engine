@@ -170,7 +170,7 @@ export function renderMarkdown(markdown) {
 
             cells.forEach((cell) => {
               tableHtml.push(
-                `      <td class="p-2 border border-gray-300 dark:border-gray-700">${renderInline(cell)}</td>`
+                `      <td class="p-2">${renderInline(cell)}</td>`
               );
             });
 
