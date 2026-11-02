@@ -28,7 +28,7 @@ function parseInline(text: string): ReactNode[] {
     if (linkMatch) {
       const [, bang, label, href] = linkMatch;
       if (bang) {
-        nodes.push(<img key={key} src={href} alt={label} />);
+        nodes.push(<img key={key} src={href} alt={label} className="my-6 h-auto max-w-full rounded-lg" loading="lazy" decoding="async" />);
       } else {
         const external = /^https?:\/\//i.test(href);
         nodes.push(
@@ -169,7 +169,7 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
 
     const image = line.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
     if (image) {
-      rendered.push(<img key={i} src={image[2]} alt={image[1]} />);
+      rendered.push(<img key={i} src={image[2]} alt={image[1]} className="my-6 h-auto max-w-full rounded-lg" loading="lazy" decoding="async" />);
       i += 1;
       continue;
     }
